@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - Romantic Gifts</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .font-serif { font-family: 'Cormorant Garamond', serif; }
+        .font-sans { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="font-sans bg-[#FAF8F5]">
+    
+    <!-- Header -->
+    <header class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <a href="index.html" class="flex items-center space-x-2">
+                    <svg class="w-8 h-8 text-[#D4A574]" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                    </svg>
+                    <span class="text-2xl font-serif font-semibold text-gray-900">Romantic Gifts</span>
+                </a>
+
+                <!-- Checkout Steps -->
+                <div class="hidden md:flex items-center space-x-4">
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 bg-[#D4A574] text-white rounded-full flex items-center justify-center font-semibold">1</div>
+                        <span class="ml-2 text-sm font-medium text-gray-900">Información</span>
+                    </div>
+                    <div class="w-12 h-0.5 bg-gray-300"></div>
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 bg-gray-300 text-gray-600 rounded-full flex items-center justify-center font-semibold">2</div>
+                        <span class="ml-2 text-sm font-medium text-gray-500">Pago</span>
+                    </div>
+                    <div class="w-12 h-0.5 bg-gray-300"></div>
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 bg-gray-300 text-gray-600 rounded-full flex items-center justify-center font-semibold">3</div>
+                        <span class="ml-2 text-sm font-medium text-gray-500">Confirmación</span>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-2 text-sm text-gray-600">
+                    <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                    </svg>
+                    <span>Compra Segura</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- Checkout Form -->
+            <div class="lg:col-span-2 space-y-6">
+                
+                <!-- Contact Information -->
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-2xl font-serif font-semibold text-gray-900">Información de Contacto</h2>
+                        <a href="login.html" class="text-sm text-[#D4A574] hover:text-[#C39563]">¿Ya tienes cuenta? Inicia sesión</a>
+                    </div>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-900 mb-2">Email</label>
+                            <input type="email" placeholder="tu@email.com" class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#D4A574] focus:outline-none">
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="newsletter" class="w-4 h-4 text-[#D4A574] border-gray-300 rounded focus:ring-[#D4A574]">
+                            <label for="newsletter" class="ml-2 text-sm text-gray-700">Envíame ofertas y novedades por email</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Shipping Information -->
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h2 class="text-2xl font-serif font-semibold text-gray-900 mb-6">Información de Envío</h2>
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-900 mb-2">Nombre</label>
+                                <input type="text" placeholder="Juan" class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#D4A574] focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-900 mb-2">Apellido</label>
+                                <input type="text" placeholder="Pérez" class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#D4A574] focus:outline-none">
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-900 mb-2">Dirección</label>
+                            <input type="text" placeholder="Calle Principal 123" class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#D4A574] focus:outline-none">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-900 mb-2">Apartamento, suite, etc. (opcional)</label>
+                            <input type="text" placeholder="Apto 4B" class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#D4A574] focus:outline-none">
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-900 mb-2">Ciudad</label>
+                                <input type="text" placeholder="Ciudad" class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#D4A574] focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-900 mb-2">Estado/Provincia</label>
+                                <select class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#D4A574] focus:outline-none">
+                                    <option>Selecciona</option>
+                                    <option>Buenos Aires</option>
+                                    <option>Córdoba</option>
+                                    <option>Santa Fe</option>
+                                    <option>Mendoza</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-900 mb-2">Código Postal</label>
+                                <input type="text" placeholder="1234" class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#D4A574] focus:outline-none">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-900 mb-2">Teléfono</label>
+                            <input type="tel" placeholder="+54 11 1234-5678" class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#D4A574] focus:outline-none">
+                        </div>
+
+                        <div class="flex items-center">
+                            <input type="checkbox" id="saveInfo" class="w-4 h-4 text-[#D4A574] border-gray-300 rounded focus:ring-[#D4A574]">
+                            <label for="saveInfo" class="ml-2 text-sm text-gray-700">Guardar esta información para la próxima vez</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Shipping Method -->
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h2 class="text-2xl font-serif font-semibold text-gray-900 mb-6">Método de Envío</h2>
+                    <div class="space-y-3">
+                        <label class="flex items-center justify-between p-4 border-2 border-[#D4A574] bg-[#FAF8F5] rounded-lg cursor-pointer">
+                            <div class="flex items-center">
+                                <input type="radio" name="shipping" checked class="w-4 h-4 text-[#D4A574] border-gray-300 focus:ring-[#D4A574]">
+                                <div class="ml-4">
+                                    <p class="font-semibold text-gray-900">Envío Estándar</p>
+                                    <p class="text-sm text-gray-600">5-7 días hábiles</p>
+                                </div>
+                            </div>
+                            <span class="font-bold text-green-600">Gratis</span>
+                        </label>
+
+                        <label class="flex items-center justify-between p-4 border-2 border-gray-300 rounded-lg cursor-pointer hover:border-[#D4A574]">
+                            <div class="flex items-center">
+                                <input type="radio" name="shipping" class="w-4 h-4 text-[#D4A574] border-gray-300 focus:ring-[#D4A574]">
+                                <div class="ml-4">
+                                    <p class="font-semibold text-gray-900">Envío Express</p>
+                                    <p class="text-sm text-gray-600">2-3 días hábiles</p>
+                                </div>
+                            </div>
+                            <span class="font-bold text-gray-900">$15.00</span>
+                        </label>
+
+                        <label class="flex items-center justify-between p-4 border-2 border-gray-300 rounded-lg cursor-pointer hover:border-[#D4A574]">
+                            <div class="flex items-center">
+                                <input type="radio" name="shipping" class="w-4 h-4 text-[#D4A574] border-gray-300 focus:ring-[#D4A574]">
+                                <div class="ml-4">
+                                    <p class="font-semibold text-gray-900">Envío Urgente</p>
+                                    <p class="text-sm text-gray-600">1 día hábil</p>
+                                </div>
+                            </div>
+                            <span class="font-bold text-gray-900">$25.00</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Payment Method -->
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h2 class="text-2xl font-serif font-semibold text-gray-900 mb-6">Método de Pago</h2>
+                    
+                    <!-- Payment Options -->
+                    <div class="space-y-4 mb-6">
+                        <label class="flex items-center p-4 border-2 border-[#D4A574] bg-[#FAF8F5] rounded-lg cursor-pointer">
+                            <input type="radio" name="payment" checked class="w-4 h-4 text-[#D4A574] border-gray-300 focus:ring-[#D4A574]">
+                            <span class="ml-4 font-semibold text-gray-900">Tarjeta de Crédito/Débito</span>
+                            <div class="ml-auto flex space-x-2">
+                                <svg class="w-10 h-7" viewBox="0 0 48 32" fill="none">
+                                    <rect width="48" height="32" rx="4" fill="#1434CB"/>
+                                </svg>
+                                <svg class="w-10 h-7" viewBox="0 0 48 32" fill="none">
+                                    <rect width="48" height="32" rx="4" fill="#EB001B"/>
+                                </svg>
+                                <svg class="w-10 h-7" viewBox="0 0 48 32" fill="none">
+                                    <rect width="48" height="32" rx="4" fill="#00579F"/>
+                                </svg>
+                            </div>
+                        </label>
+
+                        <label class="flex items-center p-4 border-2 border-gray-300 rounded-lg cursor-pointer hover:border-[#D4A574]">
+                            <input type="radio" name="payment" class="w-4 h-4 text-[#D4A574] border-gray-300 focus:ring-[#D4A574]">
+                            <span class="ml-4 font-semibold text-gray-900">PayPal</span>
+                        </label>
+
+                        <label class="flex items-center p-4 border-2 border-gray-300 rounded-lg cursor-pointer hover:border-[#D4A574]">
+                            <input type="radio" name="payment" class="w-4 h-4 text-[#D4A574] border-gray-300 focus:ring-[#D4A574]">
+                            <span class="ml-4 font-semibold text-gray-900">Transferencia Bancaria</span>
+                        </label>
+                    </div>
+
+                    <!-- Card Details -->
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-900 mb-2">Número de Tarjeta</label>
+                            <input type="text" placeholder="1234 5678 9012 3456" maxlength="19" class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#D4A574] focus:outline-none">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-900 mb-2">Nombre en la Tarjeta</label>
+                            <input type="text" placeholder="JUAN PEREZ" class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#D4A574] focus:outline-none">
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-900 mb-2">Fecha de Expiración</label>
+                                <input type="text" placeholder="MM/AA" maxlength="5" class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#D4A574] focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-900 mb-2">CVV</label>
+                                <input type="text" placeholder="123" maxlength="4" class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#D4A574] focus:outline-none">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex items-center justify-between pt-4">
+                    <a href="cart.html" class="inline-flex items-center text-[#D4A574] hover:text-[#C39563] font-semibold">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                        </svg>
+                        Volver al Carrito
+                    </a>
+                    <button class="bg-[#D4A574] text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-[#C39563] transition-colors shadow-lg hover:shadow-xl">
+                        Completar Pedido
+                    </button>
+                </div>
+            </div>
+
+            <!-- Order Summary -->
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-xl shadow-md p-6 sticky top-24">
+                    <h2 class="text-2xl font-serif font-semibold text-gray-900 mb-6">Resumen del Pedido</h2>
+                    
+                    <!-- Order Items -->
+                    <div class="space-y-4 mb-6 pb-6 border-b border-gray-200">
+                        <div class="flex items-center space-x-4">
+                            <div class="relative">
+                                <img src="https://g-k6se64zggn2.vusercontent.net/placeholder.svg?height=80&width=80" alt="Collar" class="w-16 h-16 object-cover rounded-lg">
+                                <span class="absolute -top-2 -right-2 bg-gray-900 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">1</span>
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="font-semibold text-gray-900 text-sm">Collar Corazón Infinito</h4>
+                                <p class="text-xs text-gray-600">Oro 18k</p>
+                            </div>
+                            <span class="font-bold text-gray-900">$89.99</span>
+                        </div>
+
+                        <div class="flex items-center space-x-4">
+                            <div class="relative">
+                                <img src="https://g-k6se64zggn2.vusercontent.net/placeholder.svg?height=80&width=80" alt="Rosa" class="w-16 h-16 object-cover rounded-lg">
+                                <span class="absolute -top-2 -right-2 bg-gray-900 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">2</span>
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="font-semibold text-gray-900 text-sm">Rosa Eterna LED</h4>
+                                <p class="text-xs text-gray-600">Rojo</p>
+                            </div>
+                            <span class="font-bold text-gray-900">$91.98</span>
+                        </div>
+
+                        <div class="flex items-center space-x-4">
+                            <div class="relative">
+                                <img src="https://g-k6se64zggn2.vusercontent.net/placeholder.svg?height=80&width=80" alt="Pulsera" class="w-16 h-16 object-cover rounded-lg">
+                                <span class="absolute -top-2 -right-2 bg-gray-900 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">1</span>
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="font-semibold text-gray-900 text-sm">Pulsera Corazón</h4>
+                                <p class="text-xs text-gray-600">Plata 925</p>
+                            </div>
+                            <span class="font-bold text-gray-900">$64.99</span>
+                        </div>
+                    </div>
+
+                    <!-- Discount Code -->
+                    <div class="mb-6">
+                        <div class="flex space-x-2">
+                            <input type="text" placeholder="Código de descuento" class="flex-1 px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-[#D4A574] focus:outline-none text-sm">
+                            <button class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300 transition-colors text-sm">
+                                Aplicar
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Price Breakdown -->
+                    <div class="space-y-3 mb-6 pb-6 border-b border-gray-200">
+                        <div class="flex justify-between text-gray-700">
+                            <span>Subtotal</span>
+                            <span class="font-semibold">$246.96</span>
+                        </div>
+                        <div class="flex justify-between text-gray-700">
+                            <span>Descuento</span>
+                            <span class="font-semibold text-green-600">-$46.97</span>
+                        </div>
+                        <div class="flex justify-between text-gray-700">
+                            <span>Envío</span>
+                            <span class="font-semibold text-green-600">Gratis</span>
+                        </div>
+                        <div class="flex justify-between text-gray-700">
+                            <span>Impuestos</span>
+                            <span class="font-semibold">$20.00</span>
+                        </div>
+                    </div>
+
+                    <!-- Total -->
+                    <div class="flex justify-between text-2xl font-bold text-gray-900 mb-6">
+                        <span>Total</span>
+                        <span>$219.99</span>
+                    </div>
+
+                    <!-- Security Info -->
+                    <div class="bg-[#FAF8F5] rounded-lg p-4 space-y-3">
+                        <div class="flex items-center space-x-2 text-sm text-gray-700">
+                            <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                            </svg>
+                            <span>Pago 100% seguro</span>
+                        </div>
+                        <div class="flex items-center space-x-2 text-sm text-gray-700">
+                            <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            <span>Envío gratis en pedidos +$100</span>
+                        </div>
+                        <div class="flex items-center space-x-2 text-sm text-gray-700">
+                            <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                            </svg>
+                            <span>Devoluciones gratis 30 días</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white mt-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="text-center text-sm text-gray-400">
+                <p>&copy; 2025 Romantic Gifts. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

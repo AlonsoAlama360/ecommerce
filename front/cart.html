@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrito de Compras - Romantic Gifts</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .font-serif { font-family: 'Cormorant Garamond', serif; }
+        .font-sans { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="font-sans bg-[#FAF8F5]">
+    
+    <!-- Header -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <a href="index.html" class="flex items-center space-x-2">
+                    <svg class="w-8 h-8 text-[#D4A574]" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                    </svg>
+                    <span class="text-2xl font-serif font-semibold text-gray-900">Romantic Gifts</span>
+                </a>
+
+                <nav class="hidden md:flex items-center space-x-8">
+                    <a href="index.html" class="text-gray-700 hover:text-[#D4A574] transition-colors">Inicio</a>
+                    <a href="catalog.html" class="text-gray-700 hover:text-[#D4A574] transition-colors">Catálogo</a>
+                    <div class="relative group">
+                        <button class="text-gray-700 hover:text-[#D4A574] transition-colors flex items-center">
+                            Categorías
+                            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <a href="#" class="text-gray-700 hover:text-[#D4A574] transition-colors">Ofertas</a>
+                </nav>
+
+                <div class="flex items-center space-x-6">
+                    <button class="text-gray-700 hover:text-[#D4A574] transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                    </button>
+                    <a href="cart.html" class="relative text-[#D4A574]">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                        </svg>
+                        <span class="absolute -top-2 -right-2 bg-[#E8B4B8] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">3</span>
+                    </a>
+                    <a href="login.html" class="text-gray-700 hover:text-[#D4A574] transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <h1 class="text-4xl font-serif font-semibold text-gray-900 mb-8">Carrito de Compras</h1>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Cart Items -->
+            <div class="lg:col-span-2 space-y-4">
+                <!-- Cart Item 1 -->
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <div class="flex items-center space-x-6">
+                        <img src="https://g-k6se64zggn2.vusercontent.net/placeholder.svg?height=120&width=120" alt="Collar Corazón Infinito" class="w-24 h-24 object-cover rounded-lg">
+                        <div class="flex-1">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-1">Collar Corazón Infinito</h3>
+                            <p class="text-sm text-gray-600 mb-2">Material: Oro 18k</p>
+                            <div class="flex items-center space-x-4">
+                                <span class="text-xl font-bold text-gray-900">$89.99</span>
+                                <span class="text-sm text-gray-400 line-through">$129.99</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <div class="flex items-center border-2 border-gray-300 rounded-lg">
+                                <button onclick="updateQty(this, -1)" class="px-3 py-2 hover:bg-gray-100">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/>
+                                    </svg>
+                                </button>
+                                <input type="text" value="1" readonly class="w-12 text-center border-x-2 border-gray-300 py-2 font-semibold">
+                                <button onclick="updateQty(this, 1)" class="px-3 py-2 hover:bg-gray-100">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                                    </svg>
+                                </button>
+                            </div>
+                            <button onclick="removeItem(this)" class="text-red-500 hover:text-red-700">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cart Item 2 -->
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <div class="flex items-center space-x-6">
+                        <img src="https://g-k6se64zggn2.vusercontent.net/placeholder.svg?height=120&width=120" alt="Rosa Eterna LED" class="w-24 h-24 object-cover rounded-lg">
+                        <div class="flex-1">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-1">Rosa Eterna con Luz LED</h3>
+                            <p class="text-sm text-gray-600 mb-2">Color: Rojo</p>
+                            <div class="flex items-center space-x-4">
+                                <span class="text-xl font-bold text-gray-900">$45.99</span>
+                                <span class="text-sm text-gray-400 line-through">$59.99</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <div class="flex items-center border-2 border-gray-300 rounded-lg">
+                                <button onclick="updateQty(this, -1)" class="px-3 py-2 hover:bg-gray-100">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/>
+                                    </svg>
+                                </button>
+                                <input type="text" value="2" readonly class="w-12 text-center border-x-2 border-gray-300 py-2 font-semibold">
+                                <button onclick="updateQty(this, 1)" class="px-3 py-2 hover:bg-gray-100">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                                    </svg>
+                                </button>
+                            </div>
+                            <button onclick="removeItem(this)" class="text-red-500 hover:text-red-700">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cart Item 3 -->
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <div class="flex items-center space-x-6">
+                        <img src="https://g-k6se64zggn2.vusercontent.net/placeholder.svg?height=120&width=120" alt="Pulsera Corazón" class="w-24 h-24 object-cover rounded-lg">
+                        <div class="flex-1">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-1">Pulsera Corazón Delicado</h3>
+                            <p class="text-sm text-gray-600 mb-2">Material: Plata 925</p>
+                            <div class="flex items-center space-x-4">
+                                <span class="text-xl font-bold text-gray-900">$64.99</span>
+                                <span class="text-sm text-gray-400 line-through">$86.99</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <div class="flex items-center border-2 border-gray-300 rounded-lg">
+                                <button onclick="updateQty(this, -1)" class="px-3 py-2 hover:bg-gray-100">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/>
+                                    </svg>
+                                </button>
+                                <input type="text" value="1" readonly class="w-12 text-center border-x-2 border-gray-300 py-2 font-semibold">
+                                <button onclick="updateQty(this, 1)" class="px-3 py-2 hover:bg-gray-100">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                                    </svg>
+                                </button>
+                            </div>
+                            <button onclick="removeItem(this)" class="text-red-500 hover:text-red-700">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Continue Shopping -->
+                <div class="pt-4">
+                    <a href="catalog.html" class="inline-flex items-center text-[#D4A574] hover:text-[#C39563] font-semibold">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                        </svg>
+                        Continuar Comprando
+                    </a>
+                </div>
+            </div>
+
+            <!-- Order Summary -->
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-xl shadow-md p-6 sticky top-24">
+                    <h2 class="text-2xl font-serif font-semibold text-gray-900 mb-6">Resumen del Pedido</h2>
+                    
+                    <div class="space-y-4 mb-6">
+                        <div class="flex justify-between text-gray-700">
+                            <span>Subtotal (4 artículos)</span>
+                            <span class="font-semibold">$246.96</span>
+                        </div>
+                        <div class="flex justify-between text-gray-700">
+                            <span>Descuento</span>
+                            <span class="font-semibold text-green-600">-$46.97</span>
+                        </div>
+                        <div class="flex justify-between text-gray-700">
+                            <span>Envío</span>
+                            <span class="font-semibold text-green-600">Gratis</span>
+                        </div>
+                        <div class="border-t border-gray-200 pt-4">
+                            <div class="flex justify-between text-xl font-bold text-gray-900">
+                                <span>Total</span>
+                                <span>$199.99</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Coupon Code -->
+                    <div class="mb-6">
+                        <label class="block text-sm font-semibold text-gray-900 mb-2">Código de Descuento</label>
+                        <div class="flex space-x-2">
+                            <input type="text" placeholder="Ingresa tu código" class="flex-1 px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-[#D4A574] focus:outline-none">
+                            <button class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300 transition-colors">
+                                Aplicar
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Checkout Button -->
+                    <a href="checkout.html" class="block w-full bg-[#D4A574] text-white text-center py-4 rounded-lg font-semibold text-lg hover:bg-[#C39563] transition-colors shadow-lg hover:shadow-xl mb-4">
+                        Proceder al Pago
+                    </a>
+
+                    <!-- Payment Methods -->
+                    <div class="text-center">
+                        <p class="text-xs text-gray-500 mb-3">Métodos de pago aceptados</p>
+                        <div class="flex justify-center space-x-3">
+                            <div class="w-12 h-8 bg-gray-100 rounded flex items-center justify-center">
+                                <svg class="w-8 h-6" viewBox="0 0 48 32" fill="none">
+                                    <rect width="48" height="32" rx="4" fill="#1434CB"/>
+                                    <path d="M18 16L22 12L26 16L22 20L18 16Z" fill="white"/>
+                                </svg>
+                            </div>
+                            <div class="w-12 h-8 bg-gray-100 rounded flex items-center justify-center">
+                                <svg class="w-8 h-6" viewBox="0 0 48 32" fill="none">
+                                    <rect width="48" height="32" rx="4" fill="#EB001B"/>
+                                    <circle cx="20" cy="16" r="8" fill="#FF5F00"/>
+                                    <circle cx="28" cy="16" r="8" fill="#F79E1B"/>
+                                </svg>
+                            </div>
+                            <div class="w-12 h-8 bg-gray-100 rounded flex items-center justify-center">
+                                <svg class="w-8 h-6" viewBox="0 0 48 32" fill="none">
+                                    <rect width="48" height="32" rx="4" fill="#00579F"/>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Security Badge -->
+                    <div class="mt-6 pt-6 border-t border-gray-200">
+                        <div class="flex items-center justify-center space-x-2 text-sm text-gray-600">
+                            <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                            </svg>
+                            <span>Compra 100% Segura</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- You May Also Like -->
+        <div class="mt-16">
+            <h2 class="text-3xl font-serif font-semibold text-gray-900 mb-8">También te Puede Gustar</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-shadow group">
+                    <div class="relative aspect-square overflow-hidden">
+                        <img src="https://g-k6se64zggn2.vusercontent.net/placeholder.svg?height=300&width=300" alt="Anillo" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
+                        <span class="absolute top-3 right-3 bg-[#E8B4B8] text-white px-3 py-1 rounded-full text-sm font-semibold">-20%</span>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="font-semibold text-gray-900 mb-2">Anillo Corazón Eterno</h3>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <span class="text-lg font-bold text-gray-900">$79.99</span>
+                                <span class="text-sm text-gray-400 line-through ml-2">$99.99</span>
+                            </div>
+                            <button class="w-10 h-10 bg-[#D4A574] text-white rounded-full flex items-center justify-center hover:bg-[#C39563] transition-colors">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-shadow group">
+                    <div class="relative aspect-square overflow-hidden">
+                        <img src="https://g-k6se64zggn2.vusercontent.net/placeholder.svg?height=300&width=300" alt="Aretes" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
+                        <span class="absolute top-3 right-3 bg-[#E8B4B8] text-white px-3 py-1 rounded-full text-sm font-semibold">-15%</span>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="font-semibold text-gray-900 mb-2">Aretes Corazón Brillante</h3>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <span class="text-lg font-bold text-gray-900">$54.99</span>
+                                <span class="text-sm text-gray-400 line-through ml-2">$64.99</span>
+                            </div>
+                            <button class="w-10 h-10 bg-[#D4A574] text-white rounded-full flex items-center justify-center hover:bg-[#C39563] transition-colors">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-shadow group">
+                    <div class="relative aspect-square overflow-hidden">
+                        <img src="https://g-k6se64zggn2.vusercontent.net/placeholder.svg?height=300&width=300" alt="Peluche" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
+                        <span class="absolute top-3 right-3 bg-[#E8B4B8] text-white px-3 py-1 rounded-full text-sm font-semibold">-10%</span>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="font-semibold text-gray-900 mb-2">Oso de Peluche con Rosa</h3>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <span class="text-lg font-bold text-gray-900">$35.99</span>
+                                <span class="text-sm text-gray-400 line-through ml-2">$39.99</span>
+                            </div>
+                            <button class="w-10 h-10 bg-[#D4A574] text-white rounded-full flex items-center justify-center hover:bg-[#C39563] transition-colors">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-shadow group">
+                    <div class="relative aspect-square overflow-hidden">
+                        <img src="https://g-k6se64zggn2.vusercontent.net/placeholder.svg?height=300&width=300" alt="Caja Regalo" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
+                        <span class="absolute top-3 right-3 bg-[#E8B4B8] text-white px-3 py-1 rounded-full text-sm font-semibold">-30%</span>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="font-semibold text-gray-900 mb-2">Caja Regalo Romántica</h3>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <span class="text-lg font-bold text-gray-900">$69.99</span>
+                                <span class="text-sm text-gray-400 line-through ml-2">$99.99</span>
+                            </div>
+                            <button class="w-10 h-10 bg-[#D4A574] text-white rounded-full flex items-center justify-center hover:bg-[#C39563] transition-colors">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white mt-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-xl font-serif font-semibold mb-4">Romantic Gifts</h3>
+                    <p class="text-gray-400 text-sm">Detalles que expresan amor verdadero</p>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Comprar</h4>
+                    <ul class="space-y-2 text-sm text-gray-400">
+                        <li><a href="#" class="hover:text-white">Joyería</a></li>
+                        <li><a href="#" class="hover:text-white">Flores Eternas</a></li>
+                        <li><a href="#" class="hover:text-white">Luces LED</a></li>
+                        <li><a href="#" class="hover:text-white">Ofertas</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Ayuda</h4>
+                    <ul class="space-y-2 text-sm text-gray-400">
+                        <li><a href="#" class="hover:text-white">Contacto</a></li>
+                        <li><a href="#" class="hover:text-white">Envíos</a></li>
+                        <li><a href="#" class="hover:text-white">Devoluciones</a></li>
+                        <li><a href="#" class="hover:text-white">FAQ</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Síguenos</h4>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white">
+                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white">
+                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-sm text-gray-400">
+                <p>&copy; 2025 Romantic Gifts. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function updateQty(button, change) {
+            const input = button.parentElement.querySelector('input');
+            const currentValue = parseInt(input.value);
+            const newValue = Math.max(1, currentValue + change);
+            input.value = newValue;
+        }
+
+        function removeItem(button) {
+            const item = button.closest('.bg-white');
+            item.style.opacity = '0';
+            item.style.transform = 'translateX(100px)';
+            item.style.transition = 'all 0.3s ease';
+            setTimeout(() => {
+                item.remove();
+            }, 300);
+        }
+    </script>
+</body>
+</html>
