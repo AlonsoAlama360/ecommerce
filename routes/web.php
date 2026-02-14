@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\CategoryProductController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\HomeController;
@@ -7,6 +8,9 @@ use Illuminate\Support\Facades\Route;
 
 // Rutas públicas - cualquier usuario puede navegar
 Route::get('/', [HomeController::class, 'index'])->name('home');
+
+// API interna (sin autenticación, para el mega menu)
+Route::get('/api/categories/{slug}/products', [CategoryProductController::class, 'index']);
 
 // Rutas de autenticación - solo para usuarios NO autenticados
 Route::middleware('guest')->group(function () {
