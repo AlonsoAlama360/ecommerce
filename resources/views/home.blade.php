@@ -62,7 +62,7 @@
             @endphp
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
                 @foreach($categories as $index => $cat)
-                    <a href="#" class="group">
+                    <a href="{{ route('catalog', ['categories' => [$cat->slug]]) }}" class="group">
                         <div class="bg-gradient-to-br {{ $gradients[$index % count($gradients)] }} rounded-2xl p-8 text-center hover:shadow-xl transition-all duration-300">
                             <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
                                 <i class="{{ $cat->icon }} text-3xl accent-color"></i>
