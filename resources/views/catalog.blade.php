@@ -265,7 +265,7 @@
                             <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-12">
                                 @foreach($products as $product)
                                     <div class="product-card bg-white rounded-2xl overflow-hidden shadow-lg">
-                                        <div class="relative">
+                                        <a href="{{ route('product.show', $product->slug) }}" class="block relative">
                                             <img src="{{ $product->primaryImage?->image_url ?? 'https://via.placeholder.com/400x300?text=Sin+Imagen' }}"
                                                  alt="{{ $product->primaryImage?->alt_text ?? $product->name }}"
                                                  class="w-full h-52 sm:h-72 lg:h-80 object-cover"
@@ -278,10 +278,12 @@
                                             <button type="button" class="absolute top-3 right-3 sm:top-4 sm:right-4 w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-full flex items-center justify-center hover:bg-rose-500 hover:text-white transition shadow-md">
                                                 <i class="far fa-heart text-sm sm:text-base"></i>
                                             </button>
-                                        </div>
+                                        </a>
                                         <div class="p-4 sm:p-6">
                                             <p class="text-xs text-gray-400 mb-1">{{ $product->category?->name }}</p>
-                                            <h3 class="font-semibold text-sm sm:text-lg mb-2 line-clamp-2">{{ $product->name }}</h3>
+                                            <a href="{{ route('product.show', $product->slug) }}" class="block">
+                                                <h3 class="font-semibold text-sm sm:text-lg mb-2 line-clamp-2 hover:text-[#D4A574] transition">{{ $product->name }}</h3>
+                                            </a>
                                             <div class="flex items-center gap-2 mb-3 sm:mb-4">
                                                 <span class="text-lg sm:text-2xl font-bold text-gray-900">S/ {{ number_format($product->current_price, 2) }}</span>
                                                 @if($product->sale_price && $product->sale_price < $product->price)

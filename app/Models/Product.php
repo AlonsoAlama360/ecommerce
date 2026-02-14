@@ -23,6 +23,7 @@ class Product extends Model
         'sku',
         'stock',
         'material',
+        'specifications',
         'is_featured',
         'is_active',
     ];
@@ -35,6 +36,7 @@ class Product extends Model
             'stock' => 'integer',
             'is_featured' => 'boolean',
             'is_active' => 'boolean',
+            'specifications' => 'array',
         ];
     }
 

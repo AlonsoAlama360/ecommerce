@@ -134,7 +134,7 @@
                     @foreach($featuredProducts as $product)
                         <div class="min-w-[300px] px-3">
                             <div class="product-card bg-white rounded-2xl overflow-hidden shadow-lg">
-                                <div class="relative">
+                                <a href="{{ route('product.show', $product->slug) }}" class="block relative">
                                     <img src="{{ $product->primaryImage?->image_url ?? '' }}"
                                         alt="{{ $product->name }}"
                                         class="w-full h-80 object-cover" loading="lazy">
@@ -143,16 +143,18 @@
                                             -{{ $product->discount_percentage }}%
                                         </div>
                                     @endif
-                                    <button class="absolute top-4 right-4 w-10 h-10 bg-white rounded-full flex items-center justify-center hover:bg-rose-500 hover:text-white transition">
+                                    <button type="button" class="absolute top-4 right-4 w-10 h-10 bg-white rounded-full flex items-center justify-center hover:bg-rose-500 hover:text-white transition" onclick="event.preventDefault(); event.stopPropagation();">
                                         <i class="far fa-heart"></i>
                                     </button>
-                                </div>
+                                </a>
                                 <div class="p-6">
-                                    <h3 class="font-semibold text-lg mb-2">{{ $product->name }}</h3>
+                                    <a href="{{ route('product.show', $product->slug) }}">
+                                        <h3 class="font-semibold text-lg mb-2 hover:text-[#D4A574] transition">{{ $product->name }}</h3>
+                                    </a>
                                     <div class="flex items-center gap-2 mb-4">
-                                        <span class="text-2xl font-bold text-gray-900">${{ $product->current_price }}</span>
+                                        <span class="text-2xl font-bold text-gray-900">S/ {{ number_format($product->current_price, 2) }}</span>
                                         @if($product->sale_price)
-                                            <span class="text-lg text-gray-400 line-through">${{ $product->price }}</span>
+                                            <span class="text-lg text-gray-400 line-through">S/ {{ number_format($product->price, 2) }}</span>
                                         @endif
                                     </div>
                                     <button class="w-full bg-gray-900 text-white py-3 rounded-full hover:bg-gray-800 transition flex items-center justify-center gap-2">
