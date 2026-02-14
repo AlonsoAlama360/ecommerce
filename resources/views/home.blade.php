@@ -51,47 +51,26 @@
                 <p class="text-lg text-gray-600">Encuentra el regalo perfecto para cada ocasión</p>
             </div>
 
+            @php
+                $gradients = [
+                    'from-rose-50 to-pink-50',
+                    'from-purple-50 to-pink-50',
+                    'from-amber-50 to-orange-50',
+                    'from-red-50 to-rose-50',
+                    'from-yellow-50 to-amber-50',
+                ];
+            @endphp
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
-                <a href="#" class="group">
-                    <div class="bg-gradient-to-br from-rose-50 to-pink-50 rounded-2xl p-8 text-center hover:shadow-xl transition-all duration-300">
-                        <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-                            <i class="fas fa-gem text-3xl accent-color"></i>
+                @foreach($categories as $index => $cat)
+                    <a href="#" class="group">
+                        <div class="bg-gradient-to-br {{ $gradients[$index % count($gradients)] }} rounded-2xl p-8 text-center hover:shadow-xl transition-all duration-300">
+                            <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                                <i class="{{ $cat->icon }} text-3xl accent-color"></i>
+                            </div>
+                            <h3 class="font-semibold text-gray-900">{{ $cat->name }}</h3>
                         </div>
-                        <h3 class="font-semibold text-gray-900">Collares</h3>
-                    </div>
-                </a>
-                <a href="#" class="group">
-                    <div class="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-8 text-center hover:shadow-xl transition-all duration-300">
-                        <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-                            <i class="fas fa-ring text-3xl accent-color"></i>
-                        </div>
-                        <h3 class="font-semibold text-gray-900">Pulseras</h3>
-                    </div>
-                </a>
-                <a href="#" class="group">
-                    <div class="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-8 text-center hover:shadow-xl transition-all duration-300">
-                        <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-                            <i class="fas fa-circle-notch text-3xl accent-color"></i>
-                        </div>
-                        <h3 class="font-semibold text-gray-900">Anillos</h3>
-                    </div>
-                </a>
-                <a href="#" class="group">
-                    <div class="bg-gradient-to-br from-red-50 to-rose-50 rounded-2xl p-8 text-center hover:shadow-xl transition-all duration-300">
-                        <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-                            <i class="fas fa-rose text-3xl accent-color"></i>
-                        </div>
-                        <h3 class="font-semibold text-gray-900">Flores</h3>
-                    </div>
-                </a>
-                <a href="#" class="group">
-                    <div class="bg-gradient-to-br from-yellow-50 to-amber-50 rounded-2xl p-8 text-center hover:shadow-xl transition-all duration-300">
-                        <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-                            <i class="fas fa-lightbulb text-3xl accent-color"></i>
-                        </div>
-                        <h3 class="font-semibold text-gray-900">Luces LED</h3>
-                    </div>
-                </a>
+                    </a>
+                @endforeach
             </div>
         </div>
     </section>
@@ -152,115 +131,37 @@
 
             <div class="slider-container">
                 <div class="slider-track" id="sliderTrack">
-                    <div class="min-w-[300px] px-3">
-                        <div class="product-card bg-white rounded-2xl overflow-hidden shadow-lg">
-                            <div class="relative">
-                                <img src="https://i.pinimg.com/736x/05/f1/89/05f189b8862acc9f463bfa53af869d85.jpg" alt="Producto" class="w-full h-80 object-cover">
-                                <div class="absolute top-4 left-4 badge-discount text-white px-3 py-1 rounded-full text-sm font-semibold">-25%</div>
-                                <button class="absolute top-4 right-4 w-10 h-10 bg-white rounded-full flex items-center justify-center hover:bg-rose-500 hover:text-white transition">
-                                    <i class="far fa-heart"></i>
-                                </button>
-                            </div>
-                            <div class="p-6">
-                                <h3 class="font-semibold text-lg mb-2">Collar Corazón Infinito</h3>
-                                <div class="flex items-center gap-2 mb-4">
-                                    <span class="text-2xl font-bold text-gray-900">$67.49</span>
-                                    <span class="text-lg text-gray-400 line-through">$89.99</span>
+                    @foreach($featuredProducts as $product)
+                        <div class="min-w-[300px] px-3">
+                            <div class="product-card bg-white rounded-2xl overflow-hidden shadow-lg">
+                                <div class="relative">
+                                    <img src="{{ $product->primaryImage?->image_url ?? '' }}"
+                                        alt="{{ $product->name }}"
+                                        class="w-full h-80 object-cover" loading="lazy">
+                                    @if($product->discount_percentage)
+                                        <div class="absolute top-4 left-4 badge-discount text-white px-3 py-1 rounded-full text-sm font-semibold">
+                                            -{{ $product->discount_percentage }}%
+                                        </div>
+                                    @endif
+                                    <button class="absolute top-4 right-4 w-10 h-10 bg-white rounded-full flex items-center justify-center hover:bg-rose-500 hover:text-white transition">
+                                        <i class="far fa-heart"></i>
+                                    </button>
                                 </div>
-                                <button class="w-full bg-gray-900 text-white py-3 rounded-full hover:bg-gray-800 transition flex items-center justify-center gap-2">
-                                    <i class="fas fa-shopping-cart"></i> Agregar al Carrito
-                                </button>
+                                <div class="p-6">
+                                    <h3 class="font-semibold text-lg mb-2">{{ $product->name }}</h3>
+                                    <div class="flex items-center gap-2 mb-4">
+                                        <span class="text-2xl font-bold text-gray-900">${{ $product->current_price }}</span>
+                                        @if($product->sale_price)
+                                            <span class="text-lg text-gray-400 line-through">${{ $product->price }}</span>
+                                        @endif
+                                    </div>
+                                    <button class="w-full bg-gray-900 text-white py-3 rounded-full hover:bg-gray-800 transition flex items-center justify-center gap-2">
+                                        <i class="fas fa-shopping-cart"></i> Agregar al Carrito
+                                    </button>
+                                </div>
                             </div>
                         </div>
-                    </div>
-
-                    <div class="min-w-[300px] px-3">
-                        <div class="product-card bg-white rounded-2xl overflow-hidden shadow-lg">
-                            <div class="relative">
-                                <img src="https://i.pinimg.com/1200x/09/26/49/092649e7126954d695440adcfd78db80.jpg" alt="Producto" class="w-full h-80 object-cover">
-                                <div class="absolute top-4 left-4 badge-discount text-white px-3 py-1 rounded-full text-sm font-semibold">-15%</div>
-                                <button class="absolute top-4 right-4 w-10 h-10 bg-white rounded-full flex items-center justify-center hover:bg-rose-500 hover:text-white transition">
-                                    <i class="far fa-heart"></i>
-                                </button>
-                            </div>
-                            <div class="p-6">
-                                <h3 class="font-semibold text-lg mb-2">Pulsera Amor Eterno</h3>
-                                <div class="flex items-center gap-2 mb-4">
-                                    <span class="text-2xl font-bold text-gray-900">$55.24</span>
-                                    <span class="text-lg text-gray-400 line-through">$64.99</span>
-                                </div>
-                                <button class="w-full bg-gray-900 text-white py-3 rounded-full hover:bg-gray-800 transition flex items-center justify-center gap-2">
-                                    <i class="fas fa-shopping-cart"></i> Agregar al Carrito
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="min-w-[300px] px-3">
-                        <div class="product-card bg-white rounded-2xl overflow-hidden shadow-lg">
-                            <div class="relative">
-                                <img src="https://i.pinimg.com/736x/cb/ef/6e/cbef6e099db2a2b90825505936e65985.jpg" alt="Producto" class="w-full h-80 object-cover">
-                                <div class="absolute top-4 left-4 badge-discount text-white px-3 py-1 rounded-full text-sm font-semibold">-20%</div>
-                                <button class="absolute top-4 right-4 w-10 h-10 bg-white rounded-full flex items-center justify-center hover:bg-rose-500 hover:text-white transition">
-                                    <i class="far fa-heart"></i>
-                                </button>
-                            </div>
-                            <div class="p-6">
-                                <h3 class="font-semibold text-lg mb-2">Rosa Eterna en Cúpula</h3>
-                                <div class="flex items-center gap-2 mb-4">
-                                    <span class="text-2xl font-bold text-gray-900">$103.99</span>
-                                    <span class="text-lg text-gray-400 line-through">$129.99</span>
-                                </div>
-                                <button class="w-full bg-gray-900 text-white py-3 rounded-full hover:bg-gray-800 transition flex items-center justify-center gap-2">
-                                    <i class="fas fa-shopping-cart"></i> Agregar al Carrito
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="min-w-[300px] px-3">
-                        <div class="product-card bg-white rounded-2xl overflow-hidden shadow-lg">
-                            <div class="relative">
-                                <img src="https://i.pinimg.com/1200x/03/76/49/0376494356dd809c425be2f051e63155.jpg" alt="Producto" class="w-full h-80 object-cover">
-                                <div class="absolute top-4 left-4 badge-discount text-white px-3 py-1 rounded-full text-sm font-semibold">-30%</div>
-                                <button class="absolute top-4 right-4 w-10 h-10 bg-white rounded-full flex items-center justify-center hover:bg-rose-500 hover:text-white transition">
-                                    <i class="far fa-heart"></i>
-                                </button>
-                            </div>
-                            <div class="p-6">
-                                <h3 class="font-semibold text-lg mb-2">Anillo Compromiso Elegante</h3>
-                                <div class="flex items-center gap-2 mb-4">
-                                    <span class="text-2xl font-bold text-gray-900">$349.99</span>
-                                    <span class="text-lg text-gray-400 line-through">$499.99</span>
-                                </div>
-                                <button class="w-full bg-gray-900 text-white py-3 rounded-full hover:bg-gray-800 transition flex items-center justify-center gap-2">
-                                    <i class="fas fa-shopping-cart"></i> Agregar al Carrito
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="min-w-[300px] px-3">
-                        <div class="product-card bg-white rounded-2xl overflow-hidden shadow-lg">
-                            <div class="relative">
-                                <img src="https://i.pinimg.com/1200x/a9/80/b0/a980b0f4e57cbd83f43326d451f5ddbd.jpg" alt="Producto" class="w-full h-80 object-cover">
-                                <div class="absolute top-4 left-4 badge-discount text-white px-3 py-1 rounded-full text-sm font-semibold">-10%</div>
-                                <button class="absolute top-4 right-4 w-10 h-10 bg-white rounded-full flex items-center justify-center hover:bg-rose-500 hover:text-white transition">
-                                    <i class="far fa-heart"></i>
-                                </button>
-                            </div>
-                            <div class="p-6">
-                                <h3 class="font-semibold text-lg mb-2">Luz LED Corazón</h3>
-                                <div class="flex items-center gap-2 mb-4">
-                                    <span class="text-2xl font-bold text-gray-900">$35.99</span>
-                                    <span class="text-lg text-gray-400 line-through">$39.99</span>
-                                </div>
-                                <button class="w-full bg-gray-900 text-white py-3 rounded-full hover:bg-gray-800 transition flex items-center justify-center gap-2">
-                                    <i class="fas fa-shopping-cart"></i> Agregar al Carrito
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                    @endforeach
                 </div>
             </div>
         </div>
