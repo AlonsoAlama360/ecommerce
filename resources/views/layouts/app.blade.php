@@ -233,7 +233,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="#" class="block py-3 px-4 text-gray-700 hover:bg-gray-50 rounded-lg transition">
+                    <a href="{{ route('catalog') }}" class="block py-3 px-4 text-gray-700 hover:bg-gray-50 rounded-lg transition">
                         Catálogo
                     </a>
                 </li>
@@ -248,7 +248,7 @@
                         <div class="mobile-category-submenu pl-4" id="mobileCategorySubmenu">
                             <ul class="space-y-1 mt-2">
                                 @foreach($navCategories as $cat)
-                                    <li><a href="#" class="block py-2.5 px-4 text-gray-600 hover:bg-gray-50 rounded-lg transition"><i class="{{ $cat->icon }} mr-2 accent-color"></i>{{ $cat->name }}</a></li>
+                                    <li><a href="{{ route('catalog', ['categories' => [$cat->slug]]) }}" class="block py-2.5 px-4 text-gray-600 hover:bg-gray-50 rounded-lg transition"><i class="{{ $cat->icon }} mr-2 accent-color"></i>{{ $cat->name }}</a></li>
                                 @endforeach
                             </ul>
                         </div>
@@ -328,7 +328,7 @@
                                 <div class="category-list space-y-2">
                                     <h3 class="font-serif text-lg font-semibold mb-3 px-3">Categorías</h3>
                                     @foreach($navCategories as $cat)
-                                        <a href="#" class="block text-gray-700 hover:text-gray-900 hover:bg-gray-50 py-2.5 px-3 rounded-lg transition category-item" data-category="{{ $cat->slug }}"><i class="{{ $cat->icon }} mr-2 accent-color"></i>{{ $cat->name }}</a>
+                                        <a href="{{ route('catalog', ['categories' => [$cat->slug]]) }}" class="block text-gray-700 hover:text-gray-900 hover:bg-gray-50 py-2.5 px-3 rounded-lg transition category-item" data-category="{{ $cat->slug }}"><i class="{{ $cat->icon }} mr-2 accent-color"></i>{{ $cat->name }}</a>
                                     @endforeach
                                 </div>
                                 <div class="product-hover-panel" id="productPanel">
@@ -338,7 +338,7 @@
                             </div>
                         </div>
                     </div>
-                    <a href="#" class="text-gray-700 hover:text-gray-900 transition">Catálogo</a>
+                    <a href="{{ route('catalog') }}" class="text-gray-700 hover:text-gray-900 transition">Catálogo</a>
                     <a href="#" class="text-gray-700 hover:text-gray-900 transition">Ofertas</a>
                 </nav>
 
@@ -494,7 +494,7 @@
                     <h4 class="font-semibold text-gray-900 mb-4">Comprar</h4>
                     <ul class="space-y-2 text-gray-600">
                         @foreach($navCategories as $cat)
-                            <li><a href="#" class="hover:text-gray-900 transition">{{ $cat->name }}</a></li>
+                            <li><a href="{{ route('catalog', ['categories' => [$cat->slug]]) }}" class="hover:text-gray-900 transition">{{ $cat->name }}</a></li>
                         @endforeach
                     </ul>
                 </div>

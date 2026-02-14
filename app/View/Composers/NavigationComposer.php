@@ -10,12 +10,16 @@ class NavigationComposer
 {
     public function compose(View $view): void
     {
-        $categories = Cache::remember('nav_categories', 3600, function () {
-            return Category::active()
-                ->ordered()
-                ->select('id', 'name', 'slug', 'icon')
-                ->get();
-        });
+        try {
+            $categories = Cache::remember('nav_categories', 3600, function () {
+                return Category::active()
+                    ->ordered()
+                    ->select('id', 'name', 'slug', 'icon')
+                    ->get();
+            });
+        } catch (\Exception $e) {
+            $categories = collect();
+        }
 
         $view->with('navCategories', $categories);
     }

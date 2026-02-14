@@ -3,11 +3,13 @@
 use App\Http\Controllers\Api\CategoryProductController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
 
 // Rutas públicas - cualquier usuario puede navegar
 Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/catalogo', [CatalogController::class, 'index'])->name('catalog');
 
 // API interna (sin autenticación, para el mega menu)
 Route::get('/api/categories/{slug}/products', [CategoryProductController::class, 'index']);
