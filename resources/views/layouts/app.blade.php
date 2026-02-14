@@ -247,11 +247,9 @@
                         </button>
                         <div class="mobile-category-submenu pl-4" id="mobileCategorySubmenu">
                             <ul class="space-y-1 mt-2">
-                                <li><a href="#" class="block py-2.5 px-4 text-gray-600 hover:bg-gray-50 rounded-lg transition"><i class="fas fa-gem mr-2 accent-color"></i>Collares</a></li>
-                                <li><a href="#" class="block py-2.5 px-4 text-gray-600 hover:bg-gray-50 rounded-lg transition"><i class="fas fa-ring mr-2 accent-color"></i>Pulseras</a></li>
-                                <li><a href="#" class="block py-2.5 px-4 text-gray-600 hover:bg-gray-50 rounded-lg transition"><i class="fas fa-circle-notch mr-2 accent-color"></i>Anillos</a></li>
-                                <li><a href="#" class="block py-2.5 px-4 text-gray-600 hover:bg-gray-50 rounded-lg transition"><i class="fas fa-rose mr-2 accent-color"></i>Flores Eternas</a></li>
-                                <li><a href="#" class="block py-2.5 px-4 text-gray-600 hover:bg-gray-50 rounded-lg transition"><i class="fas fa-lightbulb mr-2 accent-color"></i>Luces LED</a></li>
+                                @foreach($navCategories as $cat)
+                                    <li><a href="#" class="block py-2.5 px-4 text-gray-600 hover:bg-gray-50 rounded-lg transition"><i class="{{ $cat->icon }} mr-2 accent-color"></i>{{ $cat->name }}</a></li>
+                                @endforeach
                             </ul>
                         </div>
                     </div>
@@ -329,11 +327,9 @@
                             <div class="mega-menu-content">
                                 <div class="category-list space-y-2">
                                     <h3 class="font-serif text-lg font-semibold mb-3 px-3">Categorías</h3>
-                                    <a href="#" class="block text-gray-700 hover:text-gray-900 hover:bg-gray-50 py-2.5 px-3 rounded-lg transition category-item" data-category="collares"><i class="fas fa-gem mr-2 accent-color"></i>Collares</a>
-                                    <a href="#" class="block text-gray-700 hover:text-gray-900 hover:bg-gray-50 py-2.5 px-3 rounded-lg transition category-item" data-category="pulseras"><i class="fas fa-ring mr-2 accent-color"></i>Pulseras</a>
-                                    <a href="#" class="block text-gray-700 hover:text-gray-900 hover:bg-gray-50 py-2.5 px-3 rounded-lg transition category-item" data-category="anillos"><i class="fas fa-circle-notch mr-2 accent-color"></i>Anillos</a>
-                                    <a href="#" class="block text-gray-700 hover:text-gray-900 hover:bg-gray-50 py-2.5 px-3 rounded-lg transition category-item" data-category="flores"><i class="fas fa-rose mr-2 accent-color"></i>Flores Eternas</a>
-                                    <a href="#" class="block text-gray-700 hover:text-gray-900 hover:bg-gray-50 py-2.5 px-3 rounded-lg transition category-item" data-category="luces"><i class="fas fa-lightbulb mr-2 accent-color"></i>Luces LED</a>
+                                    @foreach($navCategories as $cat)
+                                        <a href="#" class="block text-gray-700 hover:text-gray-900 hover:bg-gray-50 py-2.5 px-3 rounded-lg transition category-item" data-category="{{ $cat->slug }}"><i class="{{ $cat->icon }} mr-2 accent-color"></i>{{ $cat->name }}</a>
+                                    @endforeach
                                 </div>
                                 <div class="product-hover-panel" id="productPanel">
                                     <h4 class="font-serif text-base font-semibold mb-3">Productos Destacados</h4>
@@ -497,11 +493,9 @@
                 <div>
                     <h4 class="font-semibold text-gray-900 mb-4">Comprar</h4>
                     <ul class="space-y-2 text-gray-600">
-                        <li><a href="#" class="hover:text-gray-900 transition">Collares</a></li>
-                        <li><a href="#" class="hover:text-gray-900 transition">Pulseras</a></li>
-                        <li><a href="#" class="hover:text-gray-900 transition">Anillos</a></li>
-                        <li><a href="#" class="hover:text-gray-900 transition">Flores Eternas</a></li>
-                        <li><a href="#" class="hover:text-gray-900 transition">Luces LED</a></li>
+                        @foreach($navCategories as $cat)
+                            <li><a href="#" class="hover:text-gray-900 transition">{{ $cat->name }}</a></li>
+                        @endforeach
                     </ul>
                 </div>
                 <div>
@@ -592,46 +586,40 @@
             }, 200);
         });
 
-        const categoryProducts = {
-            collares: [
-                { name: 'Collar Corazón', price: '$89.99', image: 'https://i.pinimg.com/1200x/03/76/49/0376494356dd809c425be2f051e63155.jpg' },
-                { name: 'Collar Infinito', price: '$79.99', image: 'https://i.pinimg.com/736x/05/f1/89/05f189b8862acc9f463bfa53af869d85.jpg' },
-                { name: 'Collar Perla', price: '$99.99', image: 'https://i.pinimg.com/736x/6b/63/c7/6b63c7a1ac26edcd6ab4eeabecf2831a.jpg' },
-                { name: 'Collar Diamante', price: '$149.99', image: 'https://i.pinimg.com/1200x/6e/6b/1f/6e6b1ff4f23c2a3221cbce5ad2960ca8.jpg' }
-            ],
-            pulseras: [
-                { name: 'Pulsera Amor', price: '$64.99', image: 'https://i.pinimg.com/1200x/09/26/49/092649e7126954d695440adcfd78db80.jpg' },
-                { name: 'Pulsera Charm', price: '$54.99', image: 'https://i.pinimg.com/1200x/09/26/49/092649e7126954d695440adcfd78db80.jpg' }
-            ],
-            anillos: [
-                { name: 'Anillo Compromiso', price: '$499.99', image: 'https://i.pinimg.com/1200x/09/26/49/092649e7126954d695440adcfd78db80.jpg' },
-                { name: 'Anillo Corazón', price: '$89.99', image: 'https://i.pinimg.com/1200x/09/26/49/092649e7126954d695440adcfd78db80.jpg' }
-            ],
-            flores: [
-                { name: 'Rosa Roja Eterna', price: '$129.99', image: 'https://i.pinimg.com/736x/cb/ef/6e/cbef6e099db2a2b90825505936e65985.jpg' },
-                { name: 'Rosa Azul Eterna', price: '$139.99', image: 'https://i.pinimg.com/736x/cb/ef/6e/cbef6e099db2a2b90825505936e65985.jpg' }
-            ],
-            luces: [
-                { name: 'Luz Corazón LED', price: '$39.99', image: 'https://i.pinimg.com/1200x/09/26/49/092649e7126954d695440adcfd78db80.jpg' },
-                { name: 'Luz Luna LED', price: '$49.99', image: 'https://i.pinimg.com/1200x/09/26/49/092649e7126954d695440adcfd78db80.jpg' }
-            ]
-        };
+        // Cache de productos por categoría (evita llamadas repetidas)
+        const categoryCache = {};
 
         categoryItems.forEach(item => {
-            item.addEventListener('mouseenter', (e) => {
-                const category = e.currentTarget.dataset.category;
-                const products = categoryProducts[category];
-                let html = '';
-                products.forEach(p => {
-                    html += `<div class="flex items-center gap-2 p-2 hover:bg-gray-50 rounded-lg cursor-pointer transition">
-                        <img src="${p.image}" alt="${p.name}" class="w-14 h-14 object-cover rounded-lg">
-                        <div class="flex-1 min-w-0"><h5 class="font-medium text-xs truncate">${p.name}</h5><p class="text-gray-900 font-semibold text-sm">${p.price}</p></div>
-                    </div>`;
-                });
-                productGrid.innerHTML = html;
-                productPanel.classList.add('active');
+            item.addEventListener('mouseenter', async (e) => {
+                const slug = e.currentTarget.dataset.category;
+
+                if (categoryCache[slug]) {
+                    renderProducts(categoryCache[slug]);
+                    return;
+                }
+
+                try {
+                    const res = await fetch(`/api/categories/${slug}/products`);
+                    const data = await res.json();
+                    categoryCache[slug] = data;
+                    renderProducts(data);
+                } catch (err) {
+                    productPanel.classList.remove('active');
+                }
             });
         });
+
+        function renderProducts(products) {
+            let html = '';
+            products.forEach(p => {
+                html += `<div class="flex items-center gap-2 p-2 hover:bg-gray-50 rounded-lg cursor-pointer transition">
+                    <img src="${p.image}" alt="${p.name}" class="w-14 h-14 object-cover rounded-lg" loading="lazy">
+                    <div class="flex-1 min-w-0"><h5 class="font-medium text-xs truncate">${p.name}</h5><p class="text-gray-900 font-semibold text-sm">$${p.price}</p></div>
+                </div>`;
+            });
+            productGrid.innerHTML = html;
+            productPanel.classList.add('active');
+        }
 
         // Cart Dropdown
         const cartBtn = document.getElementById('cartBtn');
