@@ -264,36 +264,42 @@
                             <!-- Products Grid -->
                             <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-12">
                                 @foreach($products as $product)
-                                    <div class="product-card bg-white rounded-2xl overflow-hidden shadow-lg">
-                                        <a href="{{ route('product.show', $product->slug) }}" class="block relative">
+                                    <div class="group bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300 border border-gray-100">
+                                        <a href="{{ route('product.show', $product->slug) }}" class="block relative overflow-hidden">
                                             <img src="{{ $product->primaryImage?->image_url ?? 'https://via.placeholder.com/400x300?text=Sin+Imagen' }}"
                                                  alt="{{ $product->primaryImage?->alt_text ?? $product->name }}"
-                                                 class="w-full h-52 sm:h-72 lg:h-80 object-cover"
+                                                 class="w-full h-52 sm:h-72 lg:h-80 object-cover group-hover:scale-105 transition-transform duration-500"
                                                  loading="lazy">
+                                            <div class="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                                             @if($product->discount_percentage)
-                                                <div class="absolute top-3 left-3 sm:top-4 sm:left-4 badge-discount text-white px-2.5 py-1 rounded-full text-xs sm:text-sm font-semibold">
+                                                <div class="absolute top-3 left-3 sm:top-4 sm:left-4 bg-rose-500 text-white px-2.5 py-1.5 rounded-full text-xs font-bold tracking-wide shadow-lg">
                                                     -{{ $product->discount_percentage }}%
                                                 </div>
                                             @endif
-                                            <button type="button" class="absolute top-3 right-3 sm:top-4 sm:right-4 w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-full flex items-center justify-center hover:bg-rose-500 hover:text-white transition shadow-md">
+                                            <button type="button" class="absolute top-3 right-3 sm:top-4 sm:right-4 w-8 h-8 sm:w-10 sm:h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all duration-200 shadow-md" onclick="event.preventDefault(); event.stopPropagation();">
                                                 <i class="far fa-heart text-sm sm:text-base"></i>
                                             </button>
+                                            @if($product->stock <= 5 && $product->stock > 0)
+                                                <div class="absolute bottom-3 left-3 sm:bottom-4 sm:left-4 bg-amber-500 text-white px-2.5 py-1 rounded-full text-xs font-semibold shadow-md">
+                                                    ¡Últimas {{ $product->stock }} uds!
+                                                </div>
+                                            @endif
                                         </a>
-                                        <div class="p-4 sm:p-6">
+                                        <div class="p-4 sm:p-5">
                                             <p class="text-xs text-gray-400 mb-1">{{ $product->category?->name }}</p>
                                             <a href="{{ route('product.show', $product->slug) }}" class="block">
-                                                <h3 class="font-semibold text-sm sm:text-lg mb-2 line-clamp-2 hover:text-[#D4A574] transition">{{ $product->name }}</h3>
+                                                <h3 class="font-semibold text-sm sm:text-base mb-2 line-clamp-2 group-hover:text-[#D4A574] transition-colors duration-200">{{ $product->name }}</h3>
                                             </a>
-                                            <div class="flex items-center gap-2 mb-3 sm:mb-4">
-                                                <span class="text-lg sm:text-2xl font-bold text-gray-900">S/ {{ number_format($product->current_price, 2) }}</span>
+                                            <div class="flex items-end gap-2 mb-3 sm:mb-4">
+                                                <span class="text-lg sm:text-2xl font-bold text-gray-900 leading-none">S/ {{ number_format($product->current_price, 2) }}</span>
                                                 @if($product->sale_price && $product->sale_price < $product->price)
-                                                    <span class="text-sm sm:text-lg text-gray-400 line-through">S/ {{ number_format($product->price, 2) }}</span>
+                                                    <span class="text-xs sm:text-sm text-gray-400 line-through leading-none pb-0.5">S/ {{ number_format($product->price, 2) }}</span>
                                                 @endif
                                             </div>
                                             <button type="button"
-                                                    class="add-to-cart-btn w-full bg-gray-900 text-white py-2.5 sm:py-3 rounded-full hover:bg-gray-800 transition flex items-center justify-center gap-2 text-sm sm:text-base font-medium"
+                                                    class="add-to-cart-btn w-full bg-gray-900 text-white py-2.5 sm:py-3 rounded-full hover:bg-gray-800 active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2 text-sm sm:text-base font-medium"
                                                     data-product-id="{{ $product->id }}">
-                                                <i class="fas fa-shopping-cart"></i>
+                                                <i class="fas fa-shopping-bag"></i>
                                                 <span class="hidden sm:inline">Agregar al Carrito</span>
                                                 <span class="sm:hidden">Agregar</span>
                                             </button>

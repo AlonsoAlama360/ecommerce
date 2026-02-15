@@ -133,32 +133,45 @@
                 <div class="slider-track" id="sliderTrack">
                     @foreach($featuredProducts as $product)
                         <div class="min-w-[300px] px-3">
-                            <div class="product-card bg-white rounded-2xl overflow-hidden shadow-lg">
-                                <a href="{{ route('product.show', $product->slug) }}" class="block relative">
+                            <div class="group bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300 border border-gray-100">
+                                <a href="{{ route('product.show', $product->slug) }}" class="block relative overflow-hidden">
                                     <img src="{{ $product->primaryImage?->image_url ?? '' }}"
                                         alt="{{ $product->name }}"
-                                        class="w-full h-80 object-cover" loading="lazy">
+                                        class="w-full h-80 object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy">
+                                    <div class="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                                     @if($product->discount_percentage)
-                                        <div class="absolute top-4 left-4 badge-discount text-white px-3 py-1 rounded-full text-sm font-semibold">
+                                        <div class="absolute top-4 left-4 bg-rose-500 text-white px-3 py-1.5 rounded-full text-xs font-bold tracking-wide shadow-lg">
                                             -{{ $product->discount_percentage }}%
                                         </div>
                                     @endif
-                                    <button type="button" class="absolute top-4 right-4 w-10 h-10 bg-white rounded-full flex items-center justify-center hover:bg-rose-500 hover:text-white transition" onclick="event.preventDefault(); event.stopPropagation();">
-                                        <i class="far fa-heart"></i>
+                                    <button type="button" class="absolute top-4 right-4 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all duration-200 shadow-md" onclick="event.preventDefault(); event.stopPropagation();">
+                                        <i class="far fa-heart text-sm"></i>
                                     </button>
+                                    @if($product->stock <= 5 && $product->stock > 0)
+                                        <div class="absolute bottom-4 left-4 bg-amber-500 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-md">
+                                            ¡Últimas {{ $product->stock }} unidades!
+                                        </div>
+                                    @endif
                                 </a>
-                                <div class="p-6">
-                                    <a href="{{ route('product.show', $product->slug) }}">
-                                        <h3 class="font-semibold text-lg mb-2 hover:text-[#D4A574] transition">{{ $product->name }}</h3>
+                                <div class="p-5">
+                                    <a href="{{ route('product.show', $product->slug) }}" class="block">
+                                        <h3 class="font-semibold text-base mb-1 line-clamp-1 group-hover:text-[#D4A574] transition-colors duration-200">{{ $product->name }}</h3>
                                     </a>
-                                    <div class="flex items-center gap-2 mb-4">
-                                        <span class="text-2xl font-bold text-gray-900">S/ {{ number_format($product->current_price, 2) }}</span>
-                                        @if($product->sale_price)
-                                            <span class="text-lg text-gray-400 line-through">S/ {{ number_format($product->price, 2) }}</span>
+                                    @if($product->short_description)
+                                        <p class="text-xs text-gray-400 mb-3 line-clamp-1">{{ $product->short_description }}</p>
+                                    @else
+                                        <p class="text-xs text-gray-400 mb-3">{{ $product->category?->name }}</p>
+                                    @endif
+                                    <div class="flex items-end gap-2 mb-4">
+                                        <span class="text-2xl font-bold text-gray-900 leading-none">S/ {{ number_format($product->current_price, 2) }}</span>
+                                        @if($product->sale_price && $product->sale_price < $product->price)
+                                            <span class="text-sm text-gray-400 line-through leading-none pb-0.5">S/ {{ number_format($product->price, 2) }}</span>
                                         @endif
                                     </div>
-                                    <button class="w-full bg-gray-900 text-white py-3 rounded-full hover:bg-gray-800 transition flex items-center justify-center gap-2">
-                                        <i class="fas fa-shopping-cart"></i> Agregar al Carrito
+                                    <button type="button"
+                                            class="add-to-cart-btn w-full bg-gray-900 text-white py-3 rounded-full hover:bg-gray-800 active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2 font-medium text-sm"
+                                            data-product-id="{{ $product->id }}">
+                                        <i class="fas fa-shopping-bag"></i> Agregar al Carrito
                                     </button>
                                 </div>
                             </div>
@@ -286,5 +299,55 @@
         }
         sliderTrack.style.transform = `translateX(-${currentSlide * slideWidth}px)`;
     }, 5000);
+
+    // Add to Cart AJAX
+    document.querySelectorAll('.add-to-cart-btn').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            var button = this;
+            var productId = button.dataset.productId;
+            var originalHTML = button.innerHTML;
+
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            button.disabled = true;
+
+            fetch('/carrito/agregar', {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify({ product_id: productId, quantity: 1 })
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                button.innerHTML = '<i class="fas fa-check"></i> <span>¡Agregado!</span>';
+                button.classList.remove('bg-gray-900');
+                button.classList.add('bg-green-600');
+
+                document.querySelectorAll('.cart-badge').forEach(function(b) {
+                    b.textContent = data.cart_count;
+                    b.style.display = data.cart_count > 0 ? 'flex' : 'none';
+                });
+
+                if (typeof showToast === 'function') {
+                    showToast('¡Producto agregado al carrito!');
+                }
+
+                setTimeout(function() {
+                    button.innerHTML = originalHTML;
+                    button.classList.remove('bg-green-600');
+                    button.classList.add('bg-gray-900');
+                    button.disabled = false;
+                }, 1500);
+            })
+            .catch(function() {
+                button.innerHTML = originalHTML;
+                button.disabled = false;
+            });
+        });
+    });
 </script>
 @endsection
