@@ -495,7 +495,7 @@
     </header>
 
     <!-- Modal de Búsqueda -->
-    <div class="search-modal fixed inset-0 bg-black/50 backdrop-blur-sm z-50 items-center justify-start pt-20 sm:pt-32" id="searchModal">
+    <div class="search-modal fixed inset-0 bg-black/50 backdrop-blur-sm z-50 items-center justify-center" id="searchModal">
         <div class="bg-white rounded-2xl p-6 sm:p-8 max-w-2xl w-full mx-4 relative shadow-2xl" style="max-height: 80vh; display: flex; flex-direction: column;">
             <button class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl" id="closeSearchBtn">
                 <i class="fas fa-times"></i>
