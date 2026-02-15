@@ -290,7 +290,9 @@
                                                     <span class="text-sm sm:text-lg text-gray-400 line-through">S/ {{ number_format($product->price, 2) }}</span>
                                                 @endif
                                             </div>
-                                            <button type="button" class="w-full bg-gray-900 text-white py-2.5 sm:py-3 rounded-full hover:bg-gray-800 transition flex items-center justify-center gap-2 text-sm sm:text-base font-medium">
+                                            <button type="button"
+                                                    class="add-to-cart-btn w-full bg-gray-900 text-white py-2.5 sm:py-3 rounded-full hover:bg-gray-800 transition flex items-center justify-center gap-2 text-sm sm:text-base font-medium"
+                                                    data-product-id="{{ $product->id }}">
                                                 <i class="fas fa-shopping-cart"></i>
                                                 <span class="hidden sm:inline">Agregar al Carrito</span>
                                                 <span class="sm:hidden">Agregar</span>
@@ -431,6 +433,50 @@
             if (!input.value || input.value === '' || input.value === '0') {
                 input.removeAttribute('name');
             }
+        });
+    });
+
+    // Add to Cart AJAX
+    document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const productId = this.dataset.productId;
+            const originalHTML = this.innerHTML;
+
+            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            this.disabled = true;
+
+            fetch('{{ route("cart.add") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify({ product_id: productId, quantity: 1 })
+            })
+            .then(r => r.json())
+            .then(data => {
+                this.innerHTML = '<i class="fas fa-check"></i> <span>¡Agregado!</span>';
+                this.classList.remove('bg-gray-900');
+                this.classList.add('bg-green-600');
+
+                document.querySelectorAll('.cart-badge').forEach(b => {
+                    b.textContent = data.cart_count;
+                    b.style.display = data.cart_count > 0 ? 'flex' : 'none';
+                });
+
+                setTimeout(() => {
+                    this.innerHTML = originalHTML;
+                    this.classList.remove('bg-green-600');
+                    this.classList.add('bg-gray-900');
+                    this.disabled = false;
+                }, 1500);
+            })
+            .catch(() => {
+                this.innerHTML = originalHTML;
+                this.disabled = false;
+            });
         });
     });
 </script>
