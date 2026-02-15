@@ -95,14 +95,17 @@
         }
 
         .search-modal {
-            display: none;
+            display: flex;
             opacity: 0;
-            transition: opacity 0.3s ease;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
         }
 
         .search-modal.active {
-            display: flex;
             opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
         }
 
         .search-result-item {
@@ -800,30 +803,32 @@
         var searchSpinner = document.getElementById('searchSpinner');
         var searchTimer = null;
 
-        searchBtn.addEventListener('click', function() {
+        function openSearch() {
             searchModal.classList.add('active');
+            document.body.style.overflow = 'hidden';
             setTimeout(function() { searchInput.focus(); }, 100);
-        });
+        }
 
-        closeSearchBtn.addEventListener('click', function() {
+        function closeSearch() {
             searchModal.classList.remove('active');
+            document.body.style.overflow = '';
             searchInput.value = '';
             searchDefault.classList.remove('hidden');
             searchDynamic.classList.add('hidden');
-        });
+        }
+
+        searchBtn.addEventListener('click', openSearch);
+        closeSearchBtn.addEventListener('click', closeSearch);
 
         searchModal.addEventListener('click', function(e) {
             if (e.target === searchModal) {
-                searchModal.classList.remove('active');
-                searchInput.value = '';
-                searchDefault.classList.remove('hidden');
-                searchDynamic.classList.add('hidden');
+                closeSearch();
             }
         });
 
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape' && searchModal.classList.contains('active')) {
-                searchModal.classList.remove('active');
+                closeSearch();
             }
         });
 
