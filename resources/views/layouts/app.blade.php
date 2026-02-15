@@ -105,6 +105,15 @@
             opacity: 1;
         }
 
+        .search-result-item {
+            transition: all 0.15s ease;
+        }
+
+        .search-result-item:hover {
+            background: #fdf2f4;
+            transform: translateX(4px);
+        }
+
         .mobile-menu {
             position: fixed;
             top: 0;
@@ -486,41 +495,37 @@
     </header>
 
     <!-- Modal de Búsqueda -->
-    <div class="search-modal fixed inset-0 bg-black/50 backdrop-blur-sm z-50 items-center justify-center" id="searchModal">
-        <div class="bg-white rounded-2xl p-8 max-w-3xl w-full mx-4 relative">
+    <div class="search-modal fixed inset-0 bg-black/50 backdrop-blur-sm z-50 items-center justify-start pt-20 sm:pt-32" id="searchModal">
+        <div class="bg-white rounded-2xl p-6 sm:p-8 max-w-2xl w-full mx-4 relative shadow-2xl" style="max-height: 80vh; display: flex; flex-direction: column;">
             <button class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl" id="closeSearchBtn">
                 <i class="fas fa-times"></i>
             </button>
-            <div class="mb-6">
-                <input type="text" placeholder="Busca tu detalle perfecto..."
-                    class="w-full px-6 py-4 text-lg border-2 border-gray-200 rounded-full focus:outline-none focus:border-gray-400 transition"
-                    id="searchInput">
+            <div class="mb-4 relative">
+                <i class="fas fa-search absolute left-5 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                <input type="text" placeholder="Buscar productos, categorías..."
+                    class="w-full pl-12 pr-6 py-4 text-lg border-2 border-gray-200 rounded-full focus:outline-none focus:border-[#E8B4B8] transition"
+                    id="searchInput" autocomplete="off">
+                <div class="absolute right-5 top-1/2 -translate-y-1/2 hidden" id="searchSpinner">
+                    <i class="fas fa-spinner fa-spin text-gray-400"></i>
+                </div>
             </div>
-            <div class="space-y-3" id="searchResults">
-                <div class="flex items-center gap-4 p-3 hover:bg-gray-50 rounded-lg cursor-pointer transition">
-                    <img src="https://i.pinimg.com/736x/05/f1/89/05f189b8862acc9f463bfa53af869d85.jpg" alt="Producto" class="w-16 h-16 object-cover rounded-lg">
-                    <div class="flex-1">
-                        <h4 class="font-medium">Collar Corazón Infinito</h4>
-                        <p class="text-sm text-gray-500">Oro Rosa 18k</p>
+
+            <div class="overflow-y-auto flex-1" id="searchResults">
+                <!-- Estado inicial: sugerencias rápidas -->
+                <div id="searchDefault">
+                    <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 px-1">Búsquedas populares</p>
+                    <div class="flex flex-wrap gap-2">
+                        <button class="search-suggestion px-4 py-2 bg-gray-100 hover:bg-[#E8B4B8]/20 hover:text-[#D4A574] rounded-full text-sm text-gray-600 transition-colors duration-200">Rosas</button>
+                        <button class="search-suggestion px-4 py-2 bg-gray-100 hover:bg-[#E8B4B8]/20 hover:text-[#D4A574] rounded-full text-sm text-gray-600 transition-colors duration-200">Collar</button>
+                        <button class="search-suggestion px-4 py-2 bg-gray-100 hover:bg-[#E8B4B8]/20 hover:text-[#D4A574] rounded-full text-sm text-gray-600 transition-colors duration-200">Peluche</button>
+                        <button class="search-suggestion px-4 py-2 bg-gray-100 hover:bg-[#E8B4B8]/20 hover:text-[#D4A574] rounded-full text-sm text-gray-600 transition-colors duration-200">Aniversario</button>
+                        <button class="search-suggestion px-4 py-2 bg-gray-100 hover:bg-[#E8B4B8]/20 hover:text-[#D4A574] rounded-full text-sm text-gray-600 transition-colors duration-200">Chocolate</button>
+                        <button class="search-suggestion px-4 py-2 bg-gray-100 hover:bg-[#E8B4B8]/20 hover:text-[#D4A574] rounded-full text-sm text-gray-600 transition-colors duration-200">Pulsera</button>
                     </div>
-                    <span class="font-semibold text-lg">$89.99</span>
                 </div>
-                <div class="flex items-center gap-4 p-3 hover:bg-gray-50 rounded-lg cursor-pointer transition">
-                    <img src="https://i.pinimg.com/1200x/09/26/49/092649e7126954d695440adcfd78db80.jpg" alt="Producto" class="w-16 h-16 object-cover rounded-lg">
-                    <div class="flex-1">
-                        <h4 class="font-medium">Pulsera Amor Eterno</h4>
-                        <p class="text-sm text-gray-500">Plata 925</p>
-                    </div>
-                    <span class="font-semibold text-lg">$64.99</span>
-                </div>
-                <div class="flex items-center gap-4 p-3 hover:bg-gray-50 rounded-lg cursor-pointer transition">
-                    <img src="https://i.pinimg.com/736x/cb/ef/6e/cbef6e099db2a2b90825505936e65985.jpg" alt="Producto" class="w-16 h-16 object-cover rounded-lg">
-                    <div class="flex-1">
-                        <h4 class="font-medium">Rosa Eterna en Cúpula</h4>
-                        <p class="text-sm text-gray-500">Roja Premium</p>
-                    </div>
-                    <span class="font-semibold text-lg">$129.99</span>
-                </div>
+
+                <!-- Resultados dinámicos -->
+                <div id="searchDynamic" class="hidden"></div>
             </div>
         </div>
     </div>
@@ -786,14 +791,128 @@
         }
 
         // Search Modal
-        const searchBtn = document.getElementById('searchBtn');
-        const searchModal = document.getElementById('searchModal');
-        const closeSearchBtn = document.getElementById('closeSearchBtn');
-        const searchInput = document.getElementById('searchInput');
+        var searchBtn = document.getElementById('searchBtn');
+        var searchModal = document.getElementById('searchModal');
+        var closeSearchBtn = document.getElementById('closeSearchBtn');
+        var searchInput = document.getElementById('searchInput');
+        var searchDefault = document.getElementById('searchDefault');
+        var searchDynamic = document.getElementById('searchDynamic');
+        var searchSpinner = document.getElementById('searchSpinner');
+        var searchTimer = null;
 
-        searchBtn.addEventListener('click', () => { searchModal.classList.add('active'); setTimeout(() => searchInput.focus(), 100); });
-        closeSearchBtn.addEventListener('click', () => searchModal.classList.remove('active'));
-        searchModal.addEventListener('click', (e) => { if (e.target === searchModal) searchModal.classList.remove('active'); });
+        searchBtn.addEventListener('click', function() {
+            searchModal.classList.add('active');
+            setTimeout(function() { searchInput.focus(); }, 100);
+        });
+
+        closeSearchBtn.addEventListener('click', function() {
+            searchModal.classList.remove('active');
+            searchInput.value = '';
+            searchDefault.classList.remove('hidden');
+            searchDynamic.classList.add('hidden');
+        });
+
+        searchModal.addEventListener('click', function(e) {
+            if (e.target === searchModal) {
+                searchModal.classList.remove('active');
+                searchInput.value = '';
+                searchDefault.classList.remove('hidden');
+                searchDynamic.classList.add('hidden');
+            }
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && searchModal.classList.contains('active')) {
+                searchModal.classList.remove('active');
+            }
+        });
+
+        // Sugerencias rápidas
+        document.querySelectorAll('.search-suggestion').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                searchInput.value = this.textContent;
+                searchInput.dispatchEvent(new Event('input'));
+            });
+        });
+
+        // Búsqueda en tiempo real con debounce
+        searchInput.addEventListener('input', function() {
+            var query = this.value.trim();
+            clearTimeout(searchTimer);
+
+            if (query.length < 2) {
+                searchDefault.classList.remove('hidden');
+                searchDynamic.classList.add('hidden');
+                searchDynamic.innerHTML = '';
+                searchSpinner.classList.add('hidden');
+                return;
+            }
+
+            searchSpinner.classList.remove('hidden');
+
+            searchTimer = setTimeout(function() {
+                fetch('/buscar?q=' + encodeURIComponent(query), {
+                    credentials: 'same-origin',
+                    headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+                })
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    searchSpinner.classList.add('hidden');
+                    searchDefault.classList.add('hidden');
+                    searchDynamic.classList.remove('hidden');
+
+                    var html = '';
+
+                    // Categorías encontradas
+                    if (data.categories.length > 0) {
+                        html += '<p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 px-1">Categorías</p>';
+                        data.categories.forEach(function(cat) {
+                            html += '<a href="' + cat.url + '" class="search-result-item flex items-center gap-3 px-3 py-2.5 rounded-xl">' +
+                                '<div class="w-10 h-10 bg-[#E8B4B8]/20 rounded-full flex items-center justify-center flex-shrink-0">' +
+                                '<i class="' + (cat.icon || 'fas fa-tag') + ' text-[#D4A574] text-sm"></i></div>' +
+                                '<span class="font-medium text-gray-700">' + cat.name + '</span>' +
+                                '<i class="fas fa-chevron-right text-gray-300 text-xs ml-auto"></i></a>';
+                        });
+                        html += '<div class="my-3 border-t border-gray-100"></div>';
+                    }
+
+                    // Productos encontrados
+                    if (data.products.length > 0) {
+                        html += '<p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 px-1">Productos</p>';
+                        data.products.forEach(function(p) {
+                            var imgSrc = p.image || '/images/placeholder.png';
+                            var price = Number(p.price).toFixed(2);
+                            html += '<a href="' + p.url + '" class="search-result-item flex items-center gap-3 px-3 py-2.5 rounded-xl">' +
+                                '<img src="' + imgSrc + '" alt="' + p.name + '" class="w-12 h-12 object-cover rounded-lg flex-shrink-0">' +
+                                '<div class="flex-1 min-w-0">' +
+                                '<h4 class="font-medium text-sm text-gray-900 truncate">' + p.name + '</h4>' +
+                                '<p class="text-xs text-gray-400">' + (p.category || '') + '</p></div>' +
+                                '<span class="font-bold text-gray-900 flex-shrink-0">S/ ' + price + '</span></a>';
+                        });
+                    }
+
+                    // Sin resultados
+                    if (data.products.length === 0 && data.categories.length === 0) {
+                        html = '<div class="text-center py-10">' +
+                            '<i class="fas fa-search text-4xl text-gray-200 mb-4"></i>' +
+                            '<p class="text-gray-500 font-medium">No encontramos resultados para "<span class="text-gray-700">' + query + '</span>"</p>' +
+                            '<p class="text-gray-400 text-sm mt-1">Intenta con otras palabras clave</p></div>';
+                    }
+
+                    // Link ver todos
+                    if (data.products.length > 0) {
+                        html += '<div class="mt-3 pt-3 border-t border-gray-100">' +
+                            '<a href="/catalogo?q=' + encodeURIComponent(query) + '" class="flex items-center justify-center gap-2 py-2.5 text-sm font-medium text-[#D4A574] hover:text-[#c4955e] transition">' +
+                            'Ver todos los resultados <i class="fas fa-arrow-right text-xs"></i></a></div>';
+                    }
+
+                    searchDynamic.innerHTML = html;
+                })
+                .catch(function() {
+                    searchSpinner.classList.add('hidden');
+                });
+            }, 300);
+        });
     </script>
 
     @yield('scripts')

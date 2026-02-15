@@ -87,4 +87,59 @@ class CatalogController extends Controller
 
         return view('catalog', compact('products', 'categories', 'priceRange'));
     }
+
+    public function search(Request $request)
+    {
+        $q = trim($request->get('q', ''));
+
+        if (strlen($q) < 2) {
+            return response()->json(['products' => [], 'categories' => []]);
+        }
+
+        $products = Product::active()
+            ->with('primaryImage:id,product_id,image_url,alt_text')
+            ->with('category:id,name,slug')
+            ->where(function ($query) use ($q) {
+                $query->where('name', 'like', "%{$q}%")
+                      ->orWhere('short_description', 'like', "%{$q}%")
+                      ->orWhere('material', 'like', "%{$q}%")
+                      ->orWhereHas('category', function ($cq) use ($q) {
+                          $cq->where('name', 'like', "%{$q}%");
+                      });
+            })
+            ->select('id', 'category_id', 'name', 'slug', 'price', 'sale_price', 'stock')
+            ->limit(6)
+            ->get()
+            ->map(function ($product) {
+                return [
+                    'id' => $product->id,
+                    'name' => $product->name,
+                    'slug' => $product->slug,
+                    'price' => $product->current_price,
+                    'original_price' => $product->sale_price ? $product->price : null,
+                    'category' => $product->category?->name,
+                    'image' => $product->primaryImage?->image_url,
+                    'url' => route('product.show', $product->slug),
+                ];
+            });
+
+        $categories = Category::active()
+            ->where('name', 'like', "%{$q}%")
+            ->select('id', 'name', 'slug', 'icon')
+            ->limit(3)
+            ->get()
+            ->map(function ($cat) {
+                return [
+                    'name' => $cat->name,
+                    'slug' => $cat->slug,
+                    'icon' => $cat->icon,
+                    'url' => route('catalog', ['categories' => [$cat->slug]]),
+                ];
+            });
+
+        return response()->json([
+            'products' => $products,
+            'categories' => $categories,
+        ]);
+    }
 }
