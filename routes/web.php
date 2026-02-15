@@ -20,6 +20,7 @@ Route::post('/carrito/agregar', [CartController::class, 'add'])->name('cart.add'
 Route::patch('/carrito/actualizar', [CartController::class, 'update'])->name('cart.update');
 Route::delete('/carrito/eliminar', [CartController::class, 'remove'])->name('cart.remove');
 Route::get('/carrito/count', [CartController::class, 'count'])->name('cart.count');
+Route::get('/carrito/items', [CartController::class, 'items'])->name('cart.items');
 
 // API interna (sin autenticación, para el mega menu)
 Route::get('/api/categories/{slug}/products', [CategoryProductController::class, 'index']);
