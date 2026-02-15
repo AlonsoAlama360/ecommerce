@@ -72,13 +72,15 @@
             opacity: 0;
             visibility: hidden;
             transform: translateY(-10px);
-            transition: all 0.3s ease;
+            transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease;
+            pointer-events: none;
         }
 
         .cart-dropdown.active {
             opacity: 1;
             visibility: visible;
             transform: translateY(0);
+            pointer-events: auto;
         }
 
         .user-dropdown {
@@ -429,7 +431,8 @@
                             <span class="cart-badge absolute -top-2 -right-2 bg-[#E8B4B8] text-white text-xs rounded-full w-5 h-5 items-center justify-center {{ $cartCount > 0 ? 'flex' : 'hidden' }}">{{ $cartCount }}</span>
                         </a>
 
-                        <div class="cart-dropdown absolute top-full right-0 mt-2 w-80 bg-white shadow-2xl rounded-lg p-6" id="cartDropdown">
+                        <div class="cart-dropdown absolute top-full right-0 pt-2 w-80" id="cartDropdown">
+                        <div class="bg-white shadow-2xl rounded-lg p-6">
                             <div id="cartDropdownContent">
                                 <div class="text-center py-8">
                                     <i class="fas fa-shopping-bag text-4xl text-gray-300 mb-4"></i>
@@ -437,6 +440,7 @@
                                     <a href="{{ route('catalog') }}" class="inline-block mt-4 bg-gray-900 text-white px-6 py-2 rounded-full hover:bg-gray-800 transition text-sm font-medium">Explorar Tienda</a>
                                 </div>
                             </div>
+                        </div>
                         </div>
                     </div>
 
@@ -771,15 +775,16 @@
         }
 
         if (cartBtn && cartDropdown) {
-            cartBtn.addEventListener('mouseenter', () => {
+            var cartContainer = cartBtn.parentElement;
+            cartContainer.addEventListener('mouseenter', () => {
                 clearTimeout(cartTimeout);
                 cartDropdownLoaded = false;
                 loadCartDropdown();
                 cartDropdown.classList.add('active');
             });
-            cartBtn.parentElement.addEventListener('mouseleave', () => { cartTimeout = setTimeout(() => cartDropdown.classList.remove('active'), 200); });
-            cartDropdown.addEventListener('mouseenter', () => clearTimeout(cartTimeout));
-            cartDropdown.addEventListener('mouseleave', () => { cartTimeout = setTimeout(() => cartDropdown.classList.remove('active'), 200); });
+            cartContainer.addEventListener('mouseleave', () => {
+                cartTimeout = setTimeout(() => cartDropdown.classList.remove('active'), 300);
+            });
         }
 
         // User Dropdown (solo si existe)
