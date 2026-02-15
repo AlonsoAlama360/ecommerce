@@ -350,19 +350,20 @@
 
                     <!-- Carrito -->
                     <div class="relative">
-                        <button class="text-gray-700 hover:text-gray-900 transition relative" id="cartBtn">
+                        <a href="{{ route('cart') }}" class="text-gray-700 hover:text-gray-900 transition relative" id="cartBtn">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                             </svg>
-                            <span class="absolute -top-2 -right-2 bg-[#E8B4B8] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">0</span>
-                        </button>
+                            @php $cartCount = array_sum(array_column(session('cart', []), 'quantity')); @endphp
+                            <span class="cart-badge absolute -top-2 -right-2 bg-[#E8B4B8] text-white text-xs rounded-full w-5 h-5 items-center justify-center {{ $cartCount > 0 ? 'flex' : 'hidden' }}">{{ $cartCount }}</span>
+                        </a>
 
                         <div class="cart-dropdown absolute top-full right-0 mt-2 w-80 bg-white shadow-2xl rounded-lg p-6" id="cartDropdown">
                             <div class="text-center py-8">
                                 <i class="fas fa-shopping-bag text-4xl text-gray-300 mb-4"></i>
                                 <p class="text-gray-500">Tu carrito está vacío</p>
-                                <a href="#" class="inline-block mt-4 bg-gray-900 text-white px-6 py-2 rounded-full hover:bg-gray-800 transition text-sm font-medium">Explorar Tienda</a>
+                                <a href="{{ route('catalog') }}" class="inline-block mt-4 bg-gray-900 text-white px-6 py-2 rounded-full hover:bg-gray-800 transition text-sm font-medium">Explorar Tienda</a>
                             </div>
                         </div>
                     </div>
@@ -626,10 +627,12 @@
         const cartDropdown = document.getElementById('cartDropdown');
         let cartTimeout;
 
-        cartBtn.addEventListener('mouseenter', () => { clearTimeout(cartTimeout); cartDropdown.classList.add('active'); });
-        cartBtn.parentElement.addEventListener('mouseleave', () => { cartTimeout = setTimeout(() => cartDropdown.classList.remove('active'), 200); });
-        cartDropdown.addEventListener('mouseenter', () => clearTimeout(cartTimeout));
-        cartDropdown.addEventListener('mouseleave', () => { cartTimeout = setTimeout(() => cartDropdown.classList.remove('active'), 200); });
+        if (cartBtn && cartDropdown) {
+            cartBtn.addEventListener('mouseenter', () => { clearTimeout(cartTimeout); cartDropdown.classList.add('active'); });
+            cartBtn.parentElement.addEventListener('mouseleave', () => { cartTimeout = setTimeout(() => cartDropdown.classList.remove('active'), 200); });
+            cartDropdown.addEventListener('mouseenter', () => clearTimeout(cartTimeout));
+            cartDropdown.addEventListener('mouseleave', () => { cartTimeout = setTimeout(() => cartDropdown.classList.remove('active'), 200); });
+        }
 
         // User Dropdown (solo si existe)
         const userBtn = document.getElementById('userBtn');

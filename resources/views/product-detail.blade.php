@@ -104,11 +104,16 @@
 
                 <!-- Actions -->
                 <div class="space-y-3 pt-4">
-                    <button type="button" class="w-full bg-gray-900 text-white py-4 rounded-full font-semibold text-lg hover:bg-gray-800 transition shadow-lg hover:shadow-xl flex items-center justify-center gap-2 {{ $product->stock <= 0 ? 'opacity-50 cursor-not-allowed' : '' }}" {{ $product->stock <= 0 ? 'disabled' : '' }}>
-                        <i class="fas fa-shopping-cart"></i>
-                        Agregar al Carrito
-                    </button>
-                    <button type="button" class="w-full bg-green-500 text-white py-4 rounded-full font-semibold text-lg hover:bg-green-600 transition flex items-center justify-center gap-2">
+                    <form id="addToCartForm" action="{{ route('cart.add') }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="product_id" value="{{ $product->id }}">
+                        <input type="hidden" name="quantity" value="1" id="cartQtyInput">
+                        <button type="submit" class="w-full bg-gray-900 text-white py-4 rounded-full font-semibold text-lg hover:bg-gray-800 transition shadow-lg hover:shadow-xl flex items-center justify-center gap-2 {{ $product->stock <= 0 ? 'opacity-50 cursor-not-allowed' : '' }}" {{ $product->stock <= 0 ? 'disabled' : '' }}>
+                            <i class="fas fa-shopping-cart"></i>
+                            Agregar al Carrito
+                        </button>
+                    </form>
+                    <button type="button" id="whatsappBtn" class="w-full bg-green-500 text-white py-4 rounded-full font-semibold text-lg hover:bg-green-600 transition flex items-center justify-center gap-2">
                         <i class="fab fa-whatsapp text-xl"></i>
                         Consultar por WhatsApp
                     </button>
@@ -242,16 +247,100 @@
 
     // Quantity Controls
     const qtyInput = document.getElementById('quantity');
+    const cartQtyInput = document.getElementById('cartQtyInput');
     const maxStock = {{ $product->stock }};
 
     document.getElementById('decreaseQty').addEventListener('click', () => {
         const val = parseInt(qtyInput.value);
-        if (val > 1) qtyInput.value = val - 1;
+        if (val > 1) {
+            qtyInput.value = val - 1;
+            cartQtyInput.value = val - 1;
+        }
     });
 
     document.getElementById('increaseQty').addEventListener('click', () => {
         const val = parseInt(qtyInput.value);
-        if (val < maxStock) qtyInput.value = val + 1;
+        if (val < maxStock) {
+            qtyInput.value = val + 1;
+            cartQtyInput.value = val + 1;
+        }
+    });
+
+    // Add to Cart via AJAX
+    document.getElementById('addToCartForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const form = this;
+        const btn = form.querySelector('button[type="submit"]');
+        const originalHTML = btn.innerHTML;
+
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Agregando...';
+        btn.disabled = true;
+
+        fetch(form.action, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                product_id: {{ $product->id }},
+                quantity: parseInt(qtyInput.value),
+            })
+        })
+        .then(r => r.json())
+        .then(data => {
+            btn.innerHTML = '<i class="fas fa-check"></i> ¡Agregado!';
+            btn.classList.remove('bg-gray-900');
+            btn.classList.add('bg-green-600');
+
+            // Update cart badge
+            document.querySelectorAll('.cart-badge').forEach(b => {
+                b.textContent = data.cart_count;
+                b.style.display = data.cart_count > 0 ? 'flex' : 'none';
+            });
+
+            setTimeout(() => {
+                btn.innerHTML = originalHTML;
+                btn.classList.remove('bg-green-600');
+                btn.classList.add('bg-gray-900');
+                btn.disabled = false;
+            }, 2000);
+        })
+        .catch(() => {
+            btn.innerHTML = originalHTML;
+            btn.disabled = false;
+        });
+    });
+
+    // WhatsApp button
+    document.getElementById('whatsappBtn').addEventListener('click', function() {
+        const phone = '{{ config("app.whatsapp_phone", "51999999999") }}';
+        const qty = parseInt(qtyInput.value);
+        const productUrl = window.location.href;
+
+        let message = '🎁 *Consulta sobre producto - Romantic Gifts*\n\n';
+        message += '━━━━━━━━━━━━━━━\n';
+        message += '📦 *{{ $product->name }}*\n';
+        message += '━━━━━━━━━━━━━━━\n\n';
+        @if($product->material)
+        message += '✨ Material: {{ $product->material }}\n';
+        @endif
+        message += '🏷️ SKU: {{ $product->sku }}\n';
+        message += '💰 Precio: S/ {{ number_format($product->current_price, 2) }}';
+        @if($product->discount_percentage)
+        message += ' (antes S/ {{ number_format($product->price, 2) }} — {{ $product->discount_percentage }}% OFF)';
+        @endif
+        message += '\n';
+        message += '📦 Cantidad: ' + qty + '\n';
+        message += '💵 Total: S/ ' + ({{ $product->current_price }} * qty).toFixed(2) + '\n\n';
+        message += '🔗 Ver producto: ' + productUrl + '\n\n';
+        @if($product->primaryImage)
+        message += '📸 Imagen: {{ $product->primaryImage->image_url }}\n\n';
+        @endif
+        message += 'Hola, estoy interesado/a en este producto. ¿Está disponible? Me gustaría más información. 🙏';
+
+        window.open('https://wa.me/' + phone + '?text=' + encodeURIComponent(message), '_blank');
     });
 
     // Tabs
