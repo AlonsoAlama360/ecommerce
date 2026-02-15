@@ -709,46 +709,57 @@
         let cartDropdownLoaded = false;
 
         function loadCartDropdown() {
-            fetch('{{ route("cart.items") }}', {
-                headers: { 'Accept': 'application/json' }
+            fetch('/carrito/items', {
+                method: 'GET',
+                credentials: 'same-origin',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
             })
-            .then(r => r.json())
+            .then(r => {
+                if (!r.ok) throw new Error('HTTP ' + r.status);
+                return r.json();
+            })
             .then(data => {
                 cartDropdownLoaded = true;
-                if (data.items.length === 0) {
+                if (!data.items || data.items.length === 0) {
                     cartDropdownContent.innerHTML = `
                         <div class="text-center py-8">
                             <i class="fas fa-shopping-bag text-4xl text-gray-300 mb-4"></i>
                             <p class="text-gray-500">Tu carrito está vacío</p>
-                            <a href="{{ route('catalog') }}" class="inline-block mt-4 bg-gray-900 text-white px-6 py-2 rounded-full hover:bg-gray-800 transition text-sm font-medium">Explorar Tienda</a>
+                            <a href="/catalogo" class="inline-block mt-4 bg-gray-900 text-white px-6 py-2 rounded-full hover:bg-gray-800 transition text-sm font-medium">Explorar Tienda</a>
                         </div>`;
                     return;
                 }
 
                 let itemsHtml = '';
-                data.items.forEach(item => {
-                    const imgSrc = item.image || 'https://via.placeholder.com/60';
-                    itemsHtml += `
-                        <div class="flex items-center gap-3 py-2">
-                            <img src="${imgSrc}" alt="${item.name}" class="w-12 h-12 object-cover rounded-lg flex-shrink-0">
-                            <div class="flex-1 min-w-0">
-                                <p class="text-sm font-medium text-gray-900 truncate">${item.name}</p>
-                                <p class="text-xs text-gray-500">${item.quantity} × S/ ${item.price.toFixed(2)}</p>
-                            </div>
-                            <span class="text-sm font-semibold text-gray-900 flex-shrink-0">S/ ${item.line_total.toFixed(2)}</span>
-                        </div>`;
+                data.items.forEach(function(item) {
+                    const imgSrc = item.image || '/images/placeholder.png';
+                    const price = Number(item.price).toFixed(2);
+                    const lineTotal = Number(item.line_total).toFixed(2);
+                    itemsHtml += '<div class="flex items-center gap-3 py-2">' +
+                        '<img src="' + imgSrc + '" alt="' + item.name + '" class="w-12 h-12 object-cover rounded-lg flex-shrink-0">' +
+                        '<div class="flex-1 min-w-0">' +
+                        '<p class="text-sm font-medium text-gray-900 truncate">' + item.name + '</p>' +
+                        '<p class="text-xs text-gray-500">' + item.quantity + ' × S/ ' + price + '</p>' +
+                        '</div>' +
+                        '<span class="text-sm font-semibold text-gray-900 flex-shrink-0">S/ ' + lineTotal + '</span>' +
+                        '</div>';
                 });
 
-                cartDropdownContent.innerHTML = `
-                    <h3 class="font-semibold text-gray-900 mb-3">Mi Carrito (${data.count})</h3>
-                    <div class="cart-dropdown-items divide-y divide-gray-100">${itemsHtml}</div>
-                    <div class="border-t border-gray-200 mt-3 pt-3 flex items-center justify-between">
-                        <span class="font-semibold text-gray-900">Total:</span>
-                        <span class="font-bold text-lg text-gray-900">S/ ${data.total.toFixed(2)}</span>
-                    </div>
-                    <a href="{{ route('cart') }}" class="block mt-3 bg-gray-900 text-white text-center px-6 py-2.5 rounded-full hover:bg-gray-800 transition text-sm font-medium">Ver Carrito</a>`;
+                const total = Number(data.total).toFixed(2);
+                cartDropdownContent.innerHTML = '<h3 class="font-semibold text-gray-900 mb-3">Mi Carrito (' + data.count + ')</h3>' +
+                    '<div class="cart-dropdown-items divide-y divide-gray-100">' + itemsHtml + '</div>' +
+                    '<div class="border-t border-gray-200 mt-3 pt-3 flex items-center justify-between">' +
+                    '<span class="font-semibold text-gray-900">Total:</span>' +
+                    '<span class="font-bold text-lg text-gray-900">S/ ' + total + '</span>' +
+                    '</div>' +
+                    '<a href="/carrito" class="block mt-3 bg-gray-900 text-white text-center px-6 py-2.5 rounded-full hover:bg-gray-800 transition text-sm font-medium">Ver Carrito</a>';
             })
-            .catch(() => {});
+            .catch(function(err) {
+                console.error('Cart dropdown error:', err);
+            });
         }
 
         if (cartBtn && cartDropdown) {
