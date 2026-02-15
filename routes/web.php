@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Route;
 // Rutas públicas - cualquier usuario puede navegar
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/catalogo', [CatalogController::class, 'index'])->name('catalog');
+Route::get('/buscar', [CatalogController::class, 'search'])->name('search');
 Route::get('/producto/{slug}', [ProductController::class, 'show'])->name('product.show');
 
 // Carrito de compras (sesión, sin auth requerido)
