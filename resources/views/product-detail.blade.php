@@ -300,6 +300,10 @@
                 b.style.display = data.cart_count > 0 ? 'flex' : 'none';
             });
 
+            if (typeof showToast === 'function') {
+                showToast('¡Producto agregado al carrito!');
+            }
+
             setTimeout(() => {
                 btn.innerHTML = originalHTML;
                 btn.classList.remove('bg-green-600');

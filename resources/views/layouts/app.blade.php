@@ -204,11 +204,69 @@
             background-color: #D4A574;
         }
 
+        /* Toast notification */
+        .toast-container {
+            position: fixed;
+            top: 90px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toast {
+            background: white;
+            border-radius: 12px;
+            padding: 14px 20px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transform: translateX(120%);
+            transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+            border-left: 4px solid #22c55e;
+            max-width: 340px;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #dcfce7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            color: #22c55e;
+        }
+
+        .cart-dropdown-items {
+            max-height: 280px;
+            overflow-y: auto;
+        }
+
+        .cart-dropdown-items::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .cart-dropdown-items::-webkit-scrollbar-thumb {
+            background: #d1d5db;
+            border-radius: 4px;
+        }
+
         @yield('styles')
     </style>
 </head>
 
 <body>
+    <!-- Toast container -->
+    <div class="toast-container" id="toastContainer"></div>
+
     <!-- Overlay para el menú móvil -->
     <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
 
@@ -360,10 +418,12 @@
                         </a>
 
                         <div class="cart-dropdown absolute top-full right-0 mt-2 w-80 bg-white shadow-2xl rounded-lg p-6" id="cartDropdown">
-                            <div class="text-center py-8">
-                                <i class="fas fa-shopping-bag text-4xl text-gray-300 mb-4"></i>
-                                <p class="text-gray-500">Tu carrito está vacío</p>
-                                <a href="{{ route('catalog') }}" class="inline-block mt-4 bg-gray-900 text-white px-6 py-2 rounded-full hover:bg-gray-800 transition text-sm font-medium">Explorar Tienda</a>
+                            <div id="cartDropdownContent">
+                                <div class="text-center py-8">
+                                    <i class="fas fa-shopping-bag text-4xl text-gray-300 mb-4"></i>
+                                    <p class="text-gray-500">Tu carrito está vacío</p>
+                                    <a href="{{ route('catalog') }}" class="inline-block mt-4 bg-gray-900 text-white px-6 py-2 rounded-full hover:bg-gray-800 transition text-sm font-medium">Explorar Tienda</a>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -622,13 +682,82 @@
             productPanel.classList.add('active');
         }
 
+        // Toast notification
+        function showToast(message) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerHTML = `
+                <div class="toast-icon"><i class="fas fa-check text-sm"></i></div>
+                <div>
+                    <p class="font-medium text-gray-900 text-sm">${message}</p>
+                </div>
+            `;
+            container.appendChild(toast);
+            requestAnimationFrame(() => toast.classList.add('show'));
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 400);
+            }, 3000);
+        }
+
         // Cart Dropdown
         const cartBtn = document.getElementById('cartBtn');
         const cartDropdown = document.getElementById('cartDropdown');
+        const cartDropdownContent = document.getElementById('cartDropdownContent');
         let cartTimeout;
+        let cartDropdownLoaded = false;
+
+        function loadCartDropdown() {
+            fetch('{{ route("cart.items") }}', {
+                headers: { 'Accept': 'application/json' }
+            })
+            .then(r => r.json())
+            .then(data => {
+                cartDropdownLoaded = true;
+                if (data.items.length === 0) {
+                    cartDropdownContent.innerHTML = `
+                        <div class="text-center py-8">
+                            <i class="fas fa-shopping-bag text-4xl text-gray-300 mb-4"></i>
+                            <p class="text-gray-500">Tu carrito está vacío</p>
+                            <a href="{{ route('catalog') }}" class="inline-block mt-4 bg-gray-900 text-white px-6 py-2 rounded-full hover:bg-gray-800 transition text-sm font-medium">Explorar Tienda</a>
+                        </div>`;
+                    return;
+                }
+
+                let itemsHtml = '';
+                data.items.forEach(item => {
+                    const imgSrc = item.image || 'https://via.placeholder.com/60';
+                    itemsHtml += `
+                        <div class="flex items-center gap-3 py-2">
+                            <img src="${imgSrc}" alt="${item.name}" class="w-12 h-12 object-cover rounded-lg flex-shrink-0">
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium text-gray-900 truncate">${item.name}</p>
+                                <p class="text-xs text-gray-500">${item.quantity} × S/ ${item.price.toFixed(2)}</p>
+                            </div>
+                            <span class="text-sm font-semibold text-gray-900 flex-shrink-0">S/ ${item.line_total.toFixed(2)}</span>
+                        </div>`;
+                });
+
+                cartDropdownContent.innerHTML = `
+                    <h3 class="font-semibold text-gray-900 mb-3">Mi Carrito (${data.count})</h3>
+                    <div class="cart-dropdown-items divide-y divide-gray-100">${itemsHtml}</div>
+                    <div class="border-t border-gray-200 mt-3 pt-3 flex items-center justify-between">
+                        <span class="font-semibold text-gray-900">Total:</span>
+                        <span class="font-bold text-lg text-gray-900">S/ ${data.total.toFixed(2)}</span>
+                    </div>
+                    <a href="{{ route('cart') }}" class="block mt-3 bg-gray-900 text-white text-center px-6 py-2.5 rounded-full hover:bg-gray-800 transition text-sm font-medium">Ver Carrito</a>`;
+            })
+            .catch(() => {});
+        }
 
         if (cartBtn && cartDropdown) {
-            cartBtn.addEventListener('mouseenter', () => { clearTimeout(cartTimeout); cartDropdown.classList.add('active'); });
+            cartBtn.addEventListener('mouseenter', () => {
+                clearTimeout(cartTimeout);
+                cartDropdownLoaded = false;
+                loadCartDropdown();
+                cartDropdown.classList.add('active');
+            });
             cartBtn.parentElement.addEventListener('mouseleave', () => { cartTimeout = setTimeout(() => cartDropdown.classList.remove('active'), 200); });
             cartDropdown.addEventListener('mouseenter', () => clearTimeout(cartTimeout));
             cartDropdown.addEventListener('mouseleave', () => { cartTimeout = setTimeout(() => cartDropdown.classList.remove('active'), 200); });
