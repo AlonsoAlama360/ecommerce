@@ -83,4 +83,10 @@ class Product extends Model
     {
         return $query->where('stock', '>', 0);
     }
+
+    public function scopeOnSale($query)
+    {
+        return $query->whereNotNull('sale_price')
+                     ->whereColumn('sale_price', '<', 'price');
+    }
 }

@@ -19,9 +19,9 @@
                         <button class="btn-primary px-8 py-4 rounded-full font-medium">
                             Explorar Colección
                         </button>
-                        <button class="btn-secondary px-8 py-4 rounded-full font-medium bg-transparent">
+                        <a href="{{ route('ofertas') }}" class="btn-secondary px-8 py-4 rounded-full font-medium bg-transparent">
                             Ver Ofertas
-                        </button>
+                        </a>
                     </div>
                 </div>
                 <div class="relative">
@@ -144,7 +144,7 @@
                                             -{{ $product->discount_percentage }}%
                                         </div>
                                     @endif
-                                    <button type="button" class="absolute top-4 right-4 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all duration-200 shadow-md" onclick="event.preventDefault(); event.stopPropagation();">
+                                    <button type="button" class="wishlist-btn absolute top-4 right-4 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all duration-200 shadow-md" data-product-id="{{ $product->id }}">
                                         <i class="far fa-heart text-sm"></i>
                                     </button>
                                     @if($product->stock <= 5 && $product->stock > 0)

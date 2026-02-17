@@ -327,7 +327,7 @@
                     </div>
                 </li>
                 <li>
-                    <a href="#" class="block py-3 px-4 text-gray-700 hover:bg-gray-50 rounded-lg transition">
+                    <a href="{{ route('ofertas') }}" class="block py-3 px-4 text-gray-700 hover:bg-gray-50 rounded-lg transition">
                         Ofertas
                     </a>
                 </li>
@@ -346,6 +346,10 @@
                     <a href="#" class="flex items-center gap-3 py-3 px-4 text-gray-700 hover:bg-gray-50 rounded-lg transition">
                         <i class="fas fa-shopping-bag text-lg"></i>
                         <span>Mis Pedidos</span>
+                    </a>
+                    <a href="{{ route('wishlist.index') }}" class="flex items-center gap-3 py-3 px-4 text-gray-700 hover:bg-gray-50 rounded-lg transition">
+                        <i class="fas fa-heart text-lg text-[#D4A574]"></i>
+                        <span>Lista de Deseos</span>
                     </a>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
@@ -411,7 +415,7 @@
                         </div>
                     </div>
                     <a href="{{ route('catalog') }}" class="text-gray-700 hover:text-gray-900 transition">Catálogo</a>
-                    <a href="#" class="text-gray-700 hover:text-gray-900 transition">Ofertas</a>
+                    <a href="{{ route('ofertas') }}" class="text-gray-700 hover:text-gray-900 transition">Ofertas</a>
                 </nav>
 
                 <!-- Icons -->
@@ -469,7 +473,7 @@
                                         <i class="fas fa-shopping-bag w-5 text-center text-[#D4A574]"></i>
                                         <span>Mis Pedidos</span>
                                     </a>
-                                    <a href="#" class="flex items-center gap-3 px-5 py-3 text-gray-700 hover:bg-gray-50 transition">
+                                    <a href="{{ route('wishlist.index') }}" class="flex items-center gap-3 px-5 py-3 text-gray-700 hover:bg-gray-50 transition">
                                         <i class="fas fa-heart w-5 text-center text-[#D4A574]"></i>
                                         <span>Lista de Deseos</span>
                                     </a>
@@ -517,7 +521,7 @@
                 </div>
             </div>
 
-            <div class="overflow-y-auto flex-1" id="searchResults">
+            <div class="overflow-y-auto overflow-x-hidden flex-1" id="searchResults">
                 <!-- Estado inicial: sugerencias rápidas -->
                 <div id="searchDefault">
                     <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 px-1">Búsquedas populares</p>
@@ -923,6 +927,107 @@
                 });
             }, 300);
         });
+    </script>
+
+    {{-- Wishlist Global JS --}}
+    <script>
+        (function() {
+            var wishlistIds = [];
+            var isAuthenticated = {{ Auth::check() ? 'true' : 'false' }};
+
+            function markAsWishlisted(btn) {
+                var icon = btn.querySelector('i');
+                icon.classList.remove('far');
+                icon.classList.add('fas');
+                btn.classList.add('bg-rose-500', 'text-white', 'border-rose-500');
+                btn.classList.remove('bg-white/90', 'border-gray-200');
+            }
+
+            function markAsNotWishlisted(btn) {
+                var icon = btn.querySelector('i');
+                icon.classList.remove('fas');
+                icon.classList.add('far');
+                btn.classList.remove('bg-rose-500', 'text-white', 'border-rose-500');
+                if (btn.classList.contains('backdrop-blur-sm')) {
+                    btn.classList.add('bg-white/90');
+                } else {
+                    btn.classList.add('border-gray-200');
+                }
+            }
+
+            function handleWishlistClick(e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                var btn = this;
+
+                if (!isAuthenticated) {
+                    window.location.href = '{{ route("login") }}';
+                    return;
+                }
+
+                var productId = parseInt(btn.dataset.productId);
+                btn.style.pointerEvents = 'none';
+
+                fetch('{{ route("wishlist.toggle") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify({ product_id: productId })
+                })
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    if (data.status === 'added') {
+                        wishlistIds.push(productId);
+                        document.querySelectorAll('.wishlist-btn[data-product-id="' + productId + '"]').forEach(markAsWishlisted);
+                        if (typeof showToast === 'function') {
+                            showToast('Agregado a tu lista de deseos');
+                        }
+                    } else {
+                        wishlistIds = wishlistIds.filter(function(id) { return id !== productId; });
+                        document.querySelectorAll('.wishlist-btn[data-product-id="' + productId + '"]').forEach(markAsNotWishlisted);
+                        if (typeof showToast === 'function') {
+                            showToast('Eliminado de tu lista de deseos');
+                        }
+                    }
+                    btn.style.pointerEvents = '';
+                })
+                .catch(function() {
+                    btn.style.pointerEvents = '';
+                });
+            }
+
+            function bindWishlistButtons() {
+                document.querySelectorAll('.wishlist-btn').forEach(function(btn) {
+                    if (btn.dataset.wishlistBound) return;
+                    btn.dataset.wishlistBound = '1';
+                    btn.addEventListener('click', handleWishlistClick);
+                    var productId = parseInt(btn.dataset.productId);
+                    if (wishlistIds.indexOf(productId) !== -1) {
+                        markAsWishlisted(btn);
+                    }
+                });
+            }
+
+            if (isAuthenticated) {
+                fetch('{{ route("wishlist.count") }}', {
+                    headers: { 'Accept': 'application/json' }
+                })
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    wishlistIds = data.ids || [];
+                    bindWishlistButtons();
+                })
+                .catch(function() {
+                    bindWishlistButtons();
+                });
+            } else {
+                bindWishlistButtons();
+            }
+        })();
     </script>
 
     @yield('scripts')

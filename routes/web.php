@@ -6,7 +6,9 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\OfertasController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\WishlistController;
 use Illuminate\Support\Facades\Route;
 
 // Rutas públicas - cualquier usuario puede navegar
@@ -14,6 +16,7 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/catalogo', [CatalogController::class, 'index'])->name('catalog');
 Route::get('/buscar', [CatalogController::class, 'search'])->name('search');
 Route::get('/producto/{slug}', [ProductController::class, 'show'])->name('product.show');
+Route::get('/ofertas', [OfertasController::class, 'index'])->name('ofertas');
 
 // Carrito de compras (sesión, sin auth requerido)
 Route::get('/carrito', [CartController::class, 'index'])->name('cart');
@@ -22,6 +25,9 @@ Route::patch('/carrito/actualizar', [CartController::class, 'update'])->name('ca
 Route::delete('/carrito/eliminar', [CartController::class, 'remove'])->name('cart.remove');
 Route::get('/carrito/count', [CartController::class, 'count'])->name('cart.count');
 Route::get('/carrito/items', [CartController::class, 'items'])->name('cart.items');
+
+// Lista de deseos
+Route::get('/wishlist/count', [WishlistController::class, 'count'])->name('wishlist.count');
 
 // API interna (sin autenticación, para el mega menu)
 Route::get('/api/categories/{slug}/products', [CategoryProductController::class, 'index']);
@@ -38,4 +44,6 @@ Route::middleware('guest')->group(function () {
 // Rutas que requieren autenticación
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+    Route::post('/wishlist/toggle', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
+    Route::get('/lista-de-deseos', [WishlistController::class, 'index'])->name('wishlist.index');
 });
