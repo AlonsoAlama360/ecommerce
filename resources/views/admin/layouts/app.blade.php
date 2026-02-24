@@ -85,8 +85,8 @@
                 <i class="fas fa-users w-5 text-center text-xs"></i>
                 <span>Usuarios</span>
             </a>
-            <a href="#"
-               class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-400 opacity-50 cursor-not-allowed">
+            <a href="{{ route('admin.products.index') }}"
+               class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm {{ request()->routeIs('admin.products.*') ? 'active' : 'text-slate-400' }}">
                 <i class="fas fa-box w-5 text-center text-xs"></i>
                 <span>Productos</span>
             </a>

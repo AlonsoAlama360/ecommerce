@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
+use App\Http\Controllers\Admin\ProductController as AdminProductController;
+use App\Http\Controllers\Admin\ProductImageController as AdminProductImageController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Api\CategoryProductController;
 use App\Http\Controllers\Auth\LoginController;
@@ -61,4 +63,12 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
     Route::resource('users', AdminUserController::class)->except(['show']);
     Route::resource('categories', AdminCategoryController::class)->except(['show']);
+    Route::resource('products', AdminProductController::class)->except(['show']);
+
+    // Product Images (API-style for AJAX)
+    Route::get('products/{product}/images', [AdminProductImageController::class, 'index'])->name('products.images.index');
+    Route::post('products/{product}/images', [AdminProductImageController::class, 'store'])->name('products.images.store');
+    Route::put('products/{product}/images/{image}', [AdminProductImageController::class, 'update'])->name('products.images.update');
+    Route::delete('products/{product}/images/{image}', [AdminProductImageController::class, 'destroy'])->name('products.images.destroy');
+    Route::post('products/{product}/images/reorder', [AdminProductImageController::class, 'reorder'])->name('products.images.reorder');
 });
