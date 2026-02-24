@@ -526,7 +526,7 @@
     $drawerSelectClass = "w-full px-3.5 py-2.5 bg-white border border-gray-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 cursor-pointer transition appearance-none";
     $drawerInputClass = "w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition";
 @endphp
-<div id="editDrawer" class="fixed top-0 right-0 z-[70] h-full w-full sm:w-[550px] translate-x-full transition-transform duration-300 ease-out flex flex-col bg-white shadow-2xl">
+<div id="editDrawer" class="fixed top-0 right-0 z-[70] h-full w-full sm:w-[600px] translate-x-full transition-transform duration-300 ease-out flex flex-col bg-white shadow-2xl">
     <div class="flex items-center justify-between px-6 py-5 border-b border-gray-100">
         <div>
             <h2 class="text-lg font-bold text-gray-900">Editar Venta</h2>
@@ -553,17 +553,65 @@
                 </div>
             </div>
 
-            {{-- Items Summary (read-only) --}}
+            {{-- Client Section --}}
             <div class="mb-6">
                 <h3 class="text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2">
-                    <i class="fas fa-box text-violet-400 text-xs"></i> Productos de la venta
+                    <i class="fas fa-user text-indigo-400 text-xs"></i> Datos del Cliente
                 </h3>
-                <div id="editOrderItems" class="space-y-2">
-                    {{-- Populated via JS --}}
+                <div class="relative mb-3">
+                    <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                    <input type="text" id="editClientSearch" placeholder="Buscar cliente existente..."
+                        autocomplete="off"
+                        class="w-full pl-9 pr-3 py-2.5 border border-gray-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition">
+                    <div id="editClientResults" class="absolute left-0 right-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-10 max-h-48 overflow-y-auto hidden"></div>
                 </div>
-                <div class="mt-3 pt-3 border-t border-gray-100 flex justify-between">
-                    <span class="text-sm font-semibold text-gray-600">Total:</span>
-                    <span id="editOrderTotal" class="text-lg font-bold text-gray-900"></span>
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 mb-1.5">Nombre completo <span class="text-red-400">*</span></label>
+                        <input type="text" name="customer_name" id="edit_customer_name" required
+                            class="{{ $drawerInputClass }}">
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-medium text-gray-500 mb-1.5">Email</label>
+                            <input type="email" name="customer_email" id="edit_customer_email"
+                                class="{{ $drawerInputClass }}">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-500 mb-1.5">Teléfono</label>
+                            <input type="text" name="customer_phone" id="edit_customer_phone"
+                                class="{{ $drawerInputClass }}">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Products Section --}}
+            <div class="mb-6">
+                <h3 class="text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                    <i class="fas fa-box text-violet-400 text-xs"></i> Productos
+                </h3>
+                <div class="relative mb-3">
+                    <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                    <input type="text" id="editProductSearch" placeholder="Buscar producto por nombre o SKU..."
+                        autocomplete="off"
+                        class="w-full pl-9 pr-3 py-2.5 border border-gray-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition">
+                    <div id="editProductResults" class="absolute left-0 right-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-10 max-h-60 overflow-y-auto hidden"></div>
+                </div>
+
+                {{-- Items List --}}
+                <div id="editOrderItems" class="space-y-2"></div>
+                <div id="editNoItemsMsg" class="text-center py-6 border-2 border-dashed border-gray-200 rounded-lg hidden">
+                    <i class="fas fa-cart-plus text-gray-300 text-xl mb-2"></i>
+                    <p class="text-sm text-gray-400">Busca y agrega productos</p>
+                </div>
+
+                {{-- Totals --}}
+                <div id="editOrderTotals" class="mt-4 pt-4 border-t border-gray-100">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm font-semibold text-gray-600">Total:</span>
+                        <span id="editOrderTotal" class="text-lg font-bold text-gray-900">S/ 0.00</span>
+                    </div>
                 </div>
             </div>
 
@@ -645,7 +693,7 @@
         <button onclick="closeDrawer()" type="button" class="flex-1 px-4 py-2.5 text-sm text-gray-600 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition font-medium">
             Cancelar
         </button>
-        <button onclick="document.getElementById('editOrderForm').submit()" type="button" class="flex-1 px-4 py-2.5 text-sm bg-indigo-500 text-white rounded-xl hover:bg-indigo-600 transition font-medium shadow-sm shadow-indigo-200">
+        <button onclick="submitEditOrder()" type="button" class="flex-1 px-4 py-2.5 text-sm bg-indigo-500 text-white rounded-xl hover:bg-indigo-600 transition font-medium shadow-sm shadow-indigo-200">
             <i class="fas fa-check mr-1.5 text-xs"></i> Guardar Cambios
         </button>
     </div>
@@ -661,6 +709,8 @@
     let activeDrawer = null;
     let orderItemsList = [];
     let itemCounter = 0;
+    let editItemsList = [];
+    let editItemCounter = 0;
     let searchTimeout = null;
 
     // ==================== UNIFIED FILTERS ====================
@@ -764,6 +814,16 @@
         }
         if (!document.getElementById('productSearch').contains(e.target) && !document.getElementById('productResults').contains(e.target)) {
             document.getElementById('productResults').classList.add('hidden');
+        }
+        const ecs = document.getElementById('editClientSearch');
+        const ecr = document.getElementById('editClientResults');
+        if (!ecs.contains(e.target) && !ecr.contains(e.target)) {
+            ecr.classList.add('hidden');
+        }
+        const eps = document.getElementById('editProductSearch');
+        const epr = document.getElementById('editProductResults');
+        if (!eps.contains(e.target) && !epr.contains(e.target)) {
+            epr.classList.add('hidden');
         }
     });
 
@@ -1049,10 +1109,202 @@
             });
     }
 
+    // ==================== EDIT CLIENT SEARCH ====================
+    const editClientSearchInput = document.getElementById('editClientSearch');
+    const editClientResults = document.getElementById('editClientResults');
+
+    editClientSearchInput.addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        const q = this.value.trim();
+        if (q.length < 2) { editClientResults.classList.add('hidden'); return; }
+
+        searchTimeout = setTimeout(() => {
+            fetch('{{ route("admin.orders.search-users") }}?q=' + encodeURIComponent(q))
+                .then(r => r.json())
+                .then(users => {
+                    if (users.length === 0) {
+                        editClientResults.innerHTML = '<div class="px-4 py-3 text-sm text-gray-400">Sin resultados</div>';
+                    } else {
+                        editClientResults.innerHTML = users.map(u => `
+                            <div class="px-4 py-2.5 hover:bg-gray-50 cursor-pointer transition flex items-center gap-3"
+                                 onclick="selectEditClient(${JSON.stringify(u).replace(/"/g, '&quot;')})">
+                                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-400 to-violet-500 flex items-center justify-center text-[10px] font-bold text-white flex-shrink-0">
+                                    ${u.name.substring(0,2).toUpperCase()}
+                                </div>
+                                <div class="min-w-0">
+                                    <p class="text-sm font-medium text-gray-700 truncate">${u.name}</p>
+                                    <p class="text-xs text-gray-400 truncate">${u.email || ''} ${u.phone ? '· ' + u.phone : ''}</p>
+                                </div>
+                            </div>
+                        `).join('');
+                    }
+                    editClientResults.classList.remove('hidden');
+                });
+        }, 300);
+    });
+
+    function selectEditClient(user) {
+        document.getElementById('edit_customer_name').value = user.name;
+        document.getElementById('edit_customer_email').value = user.email || '';
+        document.getElementById('edit_customer_phone').value = user.phone || '';
+        editClientResults.classList.add('hidden');
+        editClientSearchInput.value = '';
+    }
+
+    // ==================== EDIT PRODUCT SEARCH ====================
+    const editProductSearchInput = document.getElementById('editProductSearch');
+    const editProductResults = document.getElementById('editProductResults');
+
+    editProductSearchInput.addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        const q = this.value.trim();
+        if (q.length < 2) { editProductResults.classList.add('hidden'); return; }
+
+        searchTimeout = setTimeout(() => {
+            fetch('{{ route("admin.orders.search-products") }}?q=' + encodeURIComponent(q))
+                .then(r => r.json())
+                .then(products => {
+                    if (products.length === 0) {
+                        editProductResults.innerHTML = '<div class="px-4 py-3 text-sm text-gray-400">Sin resultados</div>';
+                    } else {
+                        editProductResults.innerHTML = products.map(p => `
+                            <div class="px-4 py-2.5 hover:bg-gray-50 cursor-pointer transition flex items-center gap-3"
+                                 onclick='addEditItem(${JSON.stringify(p)})'>
+                                ${p.image
+                                    ? `<img src="${p.image}" class="w-10 h-10 rounded-lg object-cover border border-gray-100 flex-shrink-0">`
+                                    : `<div class="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0"><i class="fas fa-image text-gray-300 text-xs"></i></div>`
+                                }
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-medium text-gray-700 truncate">${p.name}</p>
+                                    <p class="text-xs text-gray-400">SKU: ${p.sku || '—'} · Stock: ${p.stock}</p>
+                                </div>
+                                <span class="text-sm font-bold text-gray-800 flex-shrink-0">S/ ${parseFloat(p.price).toFixed(2)}</span>
+                            </div>
+                        `).join('');
+                    }
+                    editProductResults.classList.remove('hidden');
+                });
+        }, 300);
+    });
+
+    // ==================== EDIT ITEMS MANAGEMENT ====================
+    function addEditItem(product) {
+        const existing = editItemsList.find(i => i.product_id === product.id);
+        if (existing) {
+            existing.quantity++;
+            renderEditItems();
+            editProductResults.classList.add('hidden');
+            editProductSearchInput.value = '';
+            return;
+        }
+
+        editItemsList.push({
+            idx: editItemCounter++,
+            product_id: product.id,
+            name: product.name,
+            sku: product.sku,
+            price: parseFloat(product.price),
+            stock: 9999,
+            image: product.image,
+            quantity: 1
+        });
+
+        renderEditItems();
+        editProductResults.classList.add('hidden');
+        editProductSearchInput.value = '';
+    }
+
+    function removeEditItem(idx) {
+        editItemsList = editItemsList.filter(i => i.idx !== idx);
+        renderEditItems();
+    }
+
+    function updateEditItemQty(idx, qty) {
+        const item = editItemsList.find(i => i.idx === idx);
+        if (!item) return;
+        qty = parseInt(qty);
+        if (qty < 1) qty = 1;
+        item.quantity = qty;
+        renderEditItems();
+    }
+
+    function renderEditItems() {
+        const container = document.getElementById('editOrderItems');
+        const noMsg = document.getElementById('editNoItemsMsg');
+        const totalsDiv = document.getElementById('editOrderTotals');
+
+        if (editItemsList.length === 0) {
+            container.innerHTML = '';
+            noMsg.classList.remove('hidden');
+            totalsDiv.classList.add('hidden');
+            return;
+        }
+
+        noMsg.classList.add('hidden');
+        totalsDiv.classList.remove('hidden');
+
+        let total = 0;
+        container.innerHTML = editItemsList.map(item => {
+            const lineTotal = item.price * item.quantity;
+            total += lineTotal;
+            return `
+                <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                    ${item.image
+                        ? `<img src="${item.image}" class="w-10 h-10 rounded-lg object-cover border border-gray-100 flex-shrink-0">`
+                        : `<div class="w-10 h-10 rounded-lg bg-gray-200 flex items-center justify-center flex-shrink-0"><i class="fas fa-image text-gray-400 text-xs"></i></div>`
+                    }
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-medium text-gray-700 truncate">${item.name}</p>
+                        <p class="text-xs text-gray-400">S/ ${item.price.toFixed(2)} c/u</p>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <button type="button" onclick="updateEditItemQty(${item.idx}, ${item.quantity - 1})"
+                            class="w-7 h-7 rounded-md bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-100 transition text-xs">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                        <input type="number" value="${item.quantity}" min="1"
+                            onchange="updateEditItemQty(${item.idx}, this.value)"
+                            class="w-12 text-center text-sm border border-gray-200 rounded-md py-1 outline-none focus:ring-1 focus:ring-indigo-400">
+                        <button type="button" onclick="updateEditItemQty(${item.idx}, ${item.quantity + 1})"
+                            class="w-7 h-7 rounded-md bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-100 transition text-xs">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                    <div class="text-right flex-shrink-0 w-20">
+                        <p class="text-sm font-bold text-gray-800">S/ ${lineTotal.toFixed(2)}</p>
+                    </div>
+                    <button type="button" onclick="removeEditItem(${item.idx})"
+                        class="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-md transition flex-shrink-0">
+                        <i class="fas fa-times text-xs"></i>
+                    </button>
+                    <input type="hidden" name="items[${item.idx}][product_id]" value="${item.product_id}">
+                    <input type="hidden" name="items[${item.idx}][quantity]" value="${item.quantity}">
+                </div>
+            `;
+        }).join('');
+
+        document.getElementById('editOrderTotal').textContent = 'S/ ' + total.toFixed(2);
+    }
+
+    function submitEditOrder() {
+        if (editItemsList.length === 0) {
+            showToast('Agrega al menos un producto', 'warning');
+            return;
+        }
+        const name = document.getElementById('edit_customer_name').value.trim();
+        if (!name) {
+            showToast('Ingresa el nombre del cliente', 'warning');
+            return;
+        }
+        document.getElementById('editOrderForm').submit();
+    }
+
     // ==================== EDIT ORDER ====================
     function openEditDrawer(orderId) {
-        // Show loading state
         document.getElementById('editOrderItems').innerHTML = '<div class="text-center py-4"><i class="fas fa-spinner fa-spin text-indigo-400"></i></div>';
+        document.getElementById('editNoItemsMsg').classList.add('hidden');
+        editProductSearchInput.value = '';
+        editClientSearchInput.value = '';
         showDrawer(editDrawer);
 
         fetch('/admin/orders/' + orderId)
@@ -1063,8 +1315,13 @@
 
                 // Header info
                 document.getElementById('editOrderNumber').textContent = order.order_number;
-                document.getElementById('editOrderTitle').textContent = order.customer_name;
-                document.getElementById('editOrderMeta').textContent = order.order_number + ' · ' + (order.source === 'web' ? 'Web' : 'Admin');
+                document.getElementById('editOrderTitle').textContent = order.order_number;
+                document.getElementById('editOrderMeta').textContent = (order.source === 'web' ? 'Web' : 'Admin') + ' · ' + new Date(order.created_at).toLocaleDateString('es-PE');
+
+                // Client fields
+                document.getElementById('edit_customer_name').value = order.customer_name || '';
+                document.getElementById('edit_customer_email').value = order.customer_email || '';
+                document.getElementById('edit_customer_phone').value = order.customer_phone || '';
 
                 // Status
                 document.getElementById('edit_status').value = order.status;
@@ -1079,24 +1336,23 @@
                 // Notes
                 document.getElementById('edit_admin_notes').value = order.admin_notes || '';
 
-                // Items (read-only display)
-                const itemsHtml = (order.items || []).map(item => `
-                    <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                        ${item.product && item.product.primary_image
-                            ? `<img src="${item.product.primary_image.image_url}" class="w-9 h-9 rounded-lg object-cover border border-gray-100 flex-shrink-0">`
-                            : `<div class="w-9 h-9 rounded-lg bg-gray-200 flex items-center justify-center flex-shrink-0"><i class="fas fa-image text-gray-400 text-[10px]"></i></div>`
-                        }
-                        <div class="flex-1 min-w-0">
-                            <p class="text-sm font-medium text-gray-700 truncate">${item.product_name}</p>
-                            <p class="text-xs text-gray-400">${item.quantity} × S/ ${parseFloat(item.unit_price).toFixed(2)}</p>
-                        </div>
-                        <span class="text-sm font-bold text-gray-800 flex-shrink-0">S/ ${parseFloat(item.line_total).toFixed(2)}</span>
-                    </div>
-                `).join('');
-                document.getElementById('editOrderItems').innerHTML = itemsHtml || '<p class="text-sm text-gray-400 text-center py-4">Sin productos</p>';
-
-                // Total
-                document.getElementById('editOrderTotal').textContent = 'S/ ' + parseFloat(order.total).toFixed(2);
+                // Load items into editable list
+                editItemsList = [];
+                editItemCounter = 0;
+                (order.items || []).forEach(item => {
+                    const img = (item.product && item.product.primary_image) ? item.product.primary_image.image_url : null;
+                    editItemsList.push({
+                        idx: editItemCounter++,
+                        product_id: item.product_id,
+                        name: item.product_name,
+                        sku: item.product_sku,
+                        price: parseFloat(item.unit_price),
+                        stock: 9999,
+                        image: img,
+                        quantity: item.quantity
+                    });
+                });
+                renderEditItems();
 
                 // Dates
                 const fmtDate = (d) => {

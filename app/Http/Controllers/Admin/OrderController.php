@@ -157,7 +157,7 @@ class OrderController extends Controller
 
     public function show(Order $order)
     {
-        $order->load(['items.product', 'user', 'creator']);
+        $order->load(['items.product.primaryImage', 'user', 'creator']);
         return response()->json($order);
     }
 
@@ -169,16 +169,63 @@ class OrderController extends Controller
             'payment_method' => 'sometimes|in:efectivo,transferencia,yape_plin,tarjeta',
             'admin_notes' => 'nullable|string|max:2000',
             'shipping_address' => 'nullable|string|max:1000',
+            'customer_name' => 'sometimes|string|max:255',
+            'customer_email' => 'nullable|email|max:255',
+            'customer_phone' => 'nullable|string|max:20',
+            'items' => 'sometimes|array|min:1',
+            'items.*.product_id' => 'required_with:items|exists:products,id',
+            'items.*.quantity' => 'required_with:items|integer|min:1',
         ]);
 
-        $order->update($validated);
+        return DB::transaction(function () use ($validated, $order, $request) {
+            // If items are being updated, handle stock adjustments
+            if (isset($validated['items'])) {
+                // Restore stock from old items
+                foreach ($order->items as $oldItem) {
+                    if ($oldItem->product_id) {
+                        Product::where('id', $oldItem->product_id)->increment('stock', $oldItem->quantity);
+                    }
+                }
 
-        if ($request->ajax()) {
-            return response()->json(['message' => 'Venta actualizada', 'order' => $order->fresh()]);
-        }
+                // Delete old items
+                $order->items()->delete();
 
-        return redirect()->route('admin.orders.index')
-            ->with('success', 'Venta actualizada exitosamente.');
+                // Create new items and reduce stock
+                $subtotal = 0;
+                foreach ($validated['items'] as $item) {
+                    $product = Product::findOrFail($item['product_id']);
+                    $price = $product->sale_price ?? $product->price;
+                    $lineTotal = $price * $item['quantity'];
+                    $subtotal += $lineTotal;
+
+                    $order->items()->create([
+                        'product_id' => $product->id,
+                        'product_name' => $product->name,
+                        'product_sku' => $product->sku,
+                        'quantity' => $item['quantity'],
+                        'unit_price' => $price,
+                        'line_total' => $lineTotal,
+                    ]);
+
+                    $product->decrement('stock', $item['quantity']);
+                }
+
+                $validated['subtotal'] = $subtotal;
+                $validated['total'] = $subtotal - $order->discount_amount + $order->shipping_cost;
+            }
+
+            // Remove items from validated since we handled them separately
+            unset($validated['items']);
+
+            $order->update($validated);
+
+            if ($request->ajax()) {
+                return response()->json(['message' => 'Venta actualizada', 'order' => $order->fresh()]);
+            }
+
+            return redirect()->route('admin.orders.index')
+                ->with('success', 'Venta actualizada exitosamente.');
+        });
     }
 
     public function updateStatus(Request $request, Order $order)
