@@ -65,6 +65,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::resource('categories', AdminCategoryController::class)->except(['show']);
     Route::resource('products', AdminProductController::class)->except(['show']);
 
+    // Product Specifications (AJAX)
+    Route::get('products/{product}/specifications', [AdminProductController::class, 'specifications'])->name('products.specifications');
+    Route::put('products/{product}/specifications', [AdminProductController::class, 'updateSpecifications'])->name('products.specifications.update');
+
     // Product Images (API-style for AJAX)
     Route::get('products/{product}/images', [AdminProductImageController::class, 'index'])->name('products.images.index');
     Route::post('products/{product}/images', [AdminProductImageController::class, 'store'])->name('products.images.store');

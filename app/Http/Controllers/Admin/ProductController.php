@@ -161,4 +161,21 @@ class ProductController extends Controller
         return redirect()->route('admin.products.index')
             ->with('success', 'Producto eliminado exitosamente.');
     }
+
+    public function specifications(Product $product)
+    {
+        return response()->json($product->specifications ?? []);
+    }
+
+    public function updateSpecifications(Request $request, Product $product)
+    {
+        $validated = $request->validate([
+            'specifications' => 'present|array',
+            'specifications.*' => 'string|max:500',
+        ]);
+
+        $product->update(['specifications' => $validated['specifications']]);
+
+        return response()->json($product->specifications);
+    }
 }
