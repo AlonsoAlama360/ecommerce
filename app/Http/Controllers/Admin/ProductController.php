@@ -7,6 +7,7 @@ use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductImage;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
@@ -68,7 +69,7 @@ class ProductController extends Controller
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
+        $rules = [
             'name' => 'required|string|max:255',
             'slug' => 'nullable|string|max:255|unique:products,slug',
             'category_id' => 'required|exists:categories,id',
@@ -82,14 +83,23 @@ class ProductController extends Controller
             'is_featured' => 'boolean',
             'is_active' => 'boolean',
             'image_url' => 'nullable|url|max:500',
-        ]);
+            'image_file' => 'nullable|image|mimes:jpg,jpeg,png,webp,gif|max:2048',
+        ];
+
+        $validated = $request->validate($rules);
 
         $validated['is_featured'] = $request->boolean('is_featured');
         $validated['is_active'] = $request->boolean('is_active');
         $validated['slug'] = $validated['slug'] ?: Str::slug($validated['name']);
 
         $imageUrl = $validated['image_url'] ?? null;
-        unset($validated['image_url']);
+
+        if ($request->hasFile('image_file')) {
+            $path = $request->file('image_file')->store('products', 'public');
+            $imageUrl = '/storage/' . $path;
+        }
+
+        unset($validated['image_url'], $validated['image_file']);
 
         $product = Product::create($validated);
 
@@ -126,6 +136,7 @@ class ProductController extends Controller
             'is_featured' => 'boolean',
             'is_active' => 'boolean',
             'image_url' => 'nullable|url|max:500',
+            'image_file' => 'nullable|image|mimes:jpg,jpeg,png,webp,gif|max:2048',
         ]);
 
         $validated['is_featured'] = $request->boolean('is_featured');
@@ -133,7 +144,13 @@ class ProductController extends Controller
         $validated['slug'] = $validated['slug'] ?: Str::slug($validated['name']);
 
         $imageUrl = $validated['image_url'] ?? null;
-        unset($validated['image_url']);
+
+        if ($request->hasFile('image_file')) {
+            $path = $request->file('image_file')->store('products', 'public');
+            $imageUrl = '/storage/' . $path;
+        }
+
+        unset($validated['image_url'], $validated['image_file']);
 
         $product->update($validated);
 

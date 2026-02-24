@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\ProductImage;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ProductImageController extends Controller
 {
@@ -18,11 +19,24 @@ class ProductImageController extends Controller
 
     public function store(Request $request, Product $product)
     {
-        $validated = $request->validate([
-            'image_url' => 'required|url|max:500',
+        $rules = [
             'alt_text' => 'nullable|string|max:255',
             'is_primary' => 'boolean',
-        ]);
+        ];
+
+        if ($request->hasFile('image_file')) {
+            $rules['image_file'] = 'required|image|mimes:jpg,jpeg,png,webp,gif|max:2048';
+        } else {
+            $rules['image_url'] = 'required|url|max:500';
+        }
+
+        $validated = $request->validate($rules);
+
+        if ($request->hasFile('image_file')) {
+            $path = $request->file('image_file')->store('products', 'public');
+            $validated['image_url'] = '/storage/' . $path;
+            unset($validated['image_file']);
+        }
 
         $validated['is_primary'] = $request->boolean('is_primary');
         $validated['sort_order'] = ($product->images()->max('sort_order') ?? -1) + 1;

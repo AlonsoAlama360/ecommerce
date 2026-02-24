@@ -425,7 +425,7 @@ if ($stock <= 5) return ['bg'=> 'bg-amber-50', 'text' => 'text-amber-600', 'labe
         </div>
 
         <div class="flex-1 overflow-y-auto">
-            <form method="POST" action="{{ route('admin.products.store') }}" id="createProductForm" class="p-6">
+            <form method="POST" action="{{ route('admin.products.store') }}" id="createProductForm" class="p-6" enctype="multipart/form-data">
                 @csrf
                 {{-- Image Preview --}}
                 <div class="flex justify-center mb-6">
@@ -531,12 +531,48 @@ if ($stock <= 5) return ['bg'=> 'bg-amber-50', 'text' => 'text-amber-600', 'labe
                         </div>
                     </div>
 
-                    {{-- Image URL --}}
+                    {{-- Image Principal --}}
                     <div>
-                        <label for="create_image_url" class="block text-xs font-medium text-gray-500 mb-1.5">URL de imagen principal</label>
-                        <input type="url" name="image_url" id="create_image_url" value="{{ old('image_url') }}" placeholder="https://ejemplo.com/imagen.jpg"
-                            class="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition @error('image_url') border-red-400 @enderror">
-                        @error('image_url')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
+                        <label class="block text-xs font-medium text-gray-500 mb-1.5">Imagen principal</label>
+                        <div class="flex rounded-lg bg-gray-200/70 p-0.5 mb-3">
+                            <button type="button" onclick="switchCreateImgTab('url')" id="createImgTabUrl"
+                                class="flex-1 px-3 py-1.5 text-xs font-medium rounded-md transition bg-white text-gray-800 shadow-sm">
+                                <i class="fas fa-link mr-1.5"></i>URL
+                            </button>
+                            <button type="button" onclick="switchCreateImgTab('file')" id="createImgTabFile"
+                                class="flex-1 px-3 py-1.5 text-xs font-medium rounded-md transition text-gray-500 hover:text-gray-700">
+                                <i class="fas fa-upload mr-1.5"></i>Subir archivo
+                            </button>
+                        </div>
+                        <div id="createImgInputUrl">
+                            <input type="url" name="image_url" id="create_image_url" value="{{ old('image_url') }}" placeholder="https://ejemplo.com/imagen.jpg"
+                                class="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition @error('image_url') border-red-400 @enderror">
+                            @error('image_url')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
+                        </div>
+                        <div id="createImgInputFile" class="hidden">
+                            <div id="createImgDropZone"
+                                class="relative border-2 border-dashed border-gray-300 rounded-xl p-5 text-center bg-white hover:border-indigo-400 hover:bg-indigo-50/30 transition-colors cursor-pointer"
+                                onclick="document.getElementById('create_image_file').click()">
+                                <input type="file" name="image_file" id="create_image_file" accept="image/jpeg,image/png,image/webp,image/gif" class="hidden"
+                                    onchange="previewCreateFile(this)">
+                                <div id="createFileContent">
+                                    <div class="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center mx-auto mb-2">
+                                        <i class="fas fa-cloud-arrow-up text-indigo-500"></i>
+                                    </div>
+                                    <p class="text-xs text-gray-600 font-medium">Arrastra o haz clic para seleccionar</p>
+                                    <p class="text-[10px] text-gray-300 mt-1">JPG, PNG, WebP, GIF — Máx. 2MB</p>
+                                </div>
+                                <div id="createFilePreviewWrap" class="hidden">
+                                    <img id="createFilePreviewImg" src="" alt="" class="h-20 mx-auto rounded-lg object-contain">
+                                    <p id="createFileName" class="text-xs text-gray-500 mt-2 truncate"></p>
+                                    <button type="button" onclick="event.stopPropagation(); clearCreateFile()"
+                                        class="mt-1 inline-flex items-center gap-1 px-3 py-1 text-xs text-red-500 hover:bg-red-50 rounded-lg transition">
+                                        <i class="fas fa-times text-[10px]"></i> Quitar
+                                    </button>
+                                </div>
+                            </div>
+                            @error('image_file')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
+                        </div>
                     </div>
 
                     {{-- Toggles --}}
@@ -593,7 +629,7 @@ if ($stock <= 5) return ['bg'=> 'bg-amber-50', 'text' => 'text-amber-600', 'labe
         </div>
 
         <div class="flex-1 overflow-y-auto">
-            <form method="POST" action="" id="editProductForm" class="p-6">
+            <form method="POST" action="" id="editProductForm" class="p-6" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
                 {{-- Image Preview --}}
@@ -690,11 +726,46 @@ if ($stock <= 5) return ['bg'=> 'bg-amber-50', 'text' => 'text-amber-600', 'labe
                         </div>
                     </div>
 
-                    {{-- Image URL --}}
+                    {{-- Image Principal --}}
                     <div>
-                        <label for="edit_image_url" class="block text-xs font-medium text-gray-500 mb-1.5">URL de imagen principal</label>
-                        <input type="url" name="image_url" id="edit_image_url" placeholder="https://ejemplo.com/imagen.jpg"
-                            class="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition">
+                        <label class="block text-xs font-medium text-gray-500 mb-1.5">Imagen principal</label>
+                        <div class="flex rounded-lg bg-gray-200/70 p-0.5 mb-3">
+                            <button type="button" onclick="switchEditImgTab('url')" id="editImgTabUrl"
+                                class="flex-1 px-3 py-1.5 text-xs font-medium rounded-md transition bg-white text-gray-800 shadow-sm">
+                                <i class="fas fa-link mr-1.5"></i>URL
+                            </button>
+                            <button type="button" onclick="switchEditImgTab('file')" id="editImgTabFile"
+                                class="flex-1 px-3 py-1.5 text-xs font-medium rounded-md transition text-gray-500 hover:text-gray-700">
+                                <i class="fas fa-upload mr-1.5"></i>Subir archivo
+                            </button>
+                        </div>
+                        <div id="editImgInputUrl">
+                            <input type="url" name="image_url" id="edit_image_url" placeholder="https://ejemplo.com/imagen.jpg"
+                                class="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition">
+                        </div>
+                        <div id="editImgInputFile" class="hidden">
+                            <div id="editImgDropZone"
+                                class="relative border-2 border-dashed border-gray-300 rounded-xl p-5 text-center bg-white hover:border-indigo-400 hover:bg-indigo-50/30 transition-colors cursor-pointer"
+                                onclick="document.getElementById('edit_image_file').click()">
+                                <input type="file" name="image_file" id="edit_image_file" accept="image/jpeg,image/png,image/webp,image/gif" class="hidden"
+                                    onchange="previewEditFile(this)">
+                                <div id="editFileContent">
+                                    <div class="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center mx-auto mb-2">
+                                        <i class="fas fa-cloud-arrow-up text-indigo-500"></i>
+                                    </div>
+                                    <p class="text-xs text-gray-600 font-medium">Arrastra o haz clic para seleccionar</p>
+                                    <p class="text-[10px] text-gray-300 mt-1">JPG, PNG, WebP, GIF — Máx. 2MB</p>
+                                </div>
+                                <div id="editFilePreviewWrap" class="hidden">
+                                    <img id="editFilePreviewImg" src="" alt="" class="h-20 mx-auto rounded-lg object-contain">
+                                    <p id="editFileName" class="text-xs text-gray-500 mt-2 truncate"></p>
+                                    <button type="button" onclick="event.stopPropagation(); clearEditFile()"
+                                        class="mt-1 inline-flex items-center gap-1 px-3 py-1 text-xs text-red-500 hover:bg-red-50 rounded-lg transition">
+                                        <i class="fas fa-times text-[10px]"></i> Quitar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     {{-- Toggles --}}
@@ -762,12 +833,54 @@ if ($stock <= 5) return ['bg'=> 'bg-amber-50', 'text' => 'text-amber-600', 'labe
                 {{-- Add Image Form --}}
                 <div class="bg-gray-50 rounded-xl p-4 mb-6">
                     <h4 class="text-sm font-semibold text-gray-700 mb-3">Agregar imagen</h4>
+
+                    {{-- Tabs URL / Archivo --}}
+                    <div class="flex rounded-lg bg-gray-200/70 p-0.5 mb-4">
+                        <button type="button" onclick="switchImageTab('url')" id="imgTabUrl"
+                            class="flex-1 px-3 py-1.5 text-xs font-medium rounded-md transition bg-white text-gray-800 shadow-sm">
+                            <i class="fas fa-link mr-1.5"></i>URL
+                        </button>
+                        <button type="button" onclick="switchImageTab('file')" id="imgTabFile"
+                            class="flex-1 px-3 py-1.5 text-xs font-medium rounded-md transition text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-upload mr-1.5"></i>Subir archivo
+                        </button>
+                    </div>
+
                     <div class="space-y-3">
-                        <div>
+                        {{-- URL input --}}
+                        <div id="imgInputUrl">
                             <label class="block text-xs font-medium text-gray-500 mb-1.5">URL de imagen <span class="text-red-400">*</span></label>
                             <input type="url" id="img_new_url" placeholder="https://ejemplo.com/imagen.jpg"
                                 class="w-full px-3.5 py-2.5 bg-white border border-gray-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition">
                         </div>
+
+                        {{-- File input --}}
+                        <div id="imgInputFile" class="hidden">
+                            <label class="block text-xs font-medium text-gray-500 mb-1.5">Archivo de imagen <span class="text-red-400">*</span></label>
+                            <div id="imgDropZone"
+                                class="relative border-2 border-dashed border-gray-300 rounded-xl p-6 text-center bg-white hover:border-indigo-400 hover:bg-indigo-50/30 transition-colors cursor-pointer"
+                                onclick="document.getElementById('img_new_file').click()">
+                                <input type="file" id="img_new_file" accept="image/jpeg,image/png,image/webp,image/gif" class="hidden"
+                                    onchange="previewFileImage(this)">
+                                <div id="imgDropContent">
+                                    <div class="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center mx-auto mb-3">
+                                        <i class="fas fa-cloud-arrow-up text-indigo-500 text-lg"></i>
+                                    </div>
+                                    <p class="text-sm text-gray-600 font-medium">Arrastra tu imagen aquí</p>
+                                    <p class="text-xs text-gray-400 mt-1">o haz clic para seleccionar</p>
+                                    <p class="text-[10px] text-gray-300 mt-2">JPG, PNG, WebP, GIF — Máx. 2MB</p>
+                                </div>
+                                <div id="imgFilePreviewWrap" class="hidden">
+                                    <img id="imgFilePreviewImg" src="" alt="" class="h-24 mx-auto rounded-lg object-contain">
+                                    <p id="imgFileName" class="text-xs text-gray-500 mt-2 truncate"></p>
+                                    <button type="button" onclick="event.stopPropagation(); clearFileImage()"
+                                        class="mt-2 inline-flex items-center gap-1 px-3 py-1 text-xs text-red-500 hover:bg-red-50 rounded-lg transition">
+                                        <i class="fas fa-times text-[10px]"></i> Quitar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
                         <div>
                             <label class="block text-xs font-medium text-gray-500 mb-1.5">Texto alternativo</label>
                             <input type="text" id="img_new_alt" placeholder="Descripción de la imagen"
@@ -778,11 +891,11 @@ if ($stock <= 5) return ['bg'=> 'bg-amber-50', 'text' => 'text-amber-600', 'labe
                                 <input type="checkbox" id="img_new_primary" class="w-4 h-4 text-indigo-500 border-gray-300 rounded focus:ring-indigo-500">
                                 <span class="text-xs text-gray-600">Marcar como principal</span>
                             </label>
-                            <button onclick="addImage()" class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition text-sm font-medium shadow-sm shadow-indigo-200">
+                            <button onclick="addImage()" id="imgAddBtn" class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition text-sm font-medium shadow-sm shadow-indigo-200">
                                 <i class="fas fa-plus text-xs"></i> Agregar
                             </button>
                         </div>
-                        {{-- Preview --}}
+                        {{-- URL Preview --}}
                         <div id="imgNewPreview" class="hidden">
                             <img id="imgNewPreviewImg" src="" alt="" class="h-20 w-full object-contain rounded-lg border border-gray-200 bg-white">
                         </div>
@@ -918,6 +1031,8 @@ if ($stock <= 5) return ['bg'=> 'bg-amber-50', 'text' => 'text-amber-600', 'labe
         }
 
         function openCreateDrawer() {
+            switchCreateImgTab('url');
+            clearCreateFile();
             showDrawer(createDrawer);
             setTimeout(() => document.getElementById('create_name').focus(), 300);
         }
@@ -937,6 +1052,8 @@ if ($stock <= 5) return ['bg'=> 'bg-amber-50', 'text' => 'text-amber-600', 'labe
 
             document.getElementById('editProductForm').action = '/admin/products/' + product.id;
             document.getElementById('editDrawerSubtitle').textContent = product.name;
+            switchEditImgTab('url');
+            clearEditFile();
 
             document.getElementById('edit_is_active').checked = product.is_active;
             document.getElementById('edit_is_featured').checked = product.is_featured;
@@ -977,7 +1094,51 @@ if ($stock <= 5) return ['bg'=> 'bg-amber-50', 'text' => 'text-amber-600', 'labe
             if (e.key === 'Escape') closeDrawer();
         });
 
-        // Image preview for create
+        // ==================== CREATE DRAWER: Image tabs & preview ====================
+        function switchCreateImgTab(tab) {
+            const urlTab = document.getElementById('createImgTabUrl');
+            const fileTab = document.getElementById('createImgTabFile');
+            const urlInput = document.getElementById('createImgInputUrl');
+            const fileInput = document.getElementById('createImgInputFile');
+            if (tab === 'url') {
+                urlTab.className = 'flex-1 px-3 py-1.5 text-xs font-medium rounded-md transition bg-white text-gray-800 shadow-sm';
+                fileTab.className = 'flex-1 px-3 py-1.5 text-xs font-medium rounded-md transition text-gray-500 hover:text-gray-700';
+                urlInput.classList.remove('hidden');
+                fileInput.classList.add('hidden');
+            } else {
+                fileTab.className = 'flex-1 px-3 py-1.5 text-xs font-medium rounded-md transition bg-white text-gray-800 shadow-sm';
+                urlTab.className = 'flex-1 px-3 py-1.5 text-xs font-medium rounded-md transition text-gray-500 hover:text-gray-700';
+                fileInput.classList.remove('hidden');
+                urlInput.classList.add('hidden');
+            }
+        }
+
+        function previewCreateFile(input) {
+            const file = input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                document.getElementById('createFilePreviewImg').src = e.target.result;
+                document.getElementById('createFileName').textContent = file.name + ' (' + (file.size / 1024).toFixed(1) + ' KB)';
+                document.getElementById('createFileContent').classList.add('hidden');
+                document.getElementById('createFilePreviewWrap').classList.remove('hidden');
+                // Update header preview
+                const img = document.getElementById('createImgPreview');
+                const placeholder = document.getElementById('createImgPlaceholder');
+                img.src = e.target.result;
+                img.classList.remove('hidden');
+                placeholder.classList.add('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function clearCreateFile() {
+            document.getElementById('create_image_file').value = '';
+            document.getElementById('createFileContent').classList.remove('hidden');
+            document.getElementById('createFilePreviewWrap').classList.add('hidden');
+        }
+
+        // Image URL preview for create
         const createImgInput = document.getElementById('create_image_url');
         createImgInput.addEventListener('change', function() {
             const img = document.getElementById('createImgPreview');
@@ -986,17 +1147,76 @@ if ($stock <= 5) return ['bg'=> 'bg-amber-50', 'text' => 'text-amber-600', 'labe
                 img.src = this.value;
                 img.classList.remove('hidden');
                 placeholder.classList.add('hidden');
-                img.onerror = () => {
-                    img.classList.add('hidden');
-                    placeholder.classList.remove('hidden');
-                };
+                img.onerror = () => { img.classList.add('hidden'); placeholder.classList.remove('hidden'); };
             } else {
                 img.classList.add('hidden');
                 placeholder.classList.remove('hidden');
             }
         });
 
-        // Image preview for edit
+        // Drag & drop for create
+        (function() {
+            const dz = document.getElementById('createImgDropZone');
+            if (!dz) return;
+            ['dragenter','dragover'].forEach(e => dz.addEventListener(e, ev => { ev.preventDefault(); dz.classList.add('border-indigo-400','bg-indigo-50/40'); }));
+            ['dragleave','drop'].forEach(e => dz.addEventListener(e, ev => { ev.preventDefault(); dz.classList.remove('border-indigo-400','bg-indigo-50/40'); }));
+            dz.addEventListener('drop', e => {
+                const file = e.dataTransfer.files[0];
+                if (file && file.type.startsWith('image/')) {
+                    const input = document.getElementById('create_image_file');
+                    const dt = new DataTransfer();
+                    dt.items.add(file);
+                    input.files = dt.files;
+                    previewCreateFile(input);
+                }
+            });
+        })();
+
+        // ==================== EDIT DRAWER: Image tabs & preview ====================
+        function switchEditImgTab(tab) {
+            const urlTab = document.getElementById('editImgTabUrl');
+            const fileTab = document.getElementById('editImgTabFile');
+            const urlInput = document.getElementById('editImgInputUrl');
+            const fileInput = document.getElementById('editImgInputFile');
+            if (tab === 'url') {
+                urlTab.className = 'flex-1 px-3 py-1.5 text-xs font-medium rounded-md transition bg-white text-gray-800 shadow-sm';
+                fileTab.className = 'flex-1 px-3 py-1.5 text-xs font-medium rounded-md transition text-gray-500 hover:text-gray-700';
+                urlInput.classList.remove('hidden');
+                fileInput.classList.add('hidden');
+            } else {
+                fileTab.className = 'flex-1 px-3 py-1.5 text-xs font-medium rounded-md transition bg-white text-gray-800 shadow-sm';
+                urlTab.className = 'flex-1 px-3 py-1.5 text-xs font-medium rounded-md transition text-gray-500 hover:text-gray-700';
+                fileInput.classList.remove('hidden');
+                urlInput.classList.add('hidden');
+            }
+        }
+
+        function previewEditFile(input) {
+            const file = input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                document.getElementById('editFilePreviewImg').src = e.target.result;
+                document.getElementById('editFileName').textContent = file.name + ' (' + (file.size / 1024).toFixed(1) + ' KB)';
+                document.getElementById('editFileContent').classList.add('hidden');
+                document.getElementById('editFilePreviewWrap').classList.remove('hidden');
+                // Update header preview
+                const img = document.getElementById('editImgPreview');
+                const placeholder = document.getElementById('editImgPlaceholder');
+                img.src = e.target.result;
+                img.classList.remove('hidden');
+                placeholder.classList.add('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function clearEditFile() {
+            document.getElementById('edit_image_file').value = '';
+            document.getElementById('editFileContent').classList.remove('hidden');
+            document.getElementById('editFilePreviewWrap').classList.add('hidden');
+        }
+
+        // Image URL preview for edit
         const editImgInput = document.getElementById('edit_image_url');
         editImgInput.addEventListener('change', function() {
             const img = document.getElementById('editImgPreview');
@@ -1005,15 +1225,30 @@ if ($stock <= 5) return ['bg'=> 'bg-amber-50', 'text' => 'text-amber-600', 'labe
                 img.src = this.value;
                 img.classList.remove('hidden');
                 placeholder.classList.add('hidden');
-                img.onerror = () => {
-                    img.classList.add('hidden');
-                    placeholder.classList.remove('hidden');
-                };
+                img.onerror = () => { img.classList.add('hidden'); placeholder.classList.remove('hidden'); };
             } else {
                 img.classList.add('hidden');
                 placeholder.classList.remove('hidden');
             }
         });
+
+        // Drag & drop for edit
+        (function() {
+            const dz = document.getElementById('editImgDropZone');
+            if (!dz) return;
+            ['dragenter','dragover'].forEach(e => dz.addEventListener(e, ev => { ev.preventDefault(); dz.classList.add('border-indigo-400','bg-indigo-50/40'); }));
+            ['dragleave','drop'].forEach(e => dz.addEventListener(e, ev => { ev.preventDefault(); dz.classList.remove('border-indigo-400','bg-indigo-50/40'); }));
+            dz.addEventListener('drop', e => {
+                const file = e.dataTransfer.files[0];
+                if (file && file.type.startsWith('image/')) {
+                    const input = document.getElementById('edit_image_file');
+                    const dt = new DataTransfer();
+                    dt.items.add(file);
+                    input.files = dt.files;
+                    previewEditFile(input);
+                }
+            });
+        })();
 
         // Select all checkboxes
         const selectAll = document.getElementById('selectAll');
@@ -1035,6 +1270,82 @@ if ($stock <= 5) return ['bg'=> 'bg-amber-50', 'text' => 'text-amber-600', 'labe
         const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
         let currentProductId = null;
 
+        let currentImageTab = 'url';
+
+        function switchImageTab(tab) {
+            currentImageTab = tab;
+            const urlTab = document.getElementById('imgTabUrl');
+            const fileTab = document.getElementById('imgTabFile');
+            const urlInput = document.getElementById('imgInputUrl');
+            const fileInput = document.getElementById('imgInputFile');
+
+            if (tab === 'url') {
+                urlTab.className = 'flex-1 px-3 py-1.5 text-xs font-medium rounded-md transition bg-white text-gray-800 shadow-sm';
+                fileTab.className = 'flex-1 px-3 py-1.5 text-xs font-medium rounded-md transition text-gray-500 hover:text-gray-700';
+                urlInput.classList.remove('hidden');
+                fileInput.classList.add('hidden');
+            } else {
+                fileTab.className = 'flex-1 px-3 py-1.5 text-xs font-medium rounded-md transition bg-white text-gray-800 shadow-sm';
+                urlTab.className = 'flex-1 px-3 py-1.5 text-xs font-medium rounded-md transition text-gray-500 hover:text-gray-700';
+                fileInput.classList.remove('hidden');
+                urlInput.classList.add('hidden');
+            }
+        }
+
+        function previewFileImage(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            const content = document.getElementById('imgDropContent');
+            const previewWrap = document.getElementById('imgFilePreviewWrap');
+            const previewImg = document.getElementById('imgFilePreviewImg');
+            const fileName = document.getElementById('imgFileName');
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                previewImg.src = e.target.result;
+                fileName.textContent = file.name + ' (' + (file.size / 1024).toFixed(1) + ' KB)';
+                content.classList.add('hidden');
+                previewWrap.classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function clearFileImage() {
+            document.getElementById('img_new_file').value = '';
+            document.getElementById('imgDropContent').classList.remove('hidden');
+            document.getElementById('imgFilePreviewWrap').classList.add('hidden');
+        }
+
+        // Drag & drop
+        document.addEventListener('DOMContentLoaded', () => {
+            const dropZone = document.getElementById('imgDropZone');
+            if (!dropZone) return;
+
+            ['dragenter', 'dragover'].forEach(evt => {
+                dropZone.addEventListener(evt, (e) => {
+                    e.preventDefault();
+                    dropZone.classList.add('border-indigo-400', 'bg-indigo-50/40');
+                });
+            });
+            ['dragleave', 'drop'].forEach(evt => {
+                dropZone.addEventListener(evt, (e) => {
+                    e.preventDefault();
+                    dropZone.classList.remove('border-indigo-400', 'bg-indigo-50/40');
+                });
+            });
+            dropZone.addEventListener('drop', (e) => {
+                const file = e.dataTransfer.files[0];
+                if (file && file.type.startsWith('image/')) {
+                    const input = document.getElementById('img_new_file');
+                    const dt = new DataTransfer();
+                    dt.items.add(file);
+                    input.files = dt.files;
+                    previewFileImage(input);
+                }
+            });
+        });
+
         function openImagesDrawer(productId, productName) {
             currentProductId = productId;
             document.getElementById('imagesDrawerSubtitle').textContent = productName;
@@ -1042,6 +1353,8 @@ if ($stock <= 5) return ['bg'=> 'bg-amber-50', 'text' => 'text-amber-600', 'labe
             document.getElementById('img_new_alt').value = '';
             document.getElementById('img_new_primary').checked = false;
             document.getElementById('imgNewPreview').classList.add('hidden');
+            clearFileImage();
+            switchImageTab('url');
             showDrawer(imagesDrawer);
             loadImages();
         }
@@ -1116,28 +1429,57 @@ if ($stock <= 5) return ['bg'=> 'bg-amber-50', 'text' => 'text-amber-600', 'labe
         }
 
         async function addImage() {
-            const url = document.getElementById('img_new_url').value.trim();
             const alt = document.getElementById('img_new_alt').value.trim();
             const primary = document.getElementById('img_new_primary').checked;
+            const btn = document.getElementById('imgAddBtn');
 
-            if (!url) {
-                document.getElementById('img_new_url').focus();
-                return;
+            let body, headers;
+
+            if (currentImageTab === 'file') {
+                const fileInput = document.getElementById('img_new_file');
+                const file = fileInput.files[0];
+                if (!file) {
+                    fileInput.click();
+                    return;
+                }
+
+                const formData = new FormData();
+                formData.append('image_file', file);
+                if (alt) formData.append('alt_text', alt);
+                formData.append('is_primary', primary ? '1' : '0');
+
+                body = formData;
+                headers = {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken
+                };
+            } else {
+                const url = document.getElementById('img_new_url').value.trim();
+                if (!url) {
+                    document.getElementById('img_new_url').focus();
+                    return;
+                }
+
+                body = JSON.stringify({
+                    image_url: url,
+                    alt_text: alt || null,
+                    is_primary: primary
+                });
+                headers = {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken
+                };
             }
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin text-xs"></i> Subiendo...';
 
             try {
                 const res = await fetch(`/admin/products/${currentProductId}/images`, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'X-CSRF-TOKEN': csrfToken
-                    },
-                    body: JSON.stringify({
-                        image_url: url,
-                        alt_text: alt || null,
-                        is_primary: primary
-                    })
+                    headers,
+                    body
                 });
 
                 if (!res.ok) {
@@ -1150,9 +1492,13 @@ if ($stock <= 5) return ['bg'=> 'bg-amber-50', 'text' => 'text-amber-600', 'labe
                 document.getElementById('img_new_alt').value = '';
                 document.getElementById('img_new_primary').checked = false;
                 document.getElementById('imgNewPreview').classList.add('hidden');
+                clearFileImage();
                 loadImages();
             } catch (e) {
                 alert('Error de conexión');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-plus text-xs"></i> Agregar';
             }
         }
 
