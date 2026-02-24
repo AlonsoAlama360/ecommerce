@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
+use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Api\CategoryProductController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
@@ -51,4 +54,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/mi-perfil', [ProfileController::class, 'show'])->name('profile.show');
     Route::put('/mi-perfil', [ProfileController::class, 'update'])->name('profile.update');
     Route::put('/mi-perfil/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
+});
+
+// Panel de administración
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+    Route::resource('users', AdminUserController::class)->except(['show']);
+    Route::resource('categories', AdminCategoryController::class)->except(['show']);
 });
