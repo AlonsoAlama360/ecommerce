@@ -7,25 +7,41 @@
     <title>@yield('title', 'Admin') - Panel de Administración</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         * { font-family: 'Inter', sans-serif; }
 
+        .sidebar {
+            background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+        }
+
         .sidebar-link {
-            transition: all 0.2s ease;
-            border-left: 3px solid transparent;
+            position: relative;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .sidebar-link:hover {
-            background: rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.06);
+            color: #e2e8f0;
         }
         .sidebar-link.active {
-            background: rgba(99, 132, 255, 0.15);
-            border-left-color: #6366f1;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(139, 92, 246, 0.15) 100%);
             color: #fff;
+        }
+        .sidebar-link.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 3px;
+            height: 60%;
+            background: linear-gradient(180deg, #818cf8, #a78bfa);
+            border-radius: 0 4px 4px 0;
         }
 
         .sidebar-overlay {
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
             opacity: 0;
             visibility: hidden;
             transition: all 0.3s ease;
@@ -38,113 +54,178 @@
         @media (max-width: 1023px) {
             .admin-sidebar {
                 transform: translateX(-100%);
-                transition: transform 0.3s ease;
+                transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             }
             .admin-sidebar.open {
                 transform: translateX(0);
             }
         }
+
+        .nav-badge {
+            font-size: 10px;
+            min-width: 18px;
+            height: 18px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 9999px;
+            padding: 0 5px;
+            font-weight: 600;
+        }
+
+        /* Custom scrollbar for sidebar */
+        .sidebar-scroll::-webkit-scrollbar { width: 4px; }
+        .sidebar-scroll::-webkit-scrollbar-track { background: transparent; }
+        .sidebar-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+        .sidebar-scroll::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
     </style>
     @yield('styles')
 </head>
-<body class="bg-gray-50 min-h-screen">
+<body class="bg-gray-50/80 min-h-screen antialiased">
 
     <!-- Mobile Overlay -->
     <div class="sidebar-overlay fixed inset-0 z-40 lg:hidden" id="sidebarOverlay"></div>
 
     <!-- Sidebar -->
-    <aside class="admin-sidebar fixed top-0 left-0 z-50 w-64 h-full flex flex-col" id="sidebar"
-           style="background: #1e2a3a;">
+    <aside class="admin-sidebar sidebar fixed top-0 left-0 z-50 w-[270px] h-full flex flex-col" id="sidebar">
+
         <!-- Logo -->
-        <div class="px-5 py-5">
-            <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3">
-                <div class="w-9 h-9 rounded-lg bg-indigo-500 flex items-center justify-center">
-                    <i class="fas fa-store text-white text-sm"></i>
+        <div class="px-6 py-6 flex items-center justify-between">
+            <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 group">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-500/25 group-hover:shadow-indigo-500/40 transition-shadow">
+                    <i class="fas fa-gem text-white text-sm"></i>
                 </div>
                 <div>
-                    <h1 class="font-bold text-base text-white leading-tight">ShopAdmin</h1>
-                    <p class="text-[10px] text-slate-400 uppercase tracking-wider">E-Commerce Panel</p>
+                    <h1 class="font-bold text-[15px] text-white leading-tight tracking-tight">ShopAdmin</h1>
+                    <p class="text-[10px] text-slate-500 font-medium tracking-widest uppercase">E-Commerce</p>
                 </div>
             </a>
+            <button class="lg:hidden w-8 h-8 rounded-lg hover:bg-white/10 flex items-center justify-center text-slate-400 transition" onclick="closeSidebar()">
+                <i class="fas fa-times text-sm"></i>
+            </button>
         </div>
 
         <!-- Navigation -->
-        <nav class="flex-1 py-2 px-3 overflow-y-auto">
-            <!-- PRINCIPAL -->
-            <p class="px-3 pt-4 pb-2 text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Principal</p>
+        <nav class="flex-1 px-4 pb-4 overflow-y-auto sidebar-scroll">
+
+            {{-- Menu --}}
+            <p class="px-3 pt-2 pb-2 text-[10px] font-semibold text-slate-500/80 uppercase tracking-[0.15em]">Menú</p>
+
             <a href="{{ route('admin.dashboard') }}"
-               class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm {{ request()->routeIs('admin.dashboard') ? 'active' : 'text-slate-400' }}">
-                <i class="fas fa-th-large w-5 text-center text-xs"></i>
+               class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium mb-0.5 {{ request()->routeIs('admin.dashboard') ? 'active' : 'text-slate-400' }}">
+                <div class="w-8 h-8 rounded-lg {{ request()->routeIs('admin.dashboard') ? 'bg-indigo-500/20' : 'bg-white/5' }} flex items-center justify-center transition">
+                    <i class="fas fa-chart-pie text-xs {{ request()->routeIs('admin.dashboard') ? 'text-indigo-400' : 'text-slate-500' }}"></i>
+                </div>
                 <span>Dashboard</span>
             </a>
 
-            <!-- GESTIÓN -->
-            <p class="px-3 pt-5 pb-2 text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Gestión</p>
+            {{-- Gestión --}}
+            <p class="px-3 pt-5 pb-2 text-[10px] font-semibold text-slate-500/80 uppercase tracking-[0.15em]">Gestión</p>
+
             <a href="{{ route('admin.users.index') }}"
-               class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm {{ request()->routeIs('admin.users.*') ? 'active' : 'text-slate-400' }}">
-                <i class="fas fa-users w-5 text-center text-xs"></i>
+               class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium mb-0.5 {{ request()->routeIs('admin.users.*') ? 'active' : 'text-slate-400' }}">
+                <div class="w-8 h-8 rounded-lg {{ request()->routeIs('admin.users.*') ? 'bg-indigo-500/20' : 'bg-white/5' }} flex items-center justify-center transition">
+                    <i class="fas fa-users text-xs {{ request()->routeIs('admin.users.*') ? 'text-indigo-400' : 'text-slate-500' }}"></i>
+                </div>
                 <span>Usuarios</span>
             </a>
+
             <a href="{{ route('admin.products.index') }}"
-               class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm {{ request()->routeIs('admin.products.*') ? 'active' : 'text-slate-400' }}">
-                <i class="fas fa-box w-5 text-center text-xs"></i>
+               class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium mb-0.5 {{ request()->routeIs('admin.products.*') ? 'active' : 'text-slate-400' }}">
+                <div class="w-8 h-8 rounded-lg {{ request()->routeIs('admin.products.*') ? 'bg-indigo-500/20' : 'bg-white/5' }} flex items-center justify-center transition">
+                    <i class="fas fa-box text-xs {{ request()->routeIs('admin.products.*') ? 'text-indigo-400' : 'text-slate-500' }}"></i>
+                </div>
                 <span>Productos</span>
             </a>
+
             <a href="{{ route('admin.categories.index') }}"
-               class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm {{ request()->routeIs('admin.categories.*') ? 'active' : 'text-slate-400' }}">
-                <i class="fas fa-tags w-5 text-center text-xs"></i>
+               class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium mb-0.5 {{ request()->routeIs('admin.categories.*') ? 'active' : 'text-slate-400' }}">
+                <div class="w-8 h-8 rounded-lg {{ request()->routeIs('admin.categories.*') ? 'bg-indigo-500/20' : 'bg-white/5' }} flex items-center justify-center transition">
+                    <i class="fas fa-tags text-xs {{ request()->routeIs('admin.categories.*') ? 'text-indigo-400' : 'text-slate-500' }}"></i>
+                </div>
                 <span>Categorías</span>
             </a>
+
+            {{-- Tienda --}}
+            <p class="px-3 pt-5 pb-2 text-[10px] font-semibold text-slate-500/80 uppercase tracking-[0.15em]">Tienda</p>
+
+            <a href="{{ route('home') }}" target="_blank"
+               class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium mb-0.5 text-slate-400">
+                <div class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center">
+                    <i class="fas fa-store text-xs text-slate-500"></i>
+                </div>
+                <span>Ver tienda</span>
+                <i class="fas fa-arrow-up-right-from-square text-[9px] text-slate-600 ml-auto"></i>
+            </a>
+
         </nav>
 
-        <!-- User Info -->
-        <div class="px-4 py-4 border-t border-slate-700/50">
-            <div class="flex items-center gap-3">
-                <div class="w-9 h-9 rounded-full bg-indigo-500 flex items-center justify-center text-sm font-semibold text-white">
-                    {{ strtoupper(substr(Auth::user()->first_name, 0, 1)) }}{{ strtoupper(substr(Auth::user()->last_name, 0, 1)) }}
+        <!-- User Card -->
+        <div class="px-4 pb-4">
+            <div class="rounded-xl bg-white/[0.04] border border-white/[0.06] p-3.5">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-400 to-violet-500 flex items-center justify-center text-sm font-bold text-white shadow-lg shadow-indigo-500/20 flex-shrink-0">
+                        {{ strtoupper(substr(Auth::user()->first_name, 0, 1)) }}{{ strtoupper(substr(Auth::user()->last_name, 0, 1)) }}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-semibold text-white truncate">{{ Auth::user()->full_name }}</p>
+                        <p class="text-[11px] text-slate-500 truncate">{{ ucfirst(Auth::user()->role) }}</p>
+                    </div>
+                    <form action="{{ route('logout') }}" method="POST">
+                        @csrf
+                        <button type="submit" class="w-8 h-8 rounded-lg hover:bg-white/10 flex items-center justify-center text-slate-500 hover:text-red-400 transition" title="Cerrar sesión">
+                            <i class="fas fa-right-from-bracket text-xs"></i>
+                        </button>
+                    </form>
                 </div>
-                <div class="flex-1 min-w-0">
-                    <p class="text-sm font-medium text-white truncate">{{ Auth::user()->full_name }}</p>
-                    <p class="text-xs text-slate-400 truncate">{{ Auth::user()->email }}</p>
-                </div>
-                <form action="{{ route('logout') }}" method="POST">
-                    @csrf
-                    <button type="submit" class="p-1.5 text-slate-400 hover:text-red-400 transition" title="Cerrar sesión">
-                        <i class="fas fa-sign-out-alt text-sm"></i>
-                    </button>
-                </form>
             </div>
         </div>
     </aside>
 
     <!-- Main Content -->
-    <div class="lg:ml-64 min-h-screen flex flex-col">
+    <div class="lg:ml-[270px] min-h-screen flex flex-col">
         <!-- Topbar -->
-        <header class="bg-white shadow-sm sticky top-0 z-30">
-            <div class="flex items-center justify-between px-4 sm:px-6 py-3">
-                <!-- Mobile toggle -->
-                <button id="sidebarToggle" class="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition">
-                    <i class="fas fa-bars text-gray-600 text-lg"></i>
-                </button>
-
-                <!-- Search -->
-                <div class="hidden sm:block flex-1 max-w-md ml-4">
-                    <div class="relative">
-                        <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
-                        <input type="text" placeholder="Buscar..."
-                               class="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+        <header class="bg-white/80 backdrop-blur-xl sticky top-0 z-30 border-b border-gray-100">
+            <div class="flex items-center justify-between px-4 sm:px-6 lg:px-8 py-3">
+                <!-- Left: Mobile toggle + breadcrumb -->
+                <div class="flex items-center gap-3">
+                    <button id="sidebarToggle" class="lg:hidden w-9 h-9 rounded-xl bg-gray-50 hover:bg-gray-100 flex items-center justify-center transition">
+                        <i class="fas fa-bars text-gray-500 text-sm"></i>
+                    </button>
+                    <div class="hidden sm:flex items-center gap-2 text-sm">
+                        <span class="text-gray-400">Admin</span>
+                        <i class="fas fa-chevron-right text-[8px] text-gray-300"></i>
+                        <span class="text-gray-700 font-medium">@yield('title', 'Dashboard')</span>
                     </div>
                 </div>
 
-                <div class="flex items-center gap-4">
-                    <a href="{{ route('home') }}" class="text-gray-400 hover:text-indigo-500 transition" title="Ver tienda">
-                        <i class="fas fa-external-link-alt"></i>
-                    </a>
-                    <div class="flex items-center gap-2">
-                        <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-sm font-semibold text-indigo-600">
+                <!-- Right: Actions -->
+                <div class="flex items-center gap-2">
+                    {{-- Search --}}
+                    <div class="hidden md:block relative">
+                        <i class="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                        <input type="text" placeholder="Buscar..."
+                               class="w-52 pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300 focus:w-72 transition-all">
+                    </div>
+
+                    {{-- Notifications placeholder --}}
+                    <button class="w-9 h-9 rounded-xl bg-gray-50 hover:bg-gray-100 flex items-center justify-center transition relative">
+                        <i class="fas fa-bell text-gray-500 text-sm"></i>
+                        <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
+                    </button>
+
+                    {{-- Divider --}}
+                    <div class="w-px h-7 bg-gray-200 mx-1 hidden sm:block"></div>
+
+                    {{-- User --}}
+                    <div class="flex items-center gap-2.5 pl-1">
+                        <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-400 to-violet-500 flex items-center justify-center text-[11px] font-bold text-white">
                             {{ strtoupper(substr(Auth::user()->first_name, 0, 1)) }}{{ strtoupper(substr(Auth::user()->last_name, 0, 1)) }}
                         </div>
-                        <span class="text-sm font-medium text-gray-700 hidden md:inline">{{ ucfirst(Auth::user()->role) }}</span>
+                        <div class="hidden sm:block">
+                            <p class="text-sm font-semibold text-gray-800 leading-tight">{{ Auth::user()->full_name }}</p>
+                            <p class="text-[11px] text-gray-400">{{ ucfirst(Auth::user()->role) }}</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -171,7 +252,7 @@
         <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeDeleteModal()"></div>
         <div id="deleteModalContent" class="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 p-6 scale-95 transition-transform duration-300">
             <div class="flex justify-center mb-4">
-                <div class="w-14 h-14 rounded-full bg-red-100 flex items-center justify-center">
+                <div class="w-14 h-14 rounded-2xl bg-red-50 flex items-center justify-center">
                     <i class="fas fa-trash-can text-red-500 text-xl"></i>
                 </div>
             </div>
@@ -181,12 +262,13 @@
                 <button onclick="closeDeleteModal()" class="flex-1 px-4 py-2.5 text-sm text-gray-600 bg-gray-100 rounded-xl hover:bg-gray-200 transition font-medium">
                     Cancelar
                 </button>
-                <button onclick="confirmDelete()" class="flex-1 px-4 py-2.5 text-sm bg-red-500 text-white rounded-xl hover:bg-red-600 transition font-medium">
+                <button onclick="confirmDelete()" class="flex-1 px-4 py-2.5 text-sm bg-red-500 text-white rounded-xl hover:bg-red-600 transition font-medium shadow-sm shadow-red-200">
                     <i class="fas fa-trash-can mr-1.5 text-xs"></i> Eliminar
                 </button>
             </div>
         </div>
     </div>
+
     <!-- Scripts -->
     <script>
         const sidebar = document.getElementById('sidebar');
