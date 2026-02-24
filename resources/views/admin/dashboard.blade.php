@@ -215,6 +215,54 @@
     </div>
 </div>
 
+{{-- Recent Orders --}}
+<div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden mt-6">
+    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+        <div>
+            <h3 class="text-sm font-semibold text-gray-800">Ventas recientes</h3>
+            <p class="text-xs text-gray-400 mt-0.5">
+                @if($stats['pending_orders'] > 0)
+                <span class="text-amber-500 font-semibold">{{ $stats['pending_orders'] }} pendientes</span> ·
+                @endif
+                Ingresos del mes: <span class="text-emerald-600 font-semibold">S/ {{ number_format($stats['monthly_revenue'], 2) }}</span>
+            </p>
+        </div>
+        <a href="{{ route('admin.orders.index') }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-indigo-600 hover:bg-indigo-50 rounded-lg transition">
+            Ver todas <i class="fas fa-arrow-right text-[9px]"></i>
+        </a>
+    </div>
+    <div class="divide-y divide-gray-50">
+        @forelse($recentOrders as $order)
+        <div class="flex items-center gap-4 px-6 py-3.5 hover:bg-gray-50/50 transition">
+            <div class="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0
+                {{ $order->source === 'web' ? 'bg-gradient-to-br from-cyan-50 to-blue-50' : 'bg-gradient-to-br from-violet-50 to-purple-50' }}">
+                <i class="fas {{ $order->source === 'web' ? 'fa-globe text-cyan-500' : 'fa-user-shield text-violet-500' }} text-sm"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2">
+                    <p class="text-sm font-semibold text-gray-800 truncate">{{ $order->customer_name }}</p>
+                    <span class="text-[10px] font-mono text-gray-400">{{ $order->order_number }}</span>
+                </div>
+                <p class="text-xs text-gray-400">{{ $order->created_at->diffForHumans() }} · {{ $order->items_count ?? $order->items->count() }} items</p>
+            </div>
+            <div class="text-right flex-shrink-0">
+                <p class="text-sm font-bold text-gray-800">S/ {{ number_format($order->total, 2) }}</p>
+                @php $sc = $order->status_color; @endphp
+                <span class="text-[10px] font-semibold {{ $sc['text'] }}">{{ $order->status_label }}</span>
+            </div>
+        </div>
+        @empty
+        <div class="py-12 text-center">
+            <div class="w-12 h-12 rounded-2xl bg-gray-50 flex items-center justify-center mx-auto mb-3">
+                <i class="fas fa-receipt text-gray-300 text-lg"></i>
+            </div>
+            <p class="text-sm text-gray-400">No hay ventas aún</p>
+            <a href="{{ route('admin.orders.index') }}" class="text-xs text-indigo-500 hover:underline mt-1 inline-block">Crear primera venta</a>
+        </div>
+        @endforelse
+    </div>
+</div>
+
 {{-- Quick Actions --}}
 <div class="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4">
     <a href="{{ route('admin.products.index') }}" class="group bg-white rounded-2xl border border-gray-100 shadow-sm p-5 hover:shadow-md hover:border-indigo-200 transition-all">

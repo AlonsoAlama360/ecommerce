@@ -4,6 +4,8 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\ProductImageController as AdminProductImageController;
+use App\Http\Controllers\Admin\OrderController as AdminOrderController;
+use App\Http\Controllers\Admin\SupplierController as AdminSupplierController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Api\CategoryProductController;
 use App\Http\Controllers\Auth\LoginController;
@@ -64,6 +66,13 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::resource('users', AdminUserController::class)->except(['show']);
     Route::resource('categories', AdminCategoryController::class)->except(['show']);
     Route::resource('products', AdminProductController::class)->except(['show']);
+    Route::resource('suppliers', AdminSupplierController::class)->except(['show']);
+
+    // Orders (Sales)
+    Route::resource('orders', AdminOrderController::class);
+    Route::put('orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.status');
+    Route::get('orders-search-products', [AdminOrderController::class, 'searchProducts'])->name('orders.search-products');
+    Route::get('orders-search-users', [AdminOrderController::class, 'searchUsers'])->name('orders.search-users');
 
     // Product Specifications (AJAX)
     Route::get('products/{product}/specifications', [AdminProductController::class, 'specifications'])->name('products.specifications');
