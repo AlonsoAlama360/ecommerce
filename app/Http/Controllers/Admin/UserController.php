@@ -29,6 +29,14 @@ class UserController extends Controller
             $query->where('is_active', $request->get('status'));
         }
 
+        if ($dateFrom = $request->get('date_from')) {
+            $query->whereDate('created_at', '>=', $dateFrom);
+        }
+
+        if ($dateTo = $request->get('date_to')) {
+            $query->whereDate('created_at', '<=', $dateTo);
+        }
+
         $perPage = $request->get('per_page', 10);
         $users = $query->latest()->paginate($perPage)->withQueryString();
 

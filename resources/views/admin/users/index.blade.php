@@ -10,7 +10,7 @@
     $avatarColors = [
         'admin' => 'from-indigo-400 to-indigo-600',
         'vendedor' => 'from-orange-400 to-orange-600',
-        'cliente' => 'from-slate-400 to-slate-600',
+        'cliente' => 'from-teal-400 to-cyan-600',
     ];
 @endphp
 
@@ -83,12 +83,16 @@
         <h3 class="text-base font-semibold text-gray-800">Filtros de búsqueda</h3>
     </div>
     <form method="GET" action="{{ route('admin.users.index') }}" id="filterForm" class="px-5 pb-5">
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-3">
+        @php
+            $selectStyle = "background-image: url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 20 20%22 fill=%22%236b7280%22><path fill-rule=%22evenodd%22 d=%22M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z%22 clip-rule=%22evenodd%22/></svg>'); background-position: right 0.75rem center; background-repeat: no-repeat; background-size: 1rem;";
+            $selectClass = "w-full px-3.5 py-2.5 bg-white border border-gray-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 cursor-pointer transition appearance-none";
+            $inputClass = "w-full px-3.5 py-2.5 bg-white border border-gray-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition";
+            $hasFilters = request('role') || (request('status') !== null && request('status') !== '') || request('search') || request('date_from') || request('date_to');
+        @endphp
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-3">
             <div>
                 <label class="block text-xs font-medium text-gray-500 mb-1.5">Rol</label>
-                <select name="role" onchange="this.form.submit()"
-                        class="w-full px-3.5 py-2.5 bg-white border border-gray-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 cursor-pointer transition appearance-none"
-                        style="background-image: url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 20 20%22 fill=%22%236b7280%22><path fill-rule=%22evenodd%22 d=%22M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z%22 clip-rule=%22evenodd%22/></svg>'); background-position: right 0.75rem center; background-repeat: no-repeat; background-size: 1rem;">
+                <select name="role" onchange="this.form.submit()" class="{{ $selectClass }}" style="{{ $selectStyle }}">
                     <option value="">Seleccionar rol</option>
                     <option value="admin" {{ request('role') === 'admin' ? 'selected' : '' }}>Admin</option>
                     <option value="vendedor" {{ request('role') === 'vendedor' ? 'selected' : '' }}>Vendedor</option>
@@ -97,22 +101,28 @@
             </div>
             <div>
                 <label class="block text-xs font-medium text-gray-500 mb-1.5">Estado</label>
-                <select name="status" onchange="this.form.submit()"
-                        class="w-full px-3.5 py-2.5 bg-white border border-gray-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 cursor-pointer transition appearance-none"
-                        style="background-image: url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 20 20%22 fill=%22%236b7280%22><path fill-rule=%22evenodd%22 d=%22M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z%22 clip-rule=%22evenodd%22/></svg>'); background-position: right 0.75rem center; background-repeat: no-repeat; background-size: 1rem;">
+                <select name="status" onchange="this.form.submit()" class="{{ $selectClass }}" style="{{ $selectStyle }}">
                     <option value="">Seleccionar estado</option>
                     <option value="1" {{ request('status') === '1' ? 'selected' : '' }}>Activo</option>
                     <option value="0" {{ request('status') === '0' ? 'selected' : '' }}>Inactivo</option>
                 </select>
             </div>
-            <div class="flex items-end">
-                @if(request('role') || (request('status') !== null && request('status') !== '') || request('search'))
-                    <a href="{{ route('admin.users.index') }}" class="inline-flex items-center gap-2 px-4 py-2.5 text-sm text-gray-500 hover:text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-50 transition">
-                        <i class="fas fa-rotate-left text-xs"></i> Limpiar filtros
-                    </a>
-                @endif
+            <div>
+                <label class="block text-xs font-medium text-gray-500 mb-1.5">Fecha desde</label>
+                <input type="date" name="date_from" value="{{ request('date_from') }}" onchange="this.form.submit()" class="{{ $inputClass }}">
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-gray-500 mb-1.5">Fecha hasta</label>
+                <input type="date" name="date_to" value="{{ request('date_to') }}" onchange="this.form.submit()" class="{{ $inputClass }}">
             </div>
         </div>
+        @if($hasFilters)
+            <div class="mt-3">
+                <a href="{{ route('admin.users.index') }}" class="inline-flex items-center gap-2 px-4 py-2 text-sm text-gray-500 hover:text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-50 transition">
+                    <i class="fas fa-rotate-left text-xs"></i> Limpiar filtros
+                </a>
+            </div>
+        @endif
     </form>
 </div>
 
@@ -128,6 +138,8 @@
                     @if(request('search'))<input type="hidden" name="search" value="{{ request('search') }}">@endif
                     @if(request('role'))<input type="hidden" name="role" value="{{ request('role') }}">@endif
                     @if(request('status') !== null && request('status') !== '')<input type="hidden" name="status" value="{{ request('status') }}">@endif
+                    @if(request('date_from'))<input type="hidden" name="date_from" value="{{ request('date_from') }}">@endif
+                    @if(request('date_to'))<input type="hidden" name="date_to" value="{{ request('date_to') }}">@endif
                     <select name="per_page" onchange="this.form.submit()"
                             class="pl-3 pr-8 py-2 border border-gray-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 cursor-pointer bg-white appearance-none"
                             style="background-image: url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 20 20%22 fill=%22%236b7280%22><path fill-rule=%22evenodd%22 d=%22M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z%22 clip-rule=%22evenodd%22/></svg>'); background-position: right 0.5rem center; background-repeat: no-repeat; background-size: 0.875rem;">
@@ -143,6 +155,8 @@
                     @if(request('role'))<input type="hidden" name="role" value="{{ request('role') }}">@endif
                     @if(request('status') !== null && request('status') !== '')<input type="hidden" name="status" value="{{ request('status') }}">@endif
                     @if(request('per_page'))<input type="hidden" name="per_page" value="{{ request('per_page') }}">@endif
+                    @if(request('date_from'))<input type="hidden" name="date_from" value="{{ request('date_from') }}">@endif
+                    @if(request('date_to'))<input type="hidden" name="date_to" value="{{ request('date_to') }}">@endif
                     <div class="relative">
                         <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
                         <input type="text" name="search" value="{{ request('search') }}"
@@ -176,6 +190,7 @@
                     <th class="px-4 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Usuario</th>
                     <th class="px-4 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Rol</th>
                     <th class="px-4 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Teléfono</th>
+                    <th class="px-4 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Registro</th>
                     <th class="px-4 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Estado</th>
                     <th class="px-5 py-3.5 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Acciones</th>
                 </tr>
@@ -213,6 +228,9 @@
                         <span class="text-sm text-gray-500">{{ $user->phone ?: '—' }}</span>
                     </td>
                     <td class="px-4 py-3">
+                        <span class="text-sm text-gray-500">{{ $user->created_at->format('d/m/Y') }}</span>
+                    </td>
+                    <td class="px-4 py-3">
                         @if($user->is_active)
                             <span class="inline-flex items-center px-3 py-1 rounded-md text-xs font-semibold bg-emerald-50 text-emerald-600">Active</span>
                         @else
@@ -239,7 +257,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="6" class="px-6 py-20 text-center">
+                    <td colspan="7" class="px-6 py-20 text-center">
                         <div class="flex flex-col items-center">
                             <div class="w-16 h-16 rounded-2xl bg-gray-50 flex items-center justify-center mb-4">
                                 <i class="fas fa-users text-2xl text-gray-300"></i>
