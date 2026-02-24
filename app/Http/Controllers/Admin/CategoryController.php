@@ -9,16 +9,37 @@ use Illuminate\Support\Str;
 
 class CategoryController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $categories = Category::withCount('products')->ordered()->get();
+        $query = Category::withCount('products');
 
-        return view('admin.categories.index', compact('categories'));
+        if ($search = $request->get('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('slug', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->has('status') && $request->get('status') !== '') {
+            $query->where('is_active', $request->get('status'));
+        }
+
+        $categories = $query->ordered()->get();
+
+        $totalCategories = Category::count();
+        $activeCategories = Category::where('is_active', true)->count();
+        $inactiveCategories = Category::where('is_active', false)->count();
+        $totalProducts = \DB::table('products')->count();
+
+        return view('admin.categories.index', compact(
+            'categories', 'totalCategories', 'activeCategories', 'inactiveCategories', 'totalProducts'
+        ));
     }
 
     public function create()
     {
-        return view('admin.categories.create');
+        return redirect()->route('admin.categories.index');
     }
 
     public function store(Request $request)
@@ -45,7 +66,7 @@ class CategoryController extends Controller
 
     public function edit(Category $category)
     {
-        return view('admin.categories.edit', compact('category'));
+        return redirect()->route('admin.categories.index');
     }
 
     public function update(Request $request, Category $category)
@@ -71,10 +92,6 @@ class CategoryController extends Controller
 
     public function destroy(Category $category)
     {
-        if ($category->products()->count() > 0) {
-            return back()->with('error', 'No se puede eliminar una categoría que tiene productos asociados.');
-        }
-
         $category->delete();
 
         return redirect()->route('admin.categories.index')

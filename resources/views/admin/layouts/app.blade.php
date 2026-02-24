@@ -175,8 +175,8 @@
                     <i class="fas fa-trash-can text-red-500 text-xl"></i>
                 </div>
             </div>
-            <h3 class="text-lg font-bold text-gray-900 text-center">¿Eliminar usuario?</h3>
-            <p class="text-sm text-gray-500 text-center mt-2" id="deleteModalMessage">El usuario será eliminado del panel de administración.</p>
+            <h3 class="text-lg font-bold text-gray-900 text-center" id="deleteModalTitle">¿Eliminar registro?</h3>
+            <p class="text-sm text-gray-500 text-center mt-2" id="deleteModalMessage">Este registro será eliminado permanentemente.</p>
             <div class="flex gap-3 mt-6">
                 <button onclick="closeDeleteModal()" class="flex-1 px-4 py-2.5 text-sm text-gray-600 bg-gray-100 rounded-xl hover:bg-gray-200 transition font-medium">
                     Cancelar
@@ -254,9 +254,9 @@
         // Delete modal
         let deleteForm = null;
 
-        function openDeleteModal(form, userName) {
+        function openDeleteModal(form, itemName, customMessage) {
             deleteForm = form;
-            document.getElementById('deleteModalMessage').textContent = `Se eliminará a "${userName}" del panel. Sus datos se conservarán en la base de datos.`;
+            document.getElementById('deleteModalMessage').textContent = customMessage || `Se eliminará "${itemName}". Esta acción no se puede deshacer.`;
             const modal = document.getElementById('deleteModal');
             modal.classList.remove('opacity-0', 'invisible');
             modal.classList.add('opacity-100', 'visible');
