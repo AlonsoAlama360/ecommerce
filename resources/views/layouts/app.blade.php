@@ -339,7 +339,7 @@
                         <p class="font-semibold text-gray-900">{{ Auth::user()->first_name }} {{ Auth::user()->last_name }}</p>
                         <p class="text-sm text-gray-500">{{ Auth::user()->email }}</p>
                     </div>
-                    <a href="#" class="flex items-center gap-3 py-3 px-4 text-gray-700 hover:bg-gray-50 rounded-lg transition">
+                    <a href="{{ route('profile.show') }}" class="flex items-center gap-3 py-3 px-4 text-gray-700 hover:bg-gray-50 rounded-lg transition">
                         <i class="fas fa-user text-lg"></i>
                         <span>Mi Perfil</span>
                     </a>
@@ -465,7 +465,7 @@
                                     <p class="text-sm text-gray-500 truncate">{{ Auth::user()->email }}</p>
                                 </div>
                                 <div class="py-2">
-                                    <a href="#" class="flex items-center gap-3 px-5 py-3 text-gray-700 hover:bg-gray-50 transition">
+                                    <a href="{{ route('profile.show') }}" class="flex items-center gap-3 px-5 py-3 text-gray-700 hover:bg-gray-50 transition">
                                         <i class="fas fa-user w-5 text-center text-[#D4A574]"></i>
                                         <span>Mi Perfil</span>
                                     </a>
