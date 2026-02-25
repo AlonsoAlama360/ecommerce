@@ -5,6 +5,8 @@ use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\ProductImageController as AdminProductImageController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
+use App\Http\Controllers\Admin\KardexController as AdminKardexController;
+use App\Http\Controllers\Admin\PurchaseController as AdminPurchaseController;
 use App\Http\Controllers\Admin\SupplierController as AdminSupplierController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Api\CategoryProductController;
@@ -73,6 +75,20 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::put('orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.status');
     Route::get('orders-search-products', [AdminOrderController::class, 'searchProducts'])->name('orders.search-products');
     Route::get('orders-search-users', [AdminOrderController::class, 'searchUsers'])->name('orders.search-users');
+
+    // Purchases (Compras a proveedores)
+    Route::resource('purchases', AdminPurchaseController::class);
+    Route::put('purchases/{purchase}/status', [AdminPurchaseController::class, 'updateStatus'])->name('purchases.status');
+    Route::get('purchases-search-suppliers', [AdminPurchaseController::class, 'searchSuppliers'])->name('purchases.search-suppliers');
+    Route::get('purchases-search-products', [AdminPurchaseController::class, 'searchProducts'])->name('purchases.search-products');
+
+    // Kardex (Stock Movements)
+    Route::get('kardex', [AdminKardexController::class, 'index'])->name('kardex.index');
+    Route::get('kardex/exportar', [AdminKardexController::class, 'export'])->name('kardex.export');
+    Route::get('kardex/producto/{product}', [AdminKardexController::class, 'show'])->name('kardex.show');
+    Route::get('kardex/producto/{product}/exportar', [AdminKardexController::class, 'exportProduct'])->name('kardex.export-product');
+    Route::post('kardex/ajuste', [AdminKardexController::class, 'adjust'])->name('kardex.adjust');
+    Route::get('kardex-search-products', [AdminKardexController::class, 'searchProducts'])->name('kardex.search-products');
 
     // Product Specifications (AJAX)
     Route::get('products/{product}/specifications', [AdminProductController::class, 'specifications'])->name('products.specifications');

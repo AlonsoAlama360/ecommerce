@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
+use App\Services\StockService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -123,9 +124,6 @@ class OrderController extends Controller
                     'unit_price' => $price,
                     'line_total' => $lineTotal,
                 ];
-
-                // Reduce stock
-                $product->decrement('stock', $item['quantity']);
             }
 
             $order = Order::create([
@@ -148,6 +146,10 @@ class OrderController extends Controller
 
             foreach ($itemsData as $itemData) {
                 $order->items()->create($itemData);
+                $product = Product::find($itemData['product_id']);
+                if ($product) {
+                    StockService::decrement($product, $itemData['quantity'], $order, "Venta {$order->order_number}");
+                }
             }
 
             return redirect()->route('admin.orders.index')
@@ -183,7 +185,10 @@ class OrderController extends Controller
                 // Restore stock from old items
                 foreach ($order->items as $oldItem) {
                     if ($oldItem->product_id) {
-                        Product::where('id', $oldItem->product_id)->increment('stock', $oldItem->quantity);
+                        $oldProduct = Product::find($oldItem->product_id);
+                        if ($oldProduct) {
+                            StockService::increment($oldProduct, $oldItem->quantity, $order, "Reversión edición venta {$order->order_number}");
+                        }
                     }
                 }
 
@@ -207,7 +212,7 @@ class OrderController extends Controller
                         'line_total' => $lineTotal,
                     ]);
 
-                    $product->decrement('stock', $item['quantity']);
+                    StockService::decrement($product, $item['quantity'], $order, "Edición venta {$order->order_number}");
                 }
 
                 $validated['subtotal'] = $subtotal;
