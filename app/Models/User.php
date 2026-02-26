@@ -30,6 +30,9 @@ class User extends Authenticatable
         'district_id',
         'address',
         'address_reference',
+        'google_id',
+        'facebook_id',
+        'auth_provider',
     ];
 
     protected $hidden = [

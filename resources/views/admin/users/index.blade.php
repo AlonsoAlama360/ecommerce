@@ -190,6 +190,7 @@
                     <th class="px-4 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Usuario</th>
                     <th class="px-4 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Rol</th>
                     <th class="px-4 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Teléfono</th>
+                    <th class="px-4 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Origen</th>
                     <th class="px-4 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Registro</th>
                     <th class="px-4 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Estado</th>
                     <th class="px-5 py-3.5 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Acciones</th>
@@ -228,6 +229,21 @@
                         <span class="text-sm text-gray-500">{{ $user->phone ?: '—' }}</span>
                     </td>
                     <td class="px-4 py-3">
+                        @php
+                            $providerConfig = match($user->auth_provider) {
+                                'google' => ['icon' => 'fa-google', 'brand' => 'fab', 'bg' => 'bg-red-50', 'text' => 'text-red-500', 'label' => 'Google'],
+                                'facebook' => ['icon' => 'fa-facebook-f', 'brand' => 'fab', 'bg' => 'bg-blue-50', 'text' => 'text-blue-600', 'label' => 'Facebook'],
+                                default => ['icon' => 'fa-envelope', 'brand' => 'fas', 'bg' => 'bg-gray-100', 'text' => 'text-gray-500', 'label' => 'Formulario'],
+                            };
+                        @endphp
+                        <div class="flex items-center gap-2">
+                            <span class="w-7 h-7 rounded-md {{ $providerConfig['bg'] }} flex items-center justify-center">
+                                <i class="{{ $providerConfig['brand'] }} {{ $providerConfig['icon'] }} {{ $providerConfig['text'] }} text-xs"></i>
+                            </span>
+                            <span class="text-sm text-gray-700">{{ $providerConfig['label'] }}</span>
+                        </div>
+                    </td>
+                    <td class="px-4 py-3">
                         <span class="text-sm text-gray-500">{{ $user->created_at->format('d/m/Y') }}</span>
                     </td>
                     <td class="px-4 py-3">
@@ -257,7 +273,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="7" class="px-6 py-20 text-center">
+                    <td colspan="8" class="px-6 py-20 text-center">
                         <div class="flex flex-col items-center">
                             <div class="w-16 h-16 rounded-2xl bg-gray-50 flex items-center justify-center mb-4">
                                 <i class="fas fa-users text-2xl text-gray-300"></i>
@@ -310,6 +326,20 @@
                         <i class="fas {{ $badge['icon'] }} {{ $badge['text'] }} text-[9px]"></i>
                     </span>
                     <span class="text-xs text-gray-600">{{ $badge['label'] }}</span>
+                </div>
+                <span class="text-gray-300">|</span>
+                @php
+                    $mProviderConfig = match($user->auth_provider) {
+                        'google' => ['icon' => 'fa-google', 'brand' => 'fab', 'bg' => 'bg-red-50', 'text' => 'text-red-500', 'label' => 'Google'],
+                        'facebook' => ['icon' => 'fa-facebook-f', 'brand' => 'fab', 'bg' => 'bg-blue-50', 'text' => 'text-blue-600', 'label' => 'Facebook'],
+                        default => ['icon' => 'fa-envelope', 'brand' => 'fas', 'bg' => 'bg-gray-100', 'text' => 'text-gray-500', 'label' => 'Formulario'],
+                    };
+                @endphp
+                <div class="flex items-center gap-1">
+                    <span class="w-5 h-5 rounded {{ $mProviderConfig['bg'] }} flex items-center justify-center">
+                        <i class="{{ $mProviderConfig['brand'] }} {{ $mProviderConfig['icon'] }} {{ $mProviderConfig['text'] }} text-[9px]"></i>
+                    </span>
+                    <span class="text-xs text-gray-600">{{ $mProviderConfig['label'] }}</span>
                 </div>
                 <span class="text-gray-300">|</span>
                 @if($user->is_active)

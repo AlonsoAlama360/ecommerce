@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\WelcomeMail;
 use Illuminate\Validation\Rules\Password;
 
 class RegisterController extends Controller
@@ -41,7 +43,10 @@ class RegisterController extends Controller
             'email' => $validated['email'],
             'password' => $validated['password'],
             'newsletter' => $request->boolean('newsletter'),
+            'auth_provider' => 'form',
         ]);
+
+        Mail::to($user)->send(new WelcomeMail($user));
 
         Auth::login($user);
 

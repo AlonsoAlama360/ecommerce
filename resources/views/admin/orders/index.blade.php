@@ -420,6 +420,14 @@
                         <label class="block text-xs font-medium text-gray-500 mb-1.5">Dirección de envío</label>
                         <input type="text" name="shipping_address" id="create_shipping_address"
                             class="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition">
+                        <div id="savedAddressBadge" class="hidden mt-2 p-2.5 bg-emerald-50 border border-emerald-200 rounded-lg flex items-start gap-2">
+                            <i class="fas fa-map-marker-alt text-emerald-500 text-xs mt-0.5"></i>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-[10px] font-semibold text-emerald-600 uppercase tracking-wider">Dirección guardada del cliente</p>
+                                <p class="text-xs text-emerald-700 mt-0.5" id="savedAddressText"></p>
+                            </div>
+                            <button type="button" onclick="useSavedAddress()" class="text-[10px] font-semibold text-emerald-600 hover:text-emerald-800 bg-emerald-100 hover:bg-emerald-200 px-2 py-1 rounded transition flex-shrink-0">Usar esta</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -664,6 +672,14 @@
                     <label class="block text-xs font-medium text-gray-500 mb-1.5">Dirección de envío</label>
                     <input type="text" name="shipping_address" id="edit_shipping_address" placeholder="Dirección de entrega"
                         class="{{ $drawerInputClass }}">
+                    <div id="editSavedAddressBadge" class="hidden mt-2 p-2.5 bg-emerald-50 border border-emerald-200 rounded-lg flex items-start gap-2">
+                        <i class="fas fa-map-marker-alt text-emerald-500 text-xs mt-0.5"></i>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-[10px] font-semibold text-emerald-600 uppercase tracking-wider">Dirección guardada del cliente</p>
+                            <p class="text-xs text-emerald-700 mt-0.5" id="editSavedAddressText"></p>
+                        </div>
+                        <button type="button" onclick="useEditSavedAddress()" class="text-[10px] font-semibold text-emerald-600 hover:text-emerald-800 bg-emerald-100 hover:bg-emerald-200 px-2 py-1 rounded transition flex-shrink-0">Usar esta</button>
+                    </div>
                 </div>
             </div>
 
@@ -762,6 +778,8 @@
         document.getElementById('createOrderForm').reset();
         orderItemsList = [];
         itemCounter = 0;
+        selectedClientAddress = null;
+        document.getElementById('savedAddressBadge').classList.add('hidden');
         renderOrderItems();
         showDrawer(createDrawer);
     }
@@ -800,12 +818,33 @@
         }, 300);
     });
 
+    var selectedClientAddress = null;
+
     function selectClient(user) {
         document.getElementById('create_customer_name').value = user.name;
         document.getElementById('create_customer_email').value = user.email || '';
         document.getElementById('create_customer_phone').value = user.phone || '';
         clientResults.classList.add('hidden');
         clientSearchInput.value = '';
+
+        // Show saved address if user has one
+        var badge = document.getElementById('savedAddressBadge');
+        if (user.full_address) {
+            selectedClientAddress = user.full_address;
+            document.getElementById('savedAddressText').textContent = user.full_address;
+            badge.classList.remove('hidden');
+            // Auto-fill the address field
+            document.getElementById('create_shipping_address').value = user.full_address;
+        } else {
+            selectedClientAddress = null;
+            badge.classList.add('hidden');
+        }
+    }
+
+    function useSavedAddress() {
+        if (selectedClientAddress) {
+            document.getElementById('create_shipping_address').value = selectedClientAddress;
+        }
     }
 
     document.addEventListener('click', function(e) {
@@ -1143,12 +1182,31 @@
         }, 300);
     });
 
+    var editSelectedClientAddress = null;
+
     function selectEditClient(user) {
         document.getElementById('edit_customer_name').value = user.name;
         document.getElementById('edit_customer_email').value = user.email || '';
         document.getElementById('edit_customer_phone').value = user.phone || '';
         editClientResults.classList.add('hidden');
         editClientSearchInput.value = '';
+
+        var badge = document.getElementById('editSavedAddressBadge');
+        if (user.full_address) {
+            editSelectedClientAddress = user.full_address;
+            document.getElementById('editSavedAddressText').textContent = user.full_address;
+            badge.classList.remove('hidden');
+            document.getElementById('edit_shipping_address').value = user.full_address;
+        } else {
+            editSelectedClientAddress = null;
+            badge.classList.add('hidden');
+        }
+    }
+
+    function useEditSavedAddress() {
+        if (editSelectedClientAddress) {
+            document.getElementById('edit_shipping_address').value = editSelectedClientAddress;
+        }
     }
 
     // ==================== EDIT PRODUCT SEARCH ====================

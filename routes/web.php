@@ -12,6 +12,9 @@ use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Admin\WishlistController as AdminWishlistController;
 use App\Http\Controllers\Api\CategoryProductController;
 use App\Http\Controllers\Api\UbigeoController;
+use App\Http\Controllers\Auth\FacebookController;
+use App\Http\Controllers\Auth\ForgotPasswordController;
+use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\CartController;
@@ -57,6 +60,18 @@ Route::middleware('guest')->group(function () {
 
     Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
     Route::post('/register', [RegisterController::class, 'register']);
+
+    Route::get('/auth/google', [GoogleController::class, 'redirect'])->name('auth.google');
+    Route::get('/auth/google/callback', [GoogleController::class, 'callback']);
+
+    Route::get('/auth/facebook', [FacebookController::class, 'redirect'])->name('auth.facebook');
+    Route::get('/auth/facebook/callback', [FacebookController::class, 'callback']);
+
+    // Password Reset
+    Route::get('/forgot-password', [ForgotPasswordController::class, 'showForgotForm'])->name('password.request');
+    Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLink'])->name('password.email');
+    Route::get('/reset-password/{token}', [ForgotPasswordController::class, 'showResetForm'])->name('password.reset');
+    Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword'])->name('password.update');
 });
 
 // Rutas que requieren autenticación

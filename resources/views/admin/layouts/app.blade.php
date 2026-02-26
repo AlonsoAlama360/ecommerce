@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,7 +10,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        * { font-family: 'Inter', sans-serif; }
+        * {
+            font-family: 'Inter', sans-serif;
+        }
 
         .sidebar {
             background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
@@ -19,14 +22,17 @@
             position: relative;
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
+
         .sidebar-link:hover {
             background: rgba(255, 255, 255, 0.06);
             color: #e2e8f0;
         }
+
         .sidebar-link.active {
             background: linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(139, 92, 246, 0.15) 100%);
             color: #fff;
         }
+
         .sidebar-link.active::before {
             content: '';
             position: absolute;
@@ -46,6 +52,7 @@
             visibility: hidden;
             transition: all 0.3s ease;
         }
+
         .sidebar-overlay.active {
             opacity: 1;
             visibility: visible;
@@ -56,6 +63,7 @@
                 transform: translateX(-100%);
                 transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             }
+
             .admin-sidebar.open {
                 transform: translateX(0);
             }
@@ -74,13 +82,26 @@
         }
 
         /* Custom scrollbar for sidebar */
-        .sidebar-scroll::-webkit-scrollbar { width: 4px; }
-        .sidebar-scroll::-webkit-scrollbar-track { background: transparent; }
-        .sidebar-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
-        .sidebar-scroll::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+        .sidebar-scroll::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .sidebar-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .sidebar-scroll::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+
+        .sidebar-scroll::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
     </style>
     @yield('styles')
 </head>
+
 <body class="bg-gray-50/80 min-h-screen antialiased">
 
     <!-- Mobile Overlay -->
@@ -112,7 +133,7 @@
             <p class="px-3 pt-2 pb-2 text-[10px] font-semibold text-slate-500/80 uppercase tracking-[0.15em]">Menú</p>
 
             <a href="{{ route('admin.dashboard') }}"
-               class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium mb-0.5 {{ request()->routeIs('admin.dashboard') ? 'active' : 'text-slate-400' }}">
+                class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium mb-0.5 {{ request()->routeIs('admin.dashboard') ? 'active' : 'text-slate-400' }}">
                 <div class="w-8 h-8 rounded-lg {{ request()->routeIs('admin.dashboard') ? 'bg-indigo-500/20' : 'bg-white/5' }} flex items-center justify-center transition">
                     <i class="fas fa-chart-pie text-xs {{ request()->routeIs('admin.dashboard') ? 'text-indigo-400' : 'text-slate-500' }}"></i>
                 </div>
@@ -123,31 +144,31 @@
             <p class="px-3 pt-5 pb-2 text-[10px] font-semibold text-slate-500/80 uppercase tracking-[0.15em]">Gestión</p>
 
             <a href="{{ route('admin.users.index') }}"
-               class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium mb-0.5 {{ request()->routeIs('admin.users.*') ? 'active' : 'text-slate-400' }}">
+                class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium mb-0.5 {{ request()->routeIs('admin.users.*') ? 'active' : 'text-slate-400' }}">
                 <div class="w-8 h-8 rounded-lg {{ request()->routeIs('admin.users.*') ? 'bg-indigo-500/20' : 'bg-white/5' }} flex items-center justify-center transition">
                     <i class="fas fa-users text-xs {{ request()->routeIs('admin.users.*') ? 'text-indigo-400' : 'text-slate-500' }}"></i>
                 </div>
                 <span>Usuarios</span>
             </a>
 
-            <a href="{{ route('admin.products.index') }}"
-               class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium mb-0.5 {{ request()->routeIs('admin.products.*') ? 'active' : 'text-slate-400' }}">
-                <div class="w-8 h-8 rounded-lg {{ request()->routeIs('admin.products.*') ? 'bg-indigo-500/20' : 'bg-white/5' }} flex items-center justify-center transition">
-                    <i class="fas fa-box text-xs {{ request()->routeIs('admin.products.*') ? 'text-indigo-400' : 'text-slate-500' }}"></i>
-                </div>
-                <span>Productos</span>
-            </a>
-
             <a href="{{ route('admin.categories.index') }}"
-               class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium mb-0.5 {{ request()->routeIs('admin.categories.*') ? 'active' : 'text-slate-400' }}">
+                class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium mb-0.5 {{ request()->routeIs('admin.categories.*') ? 'active' : 'text-slate-400' }}">
                 <div class="w-8 h-8 rounded-lg {{ request()->routeIs('admin.categories.*') ? 'bg-indigo-500/20' : 'bg-white/5' }} flex items-center justify-center transition">
                     <i class="fas fa-tags text-xs {{ request()->routeIs('admin.categories.*') ? 'text-indigo-400' : 'text-slate-500' }}"></i>
                 </div>
                 <span>Categorías</span>
             </a>
 
+            <a href="{{ route('admin.products.index') }}"
+                class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium mb-0.5 {{ request()->routeIs('admin.products.*') ? 'active' : 'text-slate-400' }}">
+                <div class="w-8 h-8 rounded-lg {{ request()->routeIs('admin.products.*') ? 'bg-indigo-500/20' : 'bg-white/5' }} flex items-center justify-center transition">
+                    <i class="fas fa-box text-xs {{ request()->routeIs('admin.products.*') ? 'text-indigo-400' : 'text-slate-500' }}"></i>
+                </div>
+                <span>Productos</span>
+            </a>
+
             <a href="{{ route('admin.suppliers.index') }}"
-               class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium mb-0.5 {{ request()->routeIs('admin.suppliers.*') ? 'active' : 'text-slate-400' }}">
+                class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium mb-0.5 {{ request()->routeIs('admin.suppliers.*') ? 'active' : 'text-slate-400' }}">
                 <div class="w-8 h-8 rounded-lg {{ request()->routeIs('admin.suppliers.*') ? 'bg-indigo-500/20' : 'bg-white/5' }} flex items-center justify-center transition">
                     <i class="fas fa-truck-field text-xs {{ request()->routeIs('admin.suppliers.*') ? 'text-indigo-400' : 'text-slate-500' }}"></i>
                 </div>
@@ -155,7 +176,7 @@
             </a>
 
             <a href="{{ route('admin.orders.index') }}"
-               class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium mb-0.5 {{ request()->routeIs('admin.orders.*') ? 'active' : 'text-slate-400' }}">
+                class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium mb-0.5 {{ request()->routeIs('admin.orders.*') ? 'active' : 'text-slate-400' }}">
                 <div class="w-8 h-8 rounded-lg {{ request()->routeIs('admin.orders.*') ? 'bg-indigo-500/20' : 'bg-white/5' }} flex items-center justify-center transition">
                     <i class="fas fa-receipt text-xs {{ request()->routeIs('admin.orders.*') ? 'text-indigo-400' : 'text-slate-500' }}"></i>
                 </div>
@@ -163,7 +184,7 @@
             </a>
 
             <a href="{{ route('admin.purchases.index') }}"
-               class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium mb-0.5 {{ request()->routeIs('admin.purchases.*') ? 'active' : 'text-slate-400' }}">
+                class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium mb-0.5 {{ request()->routeIs('admin.purchases.*') ? 'active' : 'text-slate-400' }}">
                 <div class="w-8 h-8 rounded-lg {{ request()->routeIs('admin.purchases.*') ? 'bg-indigo-500/20' : 'bg-white/5' }} flex items-center justify-center transition">
                     <i class="fas fa-cart-shopping text-xs {{ request()->routeIs('admin.purchases.*') ? 'text-indigo-400' : 'text-slate-500' }}"></i>
                 </div>
@@ -171,7 +192,7 @@
             </a>
 
             <a href="{{ route('admin.kardex.index') }}"
-               class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium mb-0.5 {{ request()->routeIs('admin.kardex.*') ? 'active' : 'text-slate-400' }}">
+                class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium mb-0.5 {{ request()->routeIs('admin.kardex.*') ? 'active' : 'text-slate-400' }}">
                 <div class="w-8 h-8 rounded-lg {{ request()->routeIs('admin.kardex.*') ? 'bg-indigo-500/20' : 'bg-white/5' }} flex items-center justify-center transition">
                     <i class="fas fa-arrow-right-arrow-left text-xs {{ request()->routeIs('admin.kardex.*') ? 'text-indigo-400' : 'text-slate-500' }}"></i>
                 </div>
@@ -179,7 +200,7 @@
             </a>
 
             <a href="{{ route('admin.wishlists.index') }}"
-               class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium mb-0.5 {{ request()->routeIs('admin.wishlists.*') ? 'active' : 'text-slate-400' }}">
+                class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium mb-0.5 {{ request()->routeIs('admin.wishlists.*') ? 'active' : 'text-slate-400' }}">
                 <div class="w-8 h-8 rounded-lg {{ request()->routeIs('admin.wishlists.*') ? 'bg-indigo-500/20' : 'bg-white/5' }} flex items-center justify-center transition">
                     <i class="fas fa-heart text-xs {{ request()->routeIs('admin.wishlists.*') ? 'text-indigo-400' : 'text-slate-500' }}"></i>
                 </div>
@@ -190,7 +211,7 @@
             <p class="px-3 pt-5 pb-2 text-[10px] font-semibold text-slate-500/80 uppercase tracking-[0.15em]">Tienda</p>
 
             <a href="{{ route('home') }}" target="_blank"
-               class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium mb-0.5 text-slate-400">
+                class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium mb-0.5 text-slate-400">
                 <div class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center">
                     <i class="fas fa-store text-xs text-slate-500"></i>
                 </div>
@@ -245,7 +266,7 @@
                     <div class="hidden md:block relative">
                         <i class="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
                         <input type="text" placeholder="Buscar..."
-                               class="w-52 pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300 focus:w-72 transition-all">
+                            class="w-52 pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300 focus:w-72 transition-all">
                     </div>
 
                     {{-- Notifications placeholder --}}
@@ -334,9 +355,18 @@
         function showToast(message, type = 'success') {
             const container = document.getElementById('toastContainer');
             const colors = {
-                success: { bg: 'bg-emerald-500', icon: 'fa-check-circle' },
-                error: { bg: 'bg-red-500', icon: 'fa-exclamation-circle' },
-                warning: { bg: 'bg-amber-500', icon: 'fa-exclamation-triangle' }
+                success: {
+                    bg: 'bg-emerald-500',
+                    icon: 'fa-check-circle'
+                },
+                error: {
+                    bg: 'bg-red-500',
+                    icon: 'fa-exclamation-circle'
+                },
+                warning: {
+                    bg: 'bg-amber-500',
+                    icon: 'fa-exclamation-triangle'
+                }
             };
             const c = colors[type] || colors.success;
 
@@ -406,4 +436,5 @@
 
     @yield('scripts')
 </body>
+
 </html>

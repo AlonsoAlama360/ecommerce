@@ -9,7 +9,9 @@ use App\Models\User;
 use App\Services\StockService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
+use App\Mail\WelcomeMail;
 
 class OrderController extends Controller
 {
@@ -103,7 +105,10 @@ class OrderController extends Controller
                     'password' => bcrypt(Str::random(12)),
                     'role' => 'cliente',
                     'is_active' => true,
+                    'auth_provider' => 'form',
                 ]);
+
+                Mail::to($user)->send(new WelcomeMail($user));
             }
 
             // Calculate totals
@@ -124,6 +129,11 @@ class OrderController extends Controller
                     'unit_price' => $price,
                     'line_total' => $lineTotal,
                 ];
+            }
+
+            // Save address to user profile if they don't have one
+            if ($user && !$user->address && !empty($validated['shipping_address'])) {
+                $user->update(['address' => $validated['shipping_address']]);
             }
 
             $order = Order::create([
@@ -292,6 +302,7 @@ class OrderController extends Controller
                   ->orWhere('phone', 'like', "%{$search}%");
             })
             ->where('is_active', true)
+            ->with(['department', 'province', 'district'])
             ->take(10)
             ->get()
             ->map(fn($u) => [
@@ -299,6 +310,9 @@ class OrderController extends Controller
                 'name' => $u->full_name,
                 'email' => $u->email,
                 'phone' => $u->phone,
+                'full_address' => $u->full_address,
+                'address' => $u->address,
+                'address_reference' => $u->address_reference,
             ]);
 
         return response()->json($users);
