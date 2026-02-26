@@ -3,7 +3,9 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -21,6 +23,13 @@ class User extends Authenticatable
         'newsletter',
         'role',
         'is_active',
+        'document_type',
+        'document_number',
+        'department_id',
+        'province_id',
+        'district_id',
+        'address',
+        'address_reference',
     ];
 
     protected $hidden = [
@@ -61,6 +70,40 @@ class User extends Authenticatable
     public function hasAdminAccess(): bool
     {
         return in_array($this->role, ['admin', 'vendedor']);
+    }
+
+    public function department(): BelongsTo
+    {
+        return $this->belongsTo(Department::class);
+    }
+
+    public function province(): BelongsTo
+    {
+        return $this->belongsTo(Province::class);
+    }
+
+    public function district(): BelongsTo
+    {
+        return $this->belongsTo(District::class);
+    }
+
+    public function getFullAddressAttribute(): ?string
+    {
+        if (!$this->address) return null;
+
+        $parts = array_filter([
+            $this->address,
+            $this->district?->name,
+            $this->province?->name,
+            $this->department?->name,
+        ]);
+
+        return implode(', ', $parts);
+    }
+
+    public function orders(): HasMany
+    {
+        return $this->hasMany(Order::class);
     }
 
     public function wishlistProducts(): BelongsToMany

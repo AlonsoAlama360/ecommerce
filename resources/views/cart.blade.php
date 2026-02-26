@@ -269,7 +269,7 @@
     const whatsappCartBtn = document.getElementById('whatsappCartBtn');
     if (whatsappCartBtn) {
         whatsappCartBtn.addEventListener('click', function() {
-            const phone = '{{ config("app.whatsapp_phone", "51999999999") }}';
+            const phone = '{{ config("app.whatsapp_phone") }}';
             let message = '🛒 *Mi Pedido - Romantic Gifts*\n\n';
 
             @foreach($cartItems as $item)

@@ -343,7 +343,7 @@
                         <i class="fas fa-user text-lg"></i>
                         <span>Mi Perfil</span>
                     </a>
-                    <a href="#" class="flex items-center gap-3 py-3 px-4 text-gray-700 hover:bg-gray-50 rounded-lg transition">
+                    <a href="{{ route('orders.index') }}" class="flex items-center gap-3 py-3 px-4 text-gray-700 hover:bg-gray-50 rounded-lg transition">
                         <i class="fas fa-shopping-bag text-lg"></i>
                         <span>Mis Pedidos</span>
                     </a>
@@ -469,7 +469,7 @@
                                         <i class="fas fa-user w-5 text-center text-[#D4A574]"></i>
                                         <span>Mi Perfil</span>
                                     </a>
-                                    <a href="#" class="flex items-center gap-3 px-5 py-3 text-gray-700 hover:bg-gray-50 transition">
+                                    <a href="{{ route('orders.index') }}" class="flex items-center gap-3 px-5 py-3 text-gray-700 hover:bg-gray-50 transition">
                                         <i class="fas fa-shopping-bag w-5 text-center text-[#D4A574]"></i>
                                         <span>Mis Pedidos</span>
                                     </a>

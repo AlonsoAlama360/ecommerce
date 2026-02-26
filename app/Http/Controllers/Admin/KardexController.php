@@ -129,16 +129,24 @@ class KardexController extends Controller
         $slug = str_replace(' ', '_', strtolower($product->sku ?: $product->id));
         $filename = "kardex_{$slug}_" . now()->format('Ymd_His') . '.csv';
 
-        return $this->streamCsv($movements, $filename, false);
+        return $this->streamCsv($movements, $filename, false, $product);
     }
 
-    private function streamCsv($movements, string $filename, bool $includeProduct): StreamedResponse
+    private function streamCsv($movements, string $filename, bool $includeProduct, ?Product $product = null): StreamedResponse
     {
-        return response()->streamDownload(function () use ($movements, $includeProduct) {
+        return response()->streamDownload(function () use ($movements, $includeProduct, $product) {
             $handle = fopen('php://output', 'w');
 
             // BOM for Excel UTF-8
             fprintf($handle, chr(0xEF) . chr(0xBB) . chr(0xBF));
+
+            // Product info header (for per-product export)
+            if ($product) {
+                fputcsv($handle, ['Producto', $product->name], ';');
+                fputcsv($handle, ['SKU', $product->sku ?? '—'], ';');
+                fputcsv($handle, ['Stock Actual', $product->stock], ';');
+                fputcsv($handle, [], ';');
+            }
 
             // Header
             $headers = ['Fecha', 'Hora'];

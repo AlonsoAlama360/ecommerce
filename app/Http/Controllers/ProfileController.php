@@ -11,7 +11,11 @@ class ProfileController extends Controller
 {
     public function show()
     {
-        return view('profile', ['user' => Auth::user()]);
+        $user = Auth::user();
+        $user->load('department', 'province', 'district');
+        $departments = \App\Models\Department::orderBy('name')->get(['id', 'name']);
+
+        return view('profile', compact('user', 'departments'));
     }
 
     public function update(Request $request)
@@ -23,6 +27,13 @@ class ProfileController extends Controller
             'last_name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $user->id],
             'phone' => ['nullable', 'string', 'max:20'],
+            'document_type' => ['nullable', 'in:DNI,CE,RUC'],
+            'document_number' => ['nullable', 'string', 'max:20'],
+            'department_id' => ['nullable', 'exists:departments,id'],
+            'province_id' => ['nullable', 'exists:provinces,id'],
+            'district_id' => ['nullable', 'exists:districts,id'],
+            'address' => ['nullable', 'string', 'max:255'],
+            'address_reference' => ['nullable', 'string', 'max:255'],
             'newsletter' => ['nullable'],
         ], [
             'first_name.required' => 'El nombre es obligatorio.',
@@ -39,6 +50,13 @@ class ProfileController extends Controller
         $user->last_name = $validated['last_name'];
         $user->email = $validated['email'];
         $user->phone = $validated['phone'] ?? null;
+        $user->document_type = $validated['document_type'] ?? null;
+        $user->document_number = $validated['document_number'] ?? null;
+        $user->department_id = $validated['department_id'] ?? null;
+        $user->province_id = $validated['province_id'] ?? null;
+        $user->district_id = $validated['district_id'] ?? null;
+        $user->address = $validated['address'] ?? null;
+        $user->address_reference = $validated['address_reference'] ?? null;
         $user->newsletter = $request->has('newsletter');
         $user->save();
 

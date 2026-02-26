@@ -9,7 +9,9 @@ use App\Http\Controllers\Admin\KardexController as AdminKardexController;
 use App\Http\Controllers\Admin\PurchaseController as AdminPurchaseController;
 use App\Http\Controllers\Admin\SupplierController as AdminSupplierController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\Admin\WishlistController as AdminWishlistController;
 use App\Http\Controllers\Api\CategoryProductController;
+use App\Http\Controllers\Api\UbigeoController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\CartController;
@@ -17,6 +19,7 @@ use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\OfertasController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\CustomerOrderController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\WishlistController;
 use Illuminate\Support\Facades\Route;
@@ -42,6 +45,11 @@ Route::get('/wishlist/count', [WishlistController::class, 'count'])->name('wishl
 // API interna (sin autenticación, para el mega menu)
 Route::get('/api/categories/{slug}/products', [CategoryProductController::class, 'index']);
 
+// API Ubigeo (departamentos, provincias, distritos)
+Route::get('/api/departments', [UbigeoController::class, 'departments']);
+Route::get('/api/departments/{id}/provinces', [UbigeoController::class, 'provinces']);
+Route::get('/api/provinces/{id}/districts', [UbigeoController::class, 'districts']);
+
 // Rutas de autenticación - solo para usuarios NO autenticados
 Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
@@ -60,6 +68,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/mi-perfil', [ProfileController::class, 'show'])->name('profile.show');
     Route::put('/mi-perfil', [ProfileController::class, 'update'])->name('profile.update');
     Route::put('/mi-perfil/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
+
+    Route::get('/mis-pedidos', [CustomerOrderController::class, 'index'])->name('orders.index');
+    Route::get('/mis-pedidos/{order}', [CustomerOrderController::class, 'show'])->name('orders.show');
 });
 
 // Panel de administración
@@ -89,6 +100,12 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('kardex/producto/{product}/exportar', [AdminKardexController::class, 'exportProduct'])->name('kardex.export-product');
     Route::post('kardex/ajuste', [AdminKardexController::class, 'adjust'])->name('kardex.adjust');
     Route::get('kardex-search-products', [AdminKardexController::class, 'searchProducts'])->name('kardex.search-products');
+
+    // Wishlists (Lista de Deseos)
+    Route::get('wishlists', [AdminWishlistController::class, 'index'])->name('wishlists.index');
+    Route::get('wishlists/exportar', [AdminWishlistController::class, 'export'])->name('wishlists.export');
+    Route::get('wishlists/producto/{product}', [AdminWishlistController::class, 'show'])->name('wishlists.show');
+    Route::get('wishlists/producto/{product}/exportar', [AdminWishlistController::class, 'exportProduct'])->name('wishlists.export-product');
 
     // Product Specifications (AJAX)
     Route::get('products/{product}/specifications', [AdminProductController::class, 'specifications'])->name('products.specifications');

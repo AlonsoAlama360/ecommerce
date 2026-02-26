@@ -94,7 +94,7 @@ return [
     |
     */
 
-    'whatsapp_phone' => env('WHATSAPP_PHONE', '51999999999'),
+    'whatsapp_phone' => env('WHATSAPP_PHONE', '51925633416'),
 
     /*
     |--------------------------------------------------------------------------
