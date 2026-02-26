@@ -13,7 +13,15 @@ class HomeController extends Controller
             ->featured()
             ->inStock()
             ->with('primaryImage:id,product_id,image_url,alt_text')
-            ->select('id', 'category_id', 'name', 'slug', 'price', 'sale_price')
+            ->select('id', 'category_id', 'name', 'slug', 'short_description', 'price', 'sale_price', 'stock')
+            ->limit(8)
+            ->get();
+
+        $newArrivals = Product::active()
+            ->inStock()
+            ->with(['primaryImage:id,product_id,image_url,alt_text', 'category:id,name'])
+            ->select('id', 'category_id', 'name', 'slug', 'short_description', 'price', 'sale_price', 'stock')
+            ->latest()
             ->limit(8)
             ->get();
 
@@ -22,6 +30,6 @@ class HomeController extends Controller
             ->select('id', 'name', 'slug', 'icon')
             ->get();
 
-        return view('home', compact('featuredProducts', 'categories'));
+        return view('home', compact('featuredProducts', 'newArrivals', 'categories'));
     }
 }
