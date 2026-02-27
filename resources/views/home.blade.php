@@ -566,37 +566,80 @@
                 <p class="text-lg text-gray-500 max-w-2xl mx-auto">Miles de personas han expresado su amor con nuestros detalles</p>
             </div>
 
-            <div class="grid md:grid-cols-3 gap-6 reveal">
-                @php
-                    $testimonials = [
-                        ['name' => 'María González', 'role' => 'Cliente Verificada', 'text' => 'El collar que compré superó todas mis expectativas. La calidad es excepcional y mi pareja quedó encantada. ¡Definitivamente volveré a comprar!', 'gradient' => 'from-rose-400 to-pink-500', 'initials' => 'MG'],
-                        ['name' => 'Carlos Ramírez', 'role' => 'Cliente Verificado', 'text' => 'La rosa eterna es simplemente hermosa. Llegó perfectamente empaquetada y el detalle es impresionante. Un regalo perfecto para aniversarios.', 'gradient' => 'from-purple-400 to-indigo-500', 'initials' => 'CR'],
-                        ['name' => 'Ana Martínez', 'role' => 'Cliente Verificada', 'text' => 'Excelente servicio al cliente y envío rápido. Los productos son de alta calidad y los precios muy competitivos. ¡Totalmente recomendado!', 'gradient' => 'from-amber-400 to-orange-500', 'initials' => 'AM'],
-                    ];
-                @endphp
+            @php
+                $gradients = [
+                    'from-rose-400 to-pink-500',
+                    'from-purple-400 to-indigo-500',
+                    'from-amber-400 to-orange-500',
+                    'from-teal-400 to-emerald-500',
+                    'from-blue-400 to-cyan-500',
+                    'from-red-400 to-rose-500',
+                ];
 
-                @foreach($testimonials as $t)
-                    <div class="testimonial-card bg-gradient-to-br from-white to-[#FAF8F5] p-8 rounded-3xl border border-gray-100">
-                        <div class="flex gap-1 mb-5">
-                            @for($s = 0; $s < 5; $s++)
-                                <i class="fas fa-star text-amber-400 text-sm"></i>
-                            @endfor
+                $fallbackTestimonials = [
+                    ['name' => 'María González', 'text' => 'El collar que compré superó todas mis expectativas. La calidad es excepcional y mi pareja quedó encantada. ¡Definitivamente volveré a comprar!', 'rating' => 5, 'initials' => 'MG', 'gradient' => 'from-rose-400 to-pink-500', 'product' => null],
+                    ['name' => 'Carlos Ramírez', 'text' => 'La rosa eterna es simplemente hermosa. Llegó perfectamente empaquetada y el detalle es impresionante. Un regalo perfecto para aniversarios.', 'rating' => 5, 'initials' => 'CR', 'gradient' => 'from-purple-400 to-indigo-500', 'product' => null],
+                    ['name' => 'Ana Martínez', 'text' => 'Excelente servicio al cliente y envío rápido. Los productos son de alta calidad y los precios muy competitivos. ¡Totalmente recomendado!', 'rating' => 5, 'initials' => 'AM', 'gradient' => 'from-amber-400 to-orange-500', 'product' => null],
+                ];
+            @endphp
+
+            <div class="grid md:grid-cols-3 gap-6 reveal">
+                @if($reviews->count() > 0)
+                    @foreach($reviews->take(3) as $index => $review)
+                        <div class="testimonial-card bg-gradient-to-br from-white to-[#FAF8F5] p-8 rounded-3xl border border-gray-100">
+                            <div class="flex gap-1 mb-5">
+                                @for($s = 1; $s <= 5; $s++)
+                                    <i class="fas fa-star {{ $s <= $review->rating ? 'text-amber-400' : 'text-gray-200' }} text-sm"></i>
+                                @endfor
+                            </div>
+                            @if($review->title)
+                                <h4 class="font-semibold text-gray-900 mb-2">{{ $review->title }}</h4>
+                            @endif
+                            <p class="text-gray-600 mb-6 leading-relaxed">"{{ Str::limit($review->comment, 200) }}"</p>
+                            <div class="flex items-center gap-3">
+                                <div class="w-11 h-11 bg-gradient-to-br {{ $gradients[$index % count($gradients)] }} rounded-full flex items-center justify-center text-white font-bold text-sm">
+                                    {{ strtoupper(substr($review->user->first_name, 0, 1) . substr($review->user->last_name, 0, 1)) }}
+                                </div>
+                                <div>
+                                    <p class="font-semibold text-gray-900 text-sm">{{ $review->user->full_name }}</p>
+                                    @if($review->product)
+                                        <a href="{{ route('product.show', $review->product->slug) }}" class="text-xs text-[#D4A574] hover:underline">
+                                            {{ Str::limit($review->product->name, 30) }}
+                                        </a>
+                                    @else
+                                        <p class="text-xs text-gray-400">Cliente Verificado</p>
+                                    @endif
+                                </div>
+                                <div class="ml-auto">
+                                    <i class="fas fa-check-circle text-green-500"></i>
+                                </div>
+                            </div>
                         </div>
-                        <p class="text-gray-600 mb-6 leading-relaxed">"{{ $t['text'] }}"</p>
-                        <div class="flex items-center gap-3">
-                            <div class="w-11 h-11 bg-gradient-to-br {{ $t['gradient'] }} rounded-full flex items-center justify-center text-white font-bold text-sm">
-                                {{ $t['initials'] }}
+                    @endforeach
+                @else
+                    @foreach($fallbackTestimonials as $t)
+                        <div class="testimonial-card bg-gradient-to-br from-white to-[#FAF8F5] p-8 rounded-3xl border border-gray-100">
+                            <div class="flex gap-1 mb-5">
+                                @for($s = 0; $s < $t['rating']; $s++)
+                                    <i class="fas fa-star text-amber-400 text-sm"></i>
+                                @endfor
                             </div>
-                            <div>
-                                <p class="font-semibold text-gray-900 text-sm">{{ $t['name'] }}</p>
-                                <p class="text-xs text-gray-400">{{ $t['role'] }}</p>
-                            </div>
-                            <div class="ml-auto">
-                                <i class="fas fa-check-circle text-green-500"></i>
+                            <p class="text-gray-600 mb-6 leading-relaxed">"{{ $t['text'] }}"</p>
+                            <div class="flex items-center gap-3">
+                                <div class="w-11 h-11 bg-gradient-to-br {{ $t['gradient'] }} rounded-full flex items-center justify-center text-white font-bold text-sm">
+                                    {{ $t['initials'] }}
+                                </div>
+                                <div>
+                                    <p class="font-semibold text-gray-900 text-sm">{{ $t['name'] }}</p>
+                                    <p class="text-xs text-gray-400">Cliente Verificado</p>
+                                </div>
+                                <div class="ml-auto">
+                                    <i class="fas fa-check-circle text-green-500"></i>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                @endforeach
+                    @endforeach
+                @endif
             </div>
         </div>
     </section>

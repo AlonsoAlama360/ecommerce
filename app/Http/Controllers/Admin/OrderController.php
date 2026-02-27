@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use App\Mail\WelcomeMail;
 
 class OrderController extends Controller
@@ -264,6 +265,99 @@ class OrderController extends Controller
 
         return redirect()->route('admin.orders.index')
             ->with('success', 'Venta eliminada exitosamente.');
+    }
+
+    public function export(Request $request): StreamedResponse
+    {
+        $query = Order::with(['user', 'items.product']);
+
+        if ($status = $request->get('status')) {
+            $query->where('status', $status);
+        }
+        if ($source = $request->get('source')) {
+            $query->where('source', $source);
+        }
+        if ($paymentMethod = $request->get('payment_method')) {
+            $query->where('payment_method', $paymentMethod);
+        }
+        if ($paymentStatus = $request->get('payment_status')) {
+            $query->where('payment_status', $paymentStatus);
+        }
+        if ($dateFrom = $request->get('date_from')) {
+            $query->whereDate('created_at', '>=', $dateFrom);
+        }
+        if ($dateTo = $request->get('date_to')) {
+            $query->whereDate('created_at', '<=', $dateTo);
+        }
+        if ($search = $request->get('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('order_number', 'like', "%{$search}%")
+                  ->orWhere('customer_name', 'like', "%{$search}%")
+                  ->orWhere('customer_email', 'like', "%{$search}%")
+                  ->orWhere('customer_phone', 'like', "%{$search}%");
+            });
+        }
+
+        $orders = $query->latest()->get();
+        $filename = 'ventas_' . now()->format('Ymd_His') . '.csv';
+
+        return response()->streamDownload(function () use ($orders) {
+            $handle = fopen('php://output', 'w');
+
+            // BOM for Excel UTF-8
+            fprintf($handle, chr(0xEF) . chr(0xBB) . chr(0xBF));
+
+            // Header
+            fputcsv($handle, [
+                'N° Orden',
+                'Fecha',
+                'Cliente',
+                'Email',
+                'Teléfono',
+                'Dirección de Envío',
+                'Origen',
+                'Estado',
+                'Método de Pago',
+                'Estado de Pago',
+                'Productos',
+                'Cant. Items',
+                'Subtotal',
+                'Descuento',
+                'Envío',
+                'Total',
+                'Notas',
+            ], ';');
+
+            foreach ($orders as $order) {
+                $products = $order->items->map(function ($item) {
+                    return $item->product_name . ' (x' . $item->quantity . ' - S/' . number_format($item->unit_price, 2) . ')';
+                })->implode(' | ');
+
+                fputcsv($handle, [
+                    $order->order_number,
+                    $order->created_at->format('d/m/Y H:i'),
+                    $order->customer_name,
+                    $order->customer_email ?? '',
+                    $order->customer_phone ?? '',
+                    $order->shipping_address ?? '',
+                    $order->source === 'web' ? 'Web' : 'Admin',
+                    Order::STATUS_LABELS[$order->status] ?? $order->status,
+                    Order::PAYMENT_METHODS[$order->payment_method] ?? $order->payment_method,
+                    Order::PAYMENT_STATUS_LABELS[$order->payment_status] ?? $order->payment_status,
+                    $products,
+                    $order->items->sum('quantity'),
+                    number_format($order->subtotal, 2),
+                    number_format($order->discount_amount, 2),
+                    number_format($order->shipping_cost, 2),
+                    number_format($order->total, 2),
+                    $order->admin_notes ?? '',
+                ], ';');
+            }
+
+            fclose($handle);
+        }, $filename, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+        ]);
     }
 
     // API: Search products for order creation

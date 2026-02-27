@@ -61,8 +61,20 @@
                     </button>
                 </div>
 
-                <!-- SKU -->
-                <p class="text-sm text-gray-400">SKU: {{ $product->sku }}</p>
+                <!-- Rating & SKU -->
+                <div class="flex items-center gap-4">
+                    <button type="button" onclick="document.querySelector('[data-tab=reviews]').click(); document.getElementById('tab-content-reviews').scrollIntoView({behavior:'smooth'})"
+                        class="flex items-center gap-2 hover:opacity-80 transition-opacity">
+                        <div class="flex gap-0.5">
+                            @for($s = 1; $s <= 5; $s++)
+                                <i class="fas fa-star {{ $s <= round($reviewStats['average']) ? 'text-amber-400' : 'text-gray-200' }} text-sm"></i>
+                            @endfor
+                        </div>
+                        <span class="text-sm font-medium text-gray-600">{{ $reviewStats['average'] }} ({{ $reviewStats['total'] }})</span>
+                    </button>
+                    <span class="text-gray-300">|</span>
+                    <p class="text-sm text-gray-400">SKU: {{ $product->sku }}</p>
+                </div>
 
                 <!-- Price -->
                 <div class="flex items-baseline gap-3">
@@ -158,6 +170,9 @@
                             Especificaciones
                         </button>
                     @endif
+                    <button type="button" data-tab="reviews" class="tab-btn pb-4 border-b-2 border-transparent text-gray-600 hover:text-[#D4A574] font-semibold whitespace-nowrap">
+                        Reseñas ({{ $reviewStats['total'] }})
+                    </button>
                 </div>
             </div>
 
@@ -194,6 +209,186 @@
                         </div>
                     </div>
                 @endif
+
+                <!-- Reviews Tab -->
+                <div id="tab-content-reviews" class="tab-content hidden">
+                    <div class="grid lg:grid-cols-3 gap-8">
+                        <!-- Rating Summary -->
+                        <div class="lg:col-span-1">
+                            <div class="bg-gradient-to-br from-[#FAF8F5] to-white rounded-2xl p-6 border border-gray-100 sticky top-24">
+                                <div class="text-center mb-6">
+                                    <div class="text-5xl font-bold text-gray-900 mb-1">{{ $reviewStats['average'] ?: '0.0' }}</div>
+                                    <div class="flex justify-center gap-1 mb-2">
+                                        @for($s = 1; $s <= 5; $s++)
+                                            <i class="fas fa-star {{ $s <= round($reviewStats['average']) ? 'text-amber-400' : 'text-gray-200' }}"></i>
+                                        @endfor
+                                    </div>
+                                    <p class="text-sm text-gray-500">{{ $reviewStats['total'] }} {{ $reviewStats['total'] == 1 ? 'reseña' : 'reseñas' }}</p>
+                                </div>
+
+                                <!-- Rating Distribution -->
+                                <div class="space-y-2">
+                                    @for($i = 5; $i >= 1; $i--)
+                                        @php
+                                            $count = $reviewStats['distribution'][$i] ?? 0;
+                                            $percentage = $reviewStats['total'] > 0 ? ($count / $reviewStats['total']) * 100 : 0;
+                                        @endphp
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-sm font-medium text-gray-600 w-4">{{ $i }}</span>
+                                            <i class="fas fa-star text-amber-400 text-xs"></i>
+                                            <div class="flex-1 h-2.5 bg-gray-200 rounded-full overflow-hidden">
+                                                <div class="h-full bg-gradient-to-r from-[#D4A574] to-[#C39563] rounded-full transition-all duration-500" style="width: {{ $percentage }}%"></div>
+                                            </div>
+                                            <span class="text-xs text-gray-400 w-8 text-right">{{ $count }}</span>
+                                        </div>
+                                    @endfor
+                                </div>
+
+                                <!-- Write Review Button -->
+                                <div class="mt-6">
+                                    @auth
+                                        @if($userReview)
+                                            <div class="text-center p-3 bg-green-50 border border-green-200 rounded-xl">
+                                                <i class="fas fa-check-circle text-green-500 mb-1"></i>
+                                                <p class="text-sm text-green-700 font-medium">Ya dejaste tu reseña</p>
+                                            </div>
+                                        @else
+                                            <button type="button" onclick="document.getElementById('reviewForm').scrollIntoView({behavior:'smooth'})"
+                                                class="w-full bg-gradient-to-r from-[#D4A574] to-[#C39563] text-white py-3 rounded-xl font-semibold hover:shadow-lg transition-all duration-300">
+                                                <i class="fas fa-pen mr-2"></i>Escribir Reseña
+                                            </button>
+                                        @endif
+                                    @else
+                                        <a href="{{ route('login') }}" class="block text-center bg-gray-900 text-white py-3 rounded-xl font-semibold hover:bg-gray-800 transition-all">
+                                            <i class="fas fa-sign-in-alt mr-2"></i>Inicia sesión para opinar
+                                        </a>
+                                    @endauth
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Reviews List + Form -->
+                        <div class="lg:col-span-2 space-y-6">
+                            <!-- Messages -->
+                            @if(session('review_success'))
+                                <div class="p-4 bg-green-50 border border-green-200 rounded-xl flex items-center gap-3">
+                                    <i class="fas fa-check-circle text-green-500 text-lg"></i>
+                                    <p class="text-green-700 font-medium">{{ session('review_success') }}</p>
+                                </div>
+                            @endif
+                            @if(session('review_error'))
+                                <div class="p-4 bg-red-50 border border-red-200 rounded-xl flex items-center gap-3">
+                                    <i class="fas fa-exclamation-circle text-red-500 text-lg"></i>
+                                    <p class="text-red-700 font-medium">{{ session('review_error') }}</p>
+                                </div>
+                            @endif
+
+                            <!-- Review Form -->
+                            @auth
+                                @if(!$userReview)
+                                    <div id="reviewForm" class="bg-white rounded-2xl border border-gray-200 p-6">
+                                        <h4 class="font-semibold text-lg text-gray-900 mb-4">Escribe tu reseña</h4>
+                                        <form action="{{ route('reviews.store', $product) }}" method="POST" class="space-y-4">
+                                            @csrf
+                                            <!-- Star Rating -->
+                                            <div>
+                                                <label class="block text-sm font-semibold text-gray-700 mb-2">Tu calificación</label>
+                                                <div class="flex gap-1" id="starRating">
+                                                    @for($s = 1; $s <= 5; $s++)
+                                                        <button type="button" data-rating="{{ $s }}"
+                                                            class="star-select w-10 h-10 flex items-center justify-center rounded-lg hover:bg-amber-50 transition-colors">
+                                                            <i class="far fa-star text-xl text-gray-300 hover:text-amber-400 transition-colors"></i>
+                                                        </button>
+                                                    @endfor
+                                                </div>
+                                                <input type="hidden" name="rating" id="ratingInput" value="{{ old('rating') }}">
+                                                @error('rating')
+                                                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                                @enderror
+                                            </div>
+
+                                            <!-- Title -->
+                                            <div>
+                                                <label class="block text-sm font-semibold text-gray-700 mb-2">Título (opcional)</label>
+                                                <input type="text" name="title" value="{{ old('title') }}" placeholder="Resumen de tu experiencia"
+                                                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#D4A574] focus:ring-2 focus:ring-[#D4A574]/10 focus:outline-none transition-all text-sm">
+                                            </div>
+
+                                            <!-- Comment -->
+                                            <div>
+                                                <label class="block text-sm font-semibold text-gray-700 mb-2">Tu comentario</label>
+                                                <textarea name="comment" rows="4" placeholder="Cuéntanos tu experiencia con este producto..."
+                                                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#D4A574] focus:ring-2 focus:ring-[#D4A574]/10 focus:outline-none transition-all text-sm resize-none">{{ old('comment') }}</textarea>
+                                                @error('comment')
+                                                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                                @enderror
+                                            </div>
+
+                                            <button type="submit"
+                                                class="bg-gradient-to-r from-[#D4A574] to-[#C39563] text-white px-8 py-3 rounded-xl font-semibold hover:shadow-lg transition-all duration-300">
+                                                Publicar Reseña
+                                            </button>
+                                        </form>
+                                    </div>
+                                @endif
+                            @endauth
+
+                            <!-- Reviews List -->
+                            @if($reviews->count() > 0)
+                                @php
+                                    $reviewGradients = [
+                                        'from-rose-400 to-pink-500',
+                                        'from-purple-400 to-indigo-500',
+                                        'from-amber-400 to-orange-500',
+                                        'from-teal-400 to-emerald-500',
+                                        'from-blue-400 to-cyan-500',
+                                    ];
+                                @endphp
+                                <div class="space-y-4">
+                                    @foreach($reviews as $index => $review)
+                                        <div class="bg-white rounded-2xl border border-gray-100 p-6 hover:shadow-md transition-shadow">
+                                            <div class="flex items-start justify-between mb-3">
+                                                <div class="flex items-center gap-3">
+                                                    <div class="w-10 h-10 bg-gradient-to-br {{ $reviewGradients[$index % count($reviewGradients)] }} rounded-full flex items-center justify-center text-white font-bold text-sm">
+                                                        {{ strtoupper(substr($review->user->first_name, 0, 1) . substr($review->user->last_name, 0, 1)) }}
+                                                    </div>
+                                                    <div>
+                                                        <p class="font-semibold text-gray-900 text-sm">{{ $review->user->full_name }}</p>
+                                                        <p class="text-xs text-gray-400">{{ $review->created_at->diffForHumans() }}</p>
+                                                    </div>
+                                                </div>
+                                                <div class="flex gap-0.5">
+                                                    @for($s = 1; $s <= 5; $s++)
+                                                        <i class="fas fa-star {{ $s <= $review->rating ? 'text-amber-400' : 'text-gray-200' }} text-xs"></i>
+                                                    @endfor
+                                                </div>
+                                            </div>
+                                            @if($review->title)
+                                                <h5 class="font-semibold text-gray-900 mb-1">{{ $review->title }}</h5>
+                                            @endif
+                                            <p class="text-gray-600 text-sm leading-relaxed">{{ $review->comment }}</p>
+                                        </div>
+                                    @endforeach
+                                </div>
+
+                                <!-- Pagination -->
+                                @if($reviews->hasPages())
+                                    <div class="mt-6">
+                                        {{ $reviews->fragment('tab-content-reviews')->links() }}
+                                    </div>
+                                @endif
+                            @else
+                                <div class="text-center py-12 bg-gray-50 rounded-2xl">
+                                    <div class="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
+                                        <i class="fas fa-comment-dots text-2xl text-gray-400"></i>
+                                    </div>
+                                    <h4 class="font-semibold text-gray-700 mb-1">Sin reseñas aún</h4>
+                                    <p class="text-gray-500 text-sm">Sé el primero en dejar tu opinión sobre este producto.</p>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -371,5 +566,71 @@
             this.classList.add('border-[#D4A574]', 'text-[#D4A574]');
         });
     });
+
+    // Star Rating Selector
+    const starBtns = document.querySelectorAll('.star-select');
+    const ratingInput = document.getElementById('ratingInput');
+
+    if (starBtns.length > 0) {
+        starBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const rating = parseInt(this.dataset.rating);
+                ratingInput.value = rating;
+
+                starBtns.forEach((b, index) => {
+                    const icon = b.querySelector('i');
+                    if (index < rating) {
+                        icon.classList.remove('far', 'text-gray-300');
+                        icon.classList.add('fas', 'text-amber-400');
+                    } else {
+                        icon.classList.remove('fas', 'text-amber-400');
+                        icon.classList.add('far', 'text-gray-300');
+                    }
+                });
+            });
+
+            btn.addEventListener('mouseenter', function() {
+                const rating = parseInt(this.dataset.rating);
+                starBtns.forEach((b, index) => {
+                    const icon = b.querySelector('i');
+                    if (index < rating) {
+                        icon.classList.add('text-amber-400');
+                        icon.classList.remove('text-gray-300');
+                    }
+                });
+            });
+
+            btn.addEventListener('mouseleave', function() {
+                const currentRating = parseInt(ratingInput.value) || 0;
+                starBtns.forEach((b, index) => {
+                    const icon = b.querySelector('i');
+                    if (index < currentRating) {
+                        icon.classList.remove('far', 'text-gray-300');
+                        icon.classList.add('fas', 'text-amber-400');
+                    } else {
+                        icon.classList.remove('fas', 'text-amber-400');
+                        icon.classList.add('far', 'text-gray-300');
+                    }
+                });
+            });
+        });
+
+        // Set initial rating if old value exists
+        const initialRating = parseInt(ratingInput.value) || 0;
+        if (initialRating > 0) {
+            starBtns.forEach((b, index) => {
+                const icon = b.querySelector('i');
+                if (index < initialRating) {
+                    icon.classList.remove('far', 'text-gray-300');
+                    icon.classList.add('fas', 'text-amber-400');
+                }
+            });
+        }
+    }
+
+    // If redirected with review errors/success, auto-switch to reviews tab
+    @if(session('review_success') || session('review_error') || $errors->has('rating') || $errors->has('comment'))
+        document.querySelector('[data-tab="reviews"]')?.click();
+    @endif
 </script>
 @endsection

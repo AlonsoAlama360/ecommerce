@@ -90,4 +90,24 @@ class Product extends Model
         return $query->whereNotNull('sale_price')
                      ->whereColumn('sale_price', '<', 'price');
     }
+
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    public function approvedReviews(): HasMany
+    {
+        return $this->hasMany(Review::class)->where('is_approved', true);
+    }
+
+    public function getAverageRatingAttribute(): ?float
+    {
+        return $this->approvedReviews()->avg('rating');
+    }
+
+    public function getReviewsCountAttribute(): int
+    {
+        return $this->approvedReviews()->count();
+    }
 }

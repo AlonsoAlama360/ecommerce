@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Models\Review;
 
 class ProductController extends Controller
 {
@@ -25,6 +26,30 @@ class ProductController extends Controller
             ->limit(4)
             ->get();
 
-        return view('product-detail', compact('product', 'relatedProducts'));
+        $reviews = $product->reviews()
+            ->approved()
+            ->with('user:id,first_name,last_name')
+            ->latest()
+            ->paginate(5);
+
+        $reviewStats = [
+            'average' => round($product->reviews()->approved()->avg('rating'), 1) ?: 0,
+            'total' => $product->reviews()->approved()->count(),
+            'distribution' => [],
+        ];
+
+        for ($i = 5; $i >= 1; $i--) {
+            $count = $product->reviews()->approved()->where('rating', $i)->count();
+            $reviewStats['distribution'][$i] = $count;
+        }
+
+        $userReview = null;
+        if (auth()->check()) {
+            $userReview = Review::where('user_id', auth()->id())
+                ->where('product_id', $product->id)
+                ->first();
+        }
+
+        return view('product-detail', compact('product', 'relatedProducts', 'reviews', 'reviewStats', 'userReview'));
     }
 }

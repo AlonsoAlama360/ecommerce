@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\KardexController as AdminKardexController;
 use App\Http\Controllers\Admin\PurchaseController as AdminPurchaseController;
 use App\Http\Controllers\Admin\SupplierController as AdminSupplierController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\Admin\ReviewController as AdminReviewController;
 use App\Http\Controllers\Admin\WishlistController as AdminWishlistController;
 use App\Http\Controllers\Api\CategoryProductController;
 use App\Http\Controllers\Api\UbigeoController;
@@ -24,6 +25,7 @@ use App\Http\Controllers\OfertasController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CustomerOrderController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\WishlistController;
 use Illuminate\Support\Facades\Route;
 
@@ -86,6 +88,8 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/mis-pedidos', [CustomerOrderController::class, 'index'])->name('orders.index');
     Route::get('/mis-pedidos/{order}', [CustomerOrderController::class, 'show'])->name('orders.show');
+
+    Route::post('/producto/{product}/review', [ReviewController::class, 'store'])->name('reviews.store');
 });
 
 // Panel de administración
@@ -99,6 +103,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     // Orders (Sales)
     Route::resource('orders', AdminOrderController::class);
     Route::put('orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.status');
+    Route::get('orders-export', [AdminOrderController::class, 'export'])->name('orders.export');
     Route::get('orders-search-products', [AdminOrderController::class, 'searchProducts'])->name('orders.search-products');
     Route::get('orders-search-users', [AdminOrderController::class, 'searchUsers'])->name('orders.search-users');
 
@@ -121,6 +126,13 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('wishlists/exportar', [AdminWishlistController::class, 'export'])->name('wishlists.export');
     Route::get('wishlists/producto/{product}', [AdminWishlistController::class, 'show'])->name('wishlists.show');
     Route::get('wishlists/producto/{product}/exportar', [AdminWishlistController::class, 'exportProduct'])->name('wishlists.export-product');
+
+    // Reviews
+    Route::get('reviews', [AdminReviewController::class, 'index'])->name('reviews.index');
+    Route::put('reviews/{review}/approve', [AdminReviewController::class, 'approve'])->name('reviews.approve');
+    Route::put('reviews/{review}/reject', [AdminReviewController::class, 'reject'])->name('reviews.reject');
+    Route::put('reviews/{review}/featured', [AdminReviewController::class, 'toggleFeatured'])->name('reviews.featured');
+    Route::delete('reviews/{review}', [AdminReviewController::class, 'destroy'])->name('reviews.destroy');
 
     // Product Specifications (AJAX)
     Route::get('products/{product}/specifications', [AdminProductController::class, 'specifications'])->name('products.specifications');

@@ -138,6 +138,11 @@
                         onkeydown="if(event.key==='Enter'){event.preventDefault();applyFilters()}"
                         class="w-full sm:w-56 pl-9 pr-3 py-2 border border-gray-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition">
                 </div>
+                <button onclick="exportOrders()"
+                    class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition text-sm font-medium shadow-sm shadow-emerald-200 cursor-pointer whitespace-nowrap">
+                    <i class="fas fa-file-csv text-xs"></i>
+                    <span class="hidden sm:inline">Exportar</span>
+                </button>
                 <button onclick="openCreateDrawer()"
                     class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition text-sm font-medium shadow-sm shadow-indigo-200 cursor-pointer whitespace-nowrap">
                     <i class="fas fa-plus text-xs"></i>
@@ -750,6 +755,28 @@
         }
 
         window.location.href = '{{ route("admin.orders.index") }}' + (params.toString() ? '?' + params.toString() : '');
+    }
+
+    // ==================== EXPORT ====================
+    function exportOrders() {
+        const params = new URLSearchParams();
+        const fields = {
+            search: document.getElementById('filter_search')?.value?.trim(),
+            status: document.getElementById('filter_status')?.value,
+            source: document.getElementById('filter_source')?.value,
+            payment_method: document.getElementById('filter_payment_method')?.value,
+            payment_status: document.getElementById('filter_payment_status')?.value,
+            date_from: document.getElementById('filter_date_from')?.value,
+            date_to: document.getElementById('filter_date_to')?.value,
+        };
+
+        for (const [key, val] of Object.entries(fields)) {
+            if (val !== '' && val !== null && val !== undefined) {
+                params.set(key, val);
+            }
+        }
+
+        window.location.href = '{{ route("admin.orders.export") }}' + (params.toString() ? '?' + params.toString() : '');
     }
 
     // ==================== DRAWER SYSTEM ====================

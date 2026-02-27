@@ -113,4 +113,9 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Product::class, 'wishlists')->withPivot('created_at');
     }
+
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class);
+    }
 }
