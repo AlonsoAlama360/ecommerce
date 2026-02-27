@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Department;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -45,7 +46,9 @@ class UserController extends Controller
         $inactiveUsers = User::where('is_active', false)->count();
         $newUsersWeek = User::where('created_at', '>=', now()->subWeek())->count();
 
-        return view('admin.users.index', compact('users', 'totalUsers', 'activeUsers', 'inactiveUsers', 'newUsersWeek'));
+        $departments = Department::orderBy('name')->get(['id', 'name']);
+
+        return view('admin.users.index', compact('users', 'totalUsers', 'activeUsers', 'inactiveUsers', 'newUsersWeek', 'departments'));
     }
 
     public function create()
@@ -64,6 +67,13 @@ class UserController extends Controller
             'newsletter' => 'boolean',
             'role' => 'required|in:admin,vendedor,cliente',
             'is_active' => 'boolean',
+            'document_type' => 'nullable|in:DNI,CE,RUC',
+            'document_number' => 'nullable|string|max:20',
+            'department_id' => 'nullable|exists:departments,id',
+            'province_id' => 'nullable|exists:provinces,id',
+            'district_id' => 'nullable|exists:districts,id',
+            'address' => 'nullable|string|max:255',
+            'address_reference' => 'nullable|string|max:255',
         ]);
 
         $validated['newsletter'] = $request->boolean('newsletter');
@@ -91,6 +101,13 @@ class UserController extends Controller
             'newsletter' => 'boolean',
             'role' => 'required|in:admin,vendedor,cliente',
             'is_active' => 'boolean',
+            'document_type' => 'nullable|in:DNI,CE,RUC',
+            'document_number' => 'nullable|string|max:20',
+            'department_id' => 'nullable|exists:departments,id',
+            'province_id' => 'nullable|exists:provinces,id',
+            'district_id' => 'nullable|exists:districts,id',
+            'address' => 'nullable|string|max:255',
+            'address_reference' => 'nullable|string|max:255',
         ]);
 
         $validated['newsletter'] = $request->boolean('newsletter');

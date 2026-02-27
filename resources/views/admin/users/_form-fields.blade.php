@@ -49,6 +49,95 @@
         @enderror
     </div>
 
+    <!-- Divider: Documento -->
+    <div class="relative py-2">
+        <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-gray-100"></div></div>
+        <div class="relative flex justify-center">
+            <span class="bg-white px-3 text-xs text-gray-400 uppercase tracking-wider">Documento</span>
+        </div>
+    </div>
+
+    <!-- Documento -->
+    <div class="grid grid-cols-2 gap-3">
+        <div>
+            <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1.5">Tipo <span class="text-gray-300 normal-case">(opcional)</span></label>
+            <select name="document_type" id="{{ $prefix }}_document_type"
+                class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent focus:bg-white outline-none text-sm transition appearance-none"
+                style="background-image: url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%236b7280'%3E%3Cpath fill-rule='evenodd' d='M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z' clip-rule='evenodd'/%3E%3C/svg%3E&quot;); background-position: right 0.75rem center; background-repeat: no-repeat; background-size: 1rem;">
+                <option value="">Sin documento</option>
+                <option value="DNI" {{ old('document_type', $user?->document_type) === 'DNI' ? 'selected' : '' }}>DNI</option>
+                <option value="CE" {{ old('document_type', $user?->document_type) === 'CE' ? 'selected' : '' }}>CE</option>
+                <option value="RUC" {{ old('document_type', $user?->document_type) === 'RUC' ? 'selected' : '' }}>RUC</option>
+            </select>
+        </div>
+        <div>
+            <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1.5">Número <span class="text-gray-300 normal-case">(opcional)</span></label>
+            <input type="text" name="document_number" id="{{ $prefix }}_document_number" value="{{ old('document_number', $user?->document_number) }}"
+                class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent focus:bg-white outline-none text-sm transition"
+                placeholder="12345678">
+        </div>
+    </div>
+
+    <!-- Divider: Dirección -->
+    <div class="relative py-2">
+        <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-gray-100"></div></div>
+        <div class="relative flex justify-center">
+            <span class="bg-white px-3 text-xs text-gray-400 uppercase tracking-wider">Dirección</span>
+        </div>
+    </div>
+
+    <!-- Ubigeo -->
+    <div class="grid grid-cols-3 gap-3">
+        <div>
+            <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1.5">Departamento</label>
+            <select name="department_id" id="{{ $prefix }}_department_id"
+                onchange="loadUbigeoProvinces('{{ $prefix }}', this.value)"
+                class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent focus:bg-white outline-none text-sm transition appearance-none"
+                style="background-image: url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%236b7280'%3E%3Cpath fill-rule='evenodd' d='M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z' clip-rule='evenodd'/%3E%3C/svg%3E&quot;); background-position: right 0.75rem center; background-repeat: no-repeat; background-size: 1rem;">
+                <option value="">Seleccionar</option>
+                @foreach($departments as $dept)
+                    <option value="{{ $dept->id }}" {{ old('department_id', $user?->department_id) == $dept->id ? 'selected' : '' }}>{{ $dept->name }}</option>
+                @endforeach
+            </select>
+        </div>
+        <div>
+            <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1.5">Provincia</label>
+            <select name="province_id" id="{{ $prefix }}_province_id"
+                onchange="loadUbigeoDistricts('{{ $prefix }}', this.value)"
+                class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent focus:bg-white outline-none text-sm transition appearance-none"
+                style="background-image: url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%236b7280'%3E%3Cpath fill-rule='evenodd' d='M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z' clip-rule='evenodd'/%3E%3C/svg%3E&quot;); background-position: right 0.75rem center; background-repeat: no-repeat; background-size: 1rem;">
+                <option value="">Seleccionar</option>
+            </select>
+        </div>
+        <div>
+            <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1.5">Distrito</label>
+            <select name="district_id" id="{{ $prefix }}_district_id"
+                class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent focus:bg-white outline-none text-sm transition appearance-none"
+                style="background-image: url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%236b7280'%3E%3Cpath fill-rule='evenodd' d='M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z' clip-rule='evenodd'/%3E%3C/svg%3E&quot;); background-position: right 0.75rem center; background-repeat: no-repeat; background-size: 1rem;">
+                <option value="">Seleccionar</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Dirección -->
+    <div>
+        <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1.5">Dirección <span class="text-gray-300 normal-case">(opcional)</span></label>
+        <div class="relative">
+            <i class="fas fa-map-marker-alt absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+            <input type="text" name="address" id="{{ $prefix }}_address" value="{{ old('address', $user?->address) }}"
+                class="w-full pl-10 pr-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent focus:bg-white outline-none text-sm transition"
+                placeholder="Av. Principal 123, Dpto. 4B">
+        </div>
+    </div>
+
+    <!-- Referencia -->
+    <div>
+        <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1.5">Referencia <span class="text-gray-300 normal-case">(opcional)</span></label>
+        <input type="text" name="address_reference" id="{{ $prefix }}_address_reference" value="{{ old('address_reference', $user?->address_reference) }}"
+            class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent focus:bg-white outline-none text-sm transition"
+            placeholder="Cerca al parque, frente a la bodega">
+    </div>
+
     <!-- Divider: Seguridad -->
     <div class="relative py-2">
         <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-gray-100"></div></div>

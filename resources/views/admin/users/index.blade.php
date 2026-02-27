@@ -255,7 +255,7 @@
                     </td>
                     <td class="px-5 py-3">
                         <div class="flex items-center justify-center gap-1">
-                            <button data-user="{{ json_encode($user->only('id','first_name','last_name','email','phone','role','is_active','newsletter','created_at','updated_at')) }}" onclick="openEditDrawer(JSON.parse(this.dataset.user))"
+                            <button data-user="{{ json_encode($user->only('id','first_name','last_name','email','phone','role','is_active','newsletter','document_type','document_number','department_id','province_id','district_id','address','address_reference','created_at','updated_at')) }}" onclick="openEditDrawer(JSON.parse(this.dataset.user))"
                                class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-md transition" title="Editar">
                                 <i class="fas fa-pen-to-square text-sm"></i>
                             </button>
@@ -305,7 +305,7 @@
                     <p class="text-xs text-gray-400 truncate">{{ $user->email }}</p>
                 </div>
                 <div class="flex items-center gap-0.5">
-                    <button data-user="{{ json_encode($user->only('id','first_name','last_name','email','phone','role','is_active','newsletter','created_at','updated_at')) }}" onclick="openEditDrawer(JSON.parse(this.dataset.user))"
+                    <button data-user="{{ json_encode($user->only('id','first_name','last_name','email','phone','role','is_active','newsletter','document_type','document_number','department_id','province_id','district_id','address','address_reference','created_at','updated_at')) }}" onclick="openEditDrawer(JSON.parse(this.dataset.user))"
                        class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-indigo-600 rounded-md transition">
                         <i class="fas fa-pen-to-square text-sm"></i>
                     </button>
@@ -546,6 +546,22 @@
         document.getElementById('edit_phone').value = user.phone || '';
         document.getElementById('edit_password').value = '';
 
+        // Address fields
+        document.getElementById('edit_document_type').value = user.document_type || '';
+        document.getElementById('edit_document_number').value = user.document_number || '';
+        document.getElementById('edit_address').value = user.address || '';
+        document.getElementById('edit_address_reference').value = user.address_reference || '';
+
+        // Ubigeo - set department and load cascading
+        const deptSelect = document.getElementById('edit_department_id');
+        deptSelect.value = user.department_id || '';
+        if (user.department_id) {
+            loadUbigeoProvinces('edit', user.department_id, user.province_id, user.district_id);
+        } else {
+            document.getElementById('edit_province_id').innerHTML = '<option value="">Seleccionar</option>';
+            document.getElementById('edit_district_id').innerHTML = '<option value="">Seleccionar</option>';
+        }
+
         document.getElementById('editUserForm').action = '/admin/users/' + user.id;
         document.getElementById('editDrawerSubtitle').textContent = user.first_name + ' ' + user.last_name;
 
@@ -629,6 +645,53 @@
         });
     }
 
+    // ==================== UBIGEO CASCADING ====================
+    function loadUbigeoProvinces(prefix, departmentId, selectedProvinceId, selectedDistrictId) {
+        const provinceSelect = document.getElementById(prefix + '_province_id');
+        const districtSelect = document.getElementById(prefix + '_district_id');
+
+        provinceSelect.innerHTML = '<option value="">Cargando...</option>';
+        districtSelect.innerHTML = '<option value="">Seleccionar</option>';
+
+        if (!departmentId) {
+            provinceSelect.innerHTML = '<option value="">Seleccionar</option>';
+            return;
+        }
+
+        fetch('/api/departments/' + departmentId + '/provinces')
+            .then(r => r.json())
+            .then(provinces => {
+                provinceSelect.innerHTML = '<option value="">Seleccionar</option>';
+                provinces.forEach(p => {
+                    const selected = (selectedProvinceId && p.id == selectedProvinceId) ? ' selected' : '';
+                    provinceSelect.innerHTML += '<option value="' + p.id + '"' + selected + '>' + p.name + '</option>';
+                });
+                if (provinceSelect.value && selectedDistrictId) {
+                    loadUbigeoDistricts(prefix, provinceSelect.value, selectedDistrictId);
+                }
+            });
+    }
+
+    function loadUbigeoDistricts(prefix, provinceId, selectedDistrictId) {
+        const districtSelect = document.getElementById(prefix + '_district_id');
+        districtSelect.innerHTML = '<option value="">Cargando...</option>';
+
+        if (!provinceId) {
+            districtSelect.innerHTML = '<option value="">Seleccionar</option>';
+            return;
+        }
+
+        fetch('/api/provinces/' + provinceId + '/districts')
+            .then(r => r.json())
+            .then(districts => {
+                districtSelect.innerHTML = '<option value="">Seleccionar</option>';
+                districts.forEach(d => {
+                    const selected = (selectedDistrictId && d.id == selectedDistrictId) ? ' selected' : '';
+                    districtSelect.innerHTML += '<option value="' + d.id + '"' + selected + '>' + d.name + '</option>';
+                });
+            });
+    }
+
     // Auto-open if validation errors
     @if($errors->any() && old('_method') === 'PUT')
         openEditDrawer({
@@ -640,6 +703,13 @@
             role: '{{ old("role", "cliente") }}',
             is_active: {{ old('is_active', 1) }},
             newsletter: {{ old('newsletter', 0) }},
+            document_type: '{{ old("document_type") }}',
+            document_number: '{{ old("document_number") }}',
+            department_id: '{{ old("department_id") }}',
+            province_id: '{{ old("province_id") }}',
+            district_id: '{{ old("district_id") }}',
+            address: '{{ old("address") }}',
+            address_reference: '{{ old("address_reference") }}',
             created_at: null,
             updated_at: null
         });
