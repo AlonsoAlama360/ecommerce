@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Catálogo - Romantic Gifts')
+@section('title', 'Catálogo - Arixna')
 
 @section('styles')
     /* ── Animations ── */

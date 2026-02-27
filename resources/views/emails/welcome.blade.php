@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Bienvenido/a a Romantic Gifts</title>
+    <title>Bienvenido/a a Arixna</title>
     <!--[if mso]>
     <style>
         table {border-collapse: collapse;}
@@ -16,7 +16,7 @@
 
     <!-- Preheader text (hidden) -->
     <div style="display: none; max-height: 0; overflow: hidden; mso-hide: all;">
-        Bienvenido/a a Romantic Gifts - Descubre regalos que enamoran &nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;
+        Bienvenido/a a Arixna - Descubre regalos que enamoran &nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;
     </div>
 
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color: #F3EDE7;">
@@ -33,7 +33,7 @@
                     <tr>
                         <td style="background-color: #FFFFFF; padding: 35px 40px 25px; text-align: center;">
                             <img src="https://aztrosperu.com/cdn/shop/files/Logo_Aztros_copia.png?v=1669076562&width=500"
-                                alt="Romantic Gifts" style="height: 45px; display: inline-block;">
+                                alt="Arixna" style="height: 45px; display: inline-block;">
                         </td>
                     </tr>
 
@@ -61,7 +61,7 @@
                         <td style="background-color: #FFFFFF; padding: 35px 40px 20px;">
                             <p style="margin: 0 0 20px; color: #4A4A4A; font-size: 15px; line-height: 1.7;">
                                 Estamos encantados de que formes parte de nuestra comunidad. En
-                                <strong style="color: #C39563;">Romantic Gifts</strong> encontrar&aacute;s los
+                                <strong style="color: #C39563;">Arixna</strong> encontrar&aacute;s los
                                 detalles perfectos para sorprender a esa persona especial en cada
                                 ocasi&oacute;n.
                             </p>

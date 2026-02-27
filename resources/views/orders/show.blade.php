@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Pedido ' . $order->order_number . ' - Romantic Gifts')
+@section('title', 'Pedido ' . $order->order_number . ' - Arixna')
 
 @section('styles')
     @keyframes fadeInUp {

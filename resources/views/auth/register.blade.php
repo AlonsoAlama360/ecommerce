@@ -11,7 +11,7 @@
             <div class="relative">
                 <div class="relative w-96 h-96 rounded-3xl overflow-hidden shadow-2xl">
                     <img src="https://i.pinimg.com/1200x/e0/4d/5e/e04d5ea05adc67cae665c023676b5ee6.jpg"
-                        alt="Romantic Gifts" class="w-full h-full object-cover">
+                        alt="Arixna" class="w-full h-full object-cover">
                     <div class="absolute inset-0 bg-gradient-to-t from-[#D4A574]/30 to-transparent"></div>
                 </div>
 

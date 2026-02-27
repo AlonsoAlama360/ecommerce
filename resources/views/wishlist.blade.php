@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Lista de Deseos - Romantic Gifts')
+@section('title', 'Lista de Deseos - Arixna')
 
 @section('content')
     <!-- Breadcrumb -->

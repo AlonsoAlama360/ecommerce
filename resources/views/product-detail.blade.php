@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', $product->name . ' - Romantic Gifts')
+@section('title', $product->name . ' - Arixna')
 
 @section('content')
     <!-- Breadcrumb -->
@@ -523,7 +523,7 @@
         const qty = parseInt(qtyInput.value);
         const productUrl = window.location.href;
 
-        let message = '🎁 *Consulta sobre producto - Romantic Gifts*\n\n';
+        let message = '🎁 *Consulta sobre producto - Arixna*\n\n';
         message += '━━━━━━━━━━━━━━━\n';
         message += '📦 *{{ $product->name }}*\n';
         message += '━━━━━━━━━━━━━━━\n\n';

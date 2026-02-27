@@ -20,7 +20,7 @@ class WelcomeMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Bienvenido/a a Romantic Gifts',
+            subject: 'Bienvenido/a a Arixna',
         );
     }
 

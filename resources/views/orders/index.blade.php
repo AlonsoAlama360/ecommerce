@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Mis Pedidos - Romantic Gifts')
+@section('title', 'Mis Pedidos - Arixna')
 
 @section('styles')
     @keyframes fadeInUp {

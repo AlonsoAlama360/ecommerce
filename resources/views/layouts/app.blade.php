@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Romantic Gifts - Detalles Románticos')</title>
+    <title>@yield('title', 'Arixna - Tu Tienda Online')</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -563,7 +563,7 @@
                         <div class="w-10 h-10 bg-gradient-to-br from-rose-400 to-pink-300 rounded-full flex items-center justify-center">
                             <i class="fas fa-heart text-white text-lg"></i>
                         </div>
-                        <span class="font-serif text-2xl font-semibold text-gray-900">Amor Eterno</span>
+                        <span class="font-serif text-2xl font-semibold text-gray-900">Arixna</span>
                     </div>
                     <p class="text-gray-600 leading-relaxed">Creando momentos inolvidables con detalles que expresan amor verdadero.</p>
                 </div>
@@ -596,7 +596,7 @@
                 </div>
             </div>
             <div class="border-t border-gray-200 pt-8 text-center text-gray-600">
-                <p>&copy; {{ date('Y') }} Romantic Gifts. Todos los derechos reservados.</p>
+                <p>&copy; {{ date('Y') }} Arixna. Todos los derechos reservados.</p>
             </div>
         </div>
     </footer>

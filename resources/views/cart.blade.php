@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Carrito de Compras - Romantic Gifts')
+@section('title', 'Carrito de Compras - Arixna')
 
 @section('content')
     <!-- Breadcrumb -->
@@ -270,7 +270,7 @@
     if (whatsappCartBtn) {
         whatsappCartBtn.addEventListener('click', function() {
             const phone = '{{ config("app.whatsapp_phone") }}';
-            let message = '🛒 *Mi Pedido - Romantic Gifts*\n\n';
+            let message = '🛒 *Mi Pedido - Arixna*\n\n';
 
             @foreach($cartItems as $item)
                 message += '▸ *{{ $item["product"]->name }}*\n';

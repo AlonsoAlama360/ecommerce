@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Romantic Gifts - Detalles Románticos')
+@section('title', 'Arixna - Tu Tienda Online')
 
 @section('styles')
     /* ── Hero ── */
@@ -213,7 +213,7 @@
                 {{-- Image composition --}}
                 <div class="relative anim-fade-right">
                     <div class="relative z-10">
-                        <img src="https://i.pinimg.com/1200x/e0/4d/5e/e04d5ea05adc67cae665c023676b5ee6.jpg" alt="Romantic Gifts"
+                        <img src="https://i.pinimg.com/1200x/e0/4d/5e/e04d5ea05adc67cae665c023676b5ee6.jpg" alt="Arixna"
                             class="rounded-3xl shadow-2xl w-full object-cover aspect-[4/5] lg:aspect-[3/4]">
                         <div class="absolute inset-0 rounded-3xl bg-gradient-to-t from-black/10 via-transparent to-transparent"></div>
                     </div>

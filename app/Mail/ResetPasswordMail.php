@@ -22,7 +22,7 @@ class ResetPasswordMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Restablecer Contraseña - Romantic Gifts',
+            subject: 'Restablecer Contraseña - Arixna',
         );
     }
 

@@ -50,6 +50,6 @@ class RegisterController extends Controller
 
         Auth::login($user);
 
-        return redirect('/')->with('success', '¡Bienvenido a Romantic Gifts!');
+        return redirect('/')->with('success', '¡Bienvenido a Arixna!');
     }
 }

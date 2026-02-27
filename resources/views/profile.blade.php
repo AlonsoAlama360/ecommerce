@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Mi Perfil - Romantic Gifts')
+@section('title', 'Mi Perfil - Arixna')
 
 @php
     $inputClass = "w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 text-sm font-medium placeholder:text-gray-400 focus:bg-white focus:border-[#D4A574] focus:ring-4 focus:ring-[#D4A574]/10 focus:outline-none transition-all duration-200";

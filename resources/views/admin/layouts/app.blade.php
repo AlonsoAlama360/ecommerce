@@ -117,7 +117,7 @@
                     <i class="fas fa-gem text-white text-sm"></i>
                 </div>
                 <div>
-                    <h1 class="font-bold text-[15px] text-white leading-tight tracking-tight">ShopAdmin</h1>
+                    <h1 class="font-bold text-[15px] text-white leading-tight tracking-tight">Arixna Admin</h1>
                     <p class="text-[10px] text-slate-500 font-medium tracking-widest uppercase">E-Commerce</p>
                 </div>
             </a>

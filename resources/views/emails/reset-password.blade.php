@@ -16,7 +16,7 @@
 
     <!-- Preheader text (hidden) -->
     <div style="display: none; max-height: 0; overflow: hidden; mso-hide: all;">
-        Restablece tu contraseña de Romantic Gifts &nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;
+        Restablece tu contraseña de Arixna &nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;
     </div>
 
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color: #F3EDE7;">
@@ -33,7 +33,7 @@
                     <tr>
                         <td style="background-color: #FFFFFF; padding: 35px 40px 25px; text-align: center;">
                             <img src="https://aztrosperu.com/cdn/shop/files/Logo_Aztros_copia.png?v=1669076562&width=500"
-                                alt="Romantic Gifts" style="height: 45px; display: inline-block;">
+                                alt="Arixna" style="height: 45px; display: inline-block;">
                         </td>
                     </tr>
 
@@ -61,7 +61,7 @@
                         <td style="background-color: #FFFFFF; padding: 35px 40px 20px;">
                             <p style="margin: 0 0 20px; color: #4A4A4A; font-size: 15px; line-height: 1.7;">
                                 Recibimos una solicitud para restablecer la contrase&ntilde;a de tu cuenta en
-                                <strong style="color: #C39563;">Romantic Gifts</strong>. Haz clic en el bot&oacute;n
+                                <strong style="color: #C39563;">Arixna</strong>. Haz clic en el bot&oacute;n
                                 de abajo para crear una nueva contrase&ntilde;a.
                             </p>
                             <p style="margin: 0 0 10px; color: #4A4A4A; font-size: 15px; line-height: 1.7;">
