@@ -91,6 +91,11 @@ class Product extends Model
                      ->whereColumn('sale_price', '<', 'price');
     }
 
+    public function wishlists(): HasMany
+    {
+        return $this->hasMany(Wishlist::class);
+    }
+
     public function reviews(): HasMany
     {
         return $this->hasMany(Review::class);

@@ -14,11 +14,12 @@ class WishlistController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Product::select('products.*')
-            ->join('wishlists', 'products.id', '=', 'wishlists.product_id')
-            ->selectRaw('COUNT(wishlists.id) as wishlists_count')
-            ->selectRaw('MAX(wishlists.created_at) as last_wishlisted_at')
-            ->groupBy('products.id');
+        $query = Product::withCount('wishlists')
+            ->addSelect([
+                'last_wishlisted_at' => Wishlist::select(DB::raw('MAX(created_at)'))
+                    ->whereColumn('product_id', 'products.id'),
+            ])
+            ->whereHas('wishlists');
 
         if ($search = $request->get('search')) {
             $query->where(function ($q) use ($search) {
@@ -89,10 +90,8 @@ class WishlistController extends Controller
 
     public function export(Request $request): StreamedResponse
     {
-        $query = Product::select('products.*')
-            ->join('wishlists', 'products.id', '=', 'wishlists.product_id')
-            ->selectRaw('COUNT(wishlists.id) as wishlists_count')
-            ->groupBy('products.id')
+        $query = Product::withCount('wishlists')
+            ->whereHas('wishlists')
             ->with(['category']);
 
         if ($search = $request->get('search')) {
