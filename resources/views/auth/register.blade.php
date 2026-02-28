@@ -30,7 +30,7 @@
             </div>
 
             <div class="space-y-6 w-full max-w-md">
-                <h2 class="text-4xl font-serif font-bold gradient-text text-center mb-8">Únete a nuestra comunidad</h2>
+                <h1 class="text-4xl font-serif font-bold gradient-text text-center mb-8">Únete a nuestra comunidad</h1>
 
                 <div class="space-y-4">
                     <div class="flex items-start space-x-4 bg-white/60 backdrop-blur-sm p-4 rounded-2xl shadow-lg">
@@ -40,7 +40,7 @@
                             </svg>
                         </div>
                         <div>
-                            <h3 class="font-bold text-gray-900 mb-1">Envío gratis</h3>
+                            <h2 class="font-bold text-gray-900 mb-1">Envío gratis</h2>
                             <p class="text-sm text-gray-600">En tu primera compra mayor a $50</p>
                         </div>
                     </div>
@@ -53,7 +53,7 @@
                             </svg>
                         </div>
                         <div>
-                            <h3 class="font-bold text-gray-900 mb-1">Ofertas exclusivas</h3>
+                            <h2 class="font-bold text-gray-900 mb-1">Ofertas exclusivas</h2>
                             <p class="text-sm text-gray-600">Descuentos especiales solo para miembros</p>
                         </div>
                     </div>
@@ -65,7 +65,7 @@
                             </svg>
                         </div>
                         <div>
-                            <h3 class="font-bold text-gray-900 mb-1">Lista de deseos</h3>
+                            <h2 class="font-bold text-gray-900 mb-1">Lista de deseos</h2>
                             <p class="text-sm text-gray-600">Guarda tus productos favoritos</p>
                         </div>
                     </div>
@@ -79,7 +79,7 @@
             <!-- Logo -->
             <div class="text-center mb-8">
                 <a href="{{ route('home') }}" class="inline-flex items-center justify-center space-x-2 mb-6 group">
-                    <img src="https://aztrosperu.com/cdn/shop/files/Logo_Aztros_copia.png?v=1669076562&width=500"
+                    <img src="{{ asset('images/logo_arixna.png') }}"
                         alt="Logo" class="h-10">
                 </a>
                 <p class="text-gray-600 text-lg">Únete y disfruta de beneficios exclusivos</p>

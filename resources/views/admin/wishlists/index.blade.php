@@ -259,14 +259,14 @@
             @if($products->hasPages())
             <nav class="flex items-center gap-1">
                 @if($products->currentPage() > 2)
-                <a href="{{ $products->url(1) }}" class="w-8 h-8 flex items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 transition text-xs" title="Primera">
+                <a href="{{ $products->url(1) }}" class="w-8 h-8 flex items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 transition text-xs" title="Primera" aria-label="Primera página">
                     <i class="fas fa-angles-left"></i>
                 </a>
                 @endif
                 @if($products->onFirstPage())
                 <span class="w-8 h-8 flex items-center justify-center rounded-md text-gray-300 cursor-not-allowed text-xs"><i class="fas fa-chevron-left"></i></span>
                 @else
-                <a href="{{ $products->previousPageUrl() }}" class="w-8 h-8 flex items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 transition text-xs"><i class="fas fa-chevron-left"></i></a>
+                <a href="{{ $products->previousPageUrl() }}" class="w-8 h-8 flex items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 transition text-xs" aria-label="Página anterior"><i class="fas fa-chevron-left"></i></a>
                 @endif
                 @php
                     $current = $products->currentPage();
@@ -291,12 +291,12 @@
                     @endif
                 @endforeach
                 @if($products->hasMorePages())
-                <a href="{{ $products->nextPageUrl() }}" class="w-8 h-8 flex items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 transition text-xs"><i class="fas fa-chevron-right"></i></a>
+                <a href="{{ $products->nextPageUrl() }}" class="w-8 h-8 flex items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 transition text-xs" aria-label="Página siguiente"><i class="fas fa-chevron-right"></i></a>
                 @else
                 <span class="w-8 h-8 flex items-center justify-center rounded-md text-gray-300 cursor-not-allowed text-xs"><i class="fas fa-chevron-right"></i></span>
                 @endif
                 @if($products->currentPage() < $last - 1)
-                <a href="{{ $products->url($last) }}" class="w-8 h-8 flex items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 transition text-xs" title="Última">
+                <a href="{{ $products->url($last) }}" class="w-8 h-8 flex items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 transition text-xs" title="Última" aria-label="Última página">
                     <i class="fas fa-angles-right"></i>
                 </a>
                 @endif

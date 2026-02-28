@@ -1,6 +1,10 @@
 @extends('layouts.app')
 
-@section('title', 'Ofertas - Arixna')
+@section('title', 'Ofertas y Descuentos - Arixna')
+@section('meta_description', 'Aprovecha las mejores ofertas y descuentos en Arixna. Productos con precios rebajados por tiempo limitado. Envíos a todo el Perú.')
+@section('meta_keywords', 'ofertas Arixna, descuentos, promociones, productos rebajados, comprar barato, Perú')
+@section('og_title', 'Ofertas y Descuentos - Arixna')
+@section('og_description', 'Aprovecha las mejores ofertas y descuentos en Arixna. Productos con precios rebajados por tiempo limitado.')
 
 @section('styles')
     /* ── Animations ── */
@@ -289,7 +293,7 @@
                             {{-- Mobile Header --}}
                             <div class="lg:hidden flex items-center justify-between px-6 py-5 border-b border-gray-100">
                                 <h2 class="font-serif text-xl font-bold text-gray-900">Filtros</h2>
-                                <button type="button" class="w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition" id="ofertasCloseFiltersBtn">
+                                <button type="button" class="w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition" id="ofertasCloseFiltersBtn" aria-label="Cerrar filtros">
                                     <i class="fas fa-times text-gray-600"></i>
                                 </button>
                             </div>
@@ -497,7 +501,7 @@
                                             <div class="quick-actions absolute bottom-3 right-3 hidden sm:block">
                                                 <button type="button"
                                                         class="add-to-cart-btn bg-white/95 backdrop-blur-sm text-gray-900 hover:bg-[#D4A574] hover:text-white w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition-all duration-300"
-                                                        data-product-id="{{ $product->id }}" title="Agregar al carrito">
+                                                        data-product-id="{{ $product->id }}" title="Agregar al carrito" aria-label="Agregar al carrito">
                                                     <i class="fas fa-shopping-bag text-sm"></i>
                                                 </button>
                                             </div>
@@ -540,7 +544,7 @@
                                             <i class="fas fa-chevron-left text-xs"></i>
                                         </span>
                                     @else
-                                        <a href="{{ $products->previousPageUrl() }}" class="pagination-btn w-10 h-10 border border-gray-200 bg-white rounded-xl flex items-center justify-center text-gray-600">
+                                        <a href="{{ $products->previousPageUrl() }}" class="pagination-btn w-10 h-10 border border-gray-200 bg-white rounded-xl flex items-center justify-center text-gray-600" aria-label="Página anterior">
                                             <i class="fas fa-chevron-left text-xs"></i>
                                         </a>
                                     @endif
@@ -559,7 +563,7 @@
                                     @endif
 
                                     @if($products->hasMorePages())
-                                        <a href="{{ $products->nextPageUrl() }}" class="pagination-btn w-10 h-10 border border-gray-200 bg-white rounded-xl flex items-center justify-center text-gray-600">
+                                        <a href="{{ $products->nextPageUrl() }}" class="pagination-btn w-10 h-10 border border-gray-200 bg-white rounded-xl flex items-center justify-center text-gray-600" aria-label="Página siguiente">
                                             <i class="fas fa-chevron-right text-xs"></i>
                                         </a>
                                     @else
@@ -691,7 +695,7 @@
                     b.style.display = data.cart_count > 0 ? 'flex' : 'none';
                 });
 
-                if (typeof showToast === 'function') showToast('¡Producto agregado al carrito!');
+                if (typeof openCartSidebar === 'function') openCartSidebar();
 
                 setTimeout(function() {
                     button.innerHTML = originalHTML;

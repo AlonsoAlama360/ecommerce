@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Admin') - Panel de Administración</title>
+    <link rel="icon" type="image/webp" href="{{ asset('images/logo_arixna1024512_min.webp') }}">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -213,6 +214,14 @@
                     <i class="fas fa-star text-xs {{ request()->routeIs('admin.reviews.*') ? 'text-indigo-400' : 'text-slate-500' }}"></i>
                 </div>
                 <span>Reseñas</span>
+            </a>
+
+            <a href="{{ route('admin.subscribers.index') }}"
+                class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium mb-0.5 {{ request()->routeIs('admin.subscribers.*') ? 'active' : 'text-slate-400' }}">
+                <div class="w-8 h-8 rounded-lg {{ request()->routeIs('admin.subscribers.*') ? 'bg-indigo-500/20' : 'bg-white/5' }} flex items-center justify-center transition">
+                    <i class="fas fa-envelope text-xs {{ request()->routeIs('admin.subscribers.*') ? 'text-indigo-400' : 'text-slate-500' }}"></i>
+                </div>
+                <span>Suscriptores</span>
             </a>
 
             {{-- Tienda --}}

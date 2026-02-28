@@ -32,7 +32,7 @@
                 <!-- Empty State -->
                 <div class="text-center py-20">
                     <i class="far fa-heart text-6xl text-gray-300 mb-6"></i>
-                    <h3 class="font-serif text-2xl font-bold text-gray-900 mb-3">Tu lista de deseos esta vacia</h3>
+                    <h2 class="font-serif text-2xl font-bold text-gray-900 mb-3">Tu lista de deseos esta vacia</h2>
                     <p class="text-gray-600 mb-6">Explora nuestro catalogo y guarda los productos que te encanten.</p>
                     <a href="{{ route('catalog') }}" class="inline-block bg-gray-900 text-white px-8 py-3 rounded-full hover:bg-gray-800 transition font-medium">
                         Explorar Catalogo
@@ -54,7 +54,7 @@
                                         -{{ $product->discount_percentage }}%
                                     </div>
                                 @endif
-                                <button type="button" class="wishlist-btn absolute top-3 right-3 sm:top-4 sm:right-4 w-8 h-8 sm:w-10 sm:h-10 bg-rose-500 text-white backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-rose-600 transition-all duration-200 shadow-md" data-product-id="{{ $product->id }}">
+                                <button type="button" class="wishlist-btn absolute top-3 right-3 sm:top-4 sm:right-4 w-8 h-8 sm:w-10 sm:h-10 bg-rose-500 text-white backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-rose-600 transition-all duration-200 shadow-md" data-product-id="{{ $product->id }}" aria-label="Quitar de lista de deseos">
                                     <i class="fas fa-heart text-sm sm:text-base"></i>
                                 </button>
                                 @if($product->stock <= 5 && $product->stock > 0)
@@ -66,7 +66,7 @@
                             <div class="p-4 sm:p-5">
                                 <p class="text-xs text-gray-400 mb-1">{{ $product->category?->name }}</p>
                                 <a href="{{ route('product.show', $product->slug) }}" class="block">
-                                    <h3 class="font-semibold text-sm sm:text-base mb-2 line-clamp-2 group-hover:text-[#D4A574] transition-colors duration-200">{{ $product->name }}</h3>
+                                    <h2 class="font-semibold text-sm sm:text-base mb-2 line-clamp-2 group-hover:text-[#D4A574] transition-colors duration-200">{{ $product->name }}</h2>
                                 </a>
                                 <div class="flex items-end gap-2 mb-3 sm:mb-4">
                                     <span class="text-lg sm:text-2xl font-bold text-gray-900 leading-none">S/ {{ number_format($product->current_price, 2) }}</span>
@@ -94,7 +94,7 @@
                                 <i class="fas fa-chevron-left text-sm"></i>
                             </span>
                         @else
-                            <a href="{{ $products->previousPageUrl() }}" class="w-10 h-10 border border-gray-300 rounded-lg flex items-center justify-center hover:bg-gray-100 transition">
+                            <a href="{{ $products->previousPageUrl() }}" class="w-10 h-10 border border-gray-300 rounded-lg flex items-center justify-center hover:bg-gray-100 transition" aria-label="Página anterior">
                                 <i class="fas fa-chevron-left text-sm"></i>
                             </a>
                         @endif
@@ -113,7 +113,7 @@
                         @endif
 
                         @if($products->hasMorePages())
-                            <a href="{{ $products->nextPageUrl() }}" class="w-10 h-10 border border-gray-300 rounded-lg flex items-center justify-center hover:bg-gray-100 transition">
+                            <a href="{{ $products->nextPageUrl() }}" class="w-10 h-10 border border-gray-300 rounded-lg flex items-center justify-center hover:bg-gray-100 transition" aria-label="Página siguiente">
                                 <i class="fas fa-chevron-right text-sm"></i>
                             </a>
                         @else
@@ -161,9 +161,7 @@
                     b.style.display = data.cart_count > 0 ? 'flex' : 'none';
                 });
 
-                if (typeof showToast === 'function') {
-                    showToast('Producto agregado al carrito!');
-                }
+                if (typeof openCartSidebar === 'function') openCartSidebar();
 
                 setTimeout(function() {
                     button.innerHTML = originalHTML;

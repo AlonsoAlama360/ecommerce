@@ -40,7 +40,7 @@
             <!-- Logo -->
             <div class="text-center mb-8">
                 <a href="{{ route('home') }}" class="inline-flex items-center justify-center space-x-2 mb-6 group">
-                    <img src="https://aztrosperu.com/cdn/shop/files/Logo_Aztros_copia.png?v=1669076562&width=500"
+                    <img src="{{ asset('images/logo_arixna.png') }}"
                         alt="Logo" class="h-10">
                 </a>
             </div>

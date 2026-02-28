@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\PurchaseController as AdminPurchaseController;
 use App\Http\Controllers\Admin\SupplierController as AdminSupplierController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Admin\ReviewController as AdminReviewController;
+use App\Http\Controllers\Admin\SubscriberController as AdminSubscriberController;
 use App\Http\Controllers\Admin\WishlistController as AdminWishlistController;
 use App\Http\Controllers\Api\CategoryProductController;
 use App\Http\Controllers\Api\UbigeoController;
@@ -27,6 +28,7 @@ use App\Http\Controllers\CustomerOrderController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\WishlistController;
+use App\Http\Controllers\NewsletterController;
 use Illuminate\Support\Facades\Route;
 
 // Rutas públicas - cualquier usuario puede navegar
@@ -35,6 +37,9 @@ Route::get('/catalogo', [CatalogController::class, 'index'])->name('catalog');
 Route::get('/buscar', [CatalogController::class, 'search'])->name('search');
 Route::get('/producto/{slug}', [ProductController::class, 'show'])->name('product.show');
 Route::get('/ofertas', [OfertasController::class, 'index'])->name('ofertas');
+
+// Newsletter
+Route::post('/newsletter', [NewsletterController::class, 'subscribe'])->name('newsletter.subscribe');
 
 // Carrito de compras (sesión, sin auth requerido)
 Route::get('/carrito', [CartController::class, 'index'])->name('cart');
@@ -133,6 +138,12 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::put('reviews/{review}/reject', [AdminReviewController::class, 'reject'])->name('reviews.reject');
     Route::put('reviews/{review}/featured', [AdminReviewController::class, 'toggleFeatured'])->name('reviews.featured');
     Route::delete('reviews/{review}', [AdminReviewController::class, 'destroy'])->name('reviews.destroy');
+
+    // Subscribers (Newsletter)
+    Route::get('subscribers', [AdminSubscriberController::class, 'index'])->name('subscribers.index');
+    Route::put('subscribers/{subscriber}/toggle', [AdminSubscriberController::class, 'toggleStatus'])->name('subscribers.toggle');
+    Route::delete('subscribers/{subscriber}', [AdminSubscriberController::class, 'destroy'])->name('subscribers.destroy');
+    Route::get('subscribers-export', [AdminSubscriberController::class, 'export'])->name('subscribers.export');
 
     // Product Specifications (AJAX)
     Route::get('products/{product}/specifications', [AdminProductController::class, 'specifications'])->name('products.specifications');

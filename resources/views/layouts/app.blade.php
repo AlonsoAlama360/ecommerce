@@ -1,11 +1,39 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Arixna - Tu Tienda Online')</title>
+
+    {{-- Favicon --}}
+    <link rel="icon" type="image/webp" href="{{ asset('images/logo_arixna1024512_min.webp') }}">
+    <link rel="apple-touch-icon" href="{{ asset('images/logo_arixna1024512_min.webp') }}">
+
+    {{-- SEO Meta Tags --}}
+    <meta name="description" content="@yield('meta_description', 'Arixna - Tu tienda online de perfumes, electrodomésticos, joyería y zapatillas. Envíos a todo el Perú.')">
+    <meta name="keywords" content="@yield('meta_keywords', 'tienda online, perfumes, electrodomésticos, joyería, anillos, zapatillas, Perú, envíos')">
+    <meta name="author" content="Arixna">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="@yield('canonical', url()->current())">
+
+    {{-- Open Graph (Facebook, WhatsApp, Messenger) --}}
+    <meta property="og:type" content="@yield('og_type', 'website')">
+    <meta property="og:site_name" content="Arixna">
+    <meta property="og:title" content="@yield('og_title', 'Arixna - Tu Tienda Online')">
+    <meta property="og:description" content="@yield('og_description', 'Descubre perfumes, electrodomésticos, joyería y zapatillas en Arixna. Envíos a todo el Perú.')">
+    <meta property="og:image" content="@yield('og_image', asset('images/logo_arixna.png'))">
+    <meta property="og:url" content="@yield('og_url', url()->current())">
+    <meta property="og:locale" content="es_PE">
+
+    {{-- Twitter Card --}}
+    <meta name="twitter:card" content="@yield('twitter_card', 'summary_large_image')">
+    <meta name="twitter:title" content="@yield('og_title', 'Arixna - Tu Tienda Online')">
+    <meta name="twitter:description" content="@yield('og_description', 'Descubre perfumes, electrodomésticos, joyería y zapatillas en Arixna. Envíos a todo el Perú.')">
+    <meta name="twitter:image" content="@yield('og_image', asset('images/logo_arixna.png'))">
+
+    @yield('seo')
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -68,19 +96,50 @@
             border-left: 1px solid #e5e7eb;
         }
 
-        .cart-dropdown {
+        .cart-sidebar-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.4);
+            backdrop-filter: blur(4px);
+            z-index: 9998;
             opacity: 0;
             visibility: hidden;
-            transform: translateY(-10px);
-            transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease;
-            pointer-events: none;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
         }
-
-        .cart-dropdown.active {
+        .cart-sidebar-overlay.active {
             opacity: 1;
             visibility: visible;
-            transform: translateY(0);
-            pointer-events: auto;
+        }
+        .cart-sidebar {
+            position: fixed;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 100%;
+            max-width: 420px;
+            background: #fff;
+            z-index: 9999;
+            transform: translateX(100%);
+            transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            box-shadow: -8px 0 30px rgba(0,0,0,0.12);
+        }
+        .cart-sidebar.active {
+            transform: translateX(0);
+        }
+        .cart-sidebar-items::-webkit-scrollbar {
+            width: 4px;
+        }
+        .cart-sidebar-items::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .cart-sidebar-items::-webkit-scrollbar-thumb {
+            background: #e5e7eb;
+            border-radius: 4px;
+        }
+        .cart-sidebar-items::-webkit-scrollbar-thumb:hover {
+            background: #d1d5db;
         }
 
         .user-dropdown {
@@ -259,19 +318,6 @@
             color: #22c55e;
         }
 
-        .cart-dropdown-items {
-            max-height: 280px;
-            overflow-y: auto;
-        }
-
-        .cart-dropdown-items::-webkit-scrollbar {
-            width: 4px;
-        }
-
-        .cart-dropdown-items::-webkit-scrollbar-thumb {
-            background: #d1d5db;
-            border-radius: 4px;
-        }
 
         @yield('styles')
     </style>
@@ -288,10 +334,10 @@
     <div class="mobile-menu" id="mobileMenu">
         <div class="p-6 border-b border-gray-200 flex items-center justify-between">
             <div class="flex items-center space-x-2">
-                <img src="https://aztrosperu.com/cdn/shop/files/Logo_Aztros_copia.png?v=1669076562&width=500"
+                <img src="{{ asset('images/logo_arixna.png') }}"
                     alt="Logo" class="h-10">
             </div>
-            <button id="closeMobileMenu" class="text-gray-600 hover:text-gray-900">
+            <button id="closeMobileMenu" class="text-gray-600 hover:text-gray-900" aria-label="Cerrar menú">
                 <i class="fas fa-times text-2xl"></i>
             </button>
         </div>
@@ -381,8 +427,8 @@
                 <!-- Logo -->
                 <div class="flex-shrink-0">
                     <a href="{{ route('home') }}" class="flex items-center space-x-2">
-                        <img src="https://aztrosperu.com/cdn/shop/files/Logo_Aztros_copia.png?v=1669076562&width=500"
-                            alt="Logo" class="h-10">
+                        <img src="{{ asset('images/logo_arixna.png') }}"
+                            alt="Logo" class="h-14">
                     </a>
                 </div>
 
@@ -402,13 +448,13 @@
                             id="megaMenu">
                             <div class="mega-menu-content">
                                 <div class="category-list space-y-2">
-                                    <h3 class="font-serif text-lg font-semibold mb-3 px-3">Categorías</h3>
+                                    <h2 class="font-serif text-lg font-semibold mb-3 px-3">Categorías</h2>
                                     @foreach($navCategories as $cat)
                                         <a href="{{ route('catalog', ['categories' => [$cat->slug]]) }}" class="block text-gray-700 hover:text-gray-900 hover:bg-gray-50 py-2.5 px-3 rounded-lg transition category-item" data-category="{{ $cat->slug }}"><i class="{{ $cat->icon }} mr-2 accent-color"></i>{{ $cat->name }}</a>
                                     @endforeach
                                 </div>
                                 <div class="product-hover-panel" id="productPanel">
-                                    <h4 class="font-serif text-base font-semibold mb-3">Productos Destacados</h4>
+                                    <h3 class="font-serif text-base font-semibold mb-3">Productos Destacados</h3>
                                     <div class="grid grid-cols-2 gap-3" id="productGrid"></div>
                                 </div>
                             </div>
@@ -420,32 +466,20 @@
 
                 <!-- Icons -->
                 <div class="flex items-center space-x-4 sm:space-x-6">
-                    <button class="text-gray-700 hover:text-gray-900 transition" id="searchBtn">
+                    <button class="text-gray-700 hover:text-gray-900 transition" id="searchBtn" aria-label="Buscar productos">
                         <i class="fas fa-search text-xl"></i>
                     </button>
 
                     <!-- Carrito -->
                     <div class="relative">
-                        <a href="{{ route('cart') }}" class="text-gray-700 hover:text-gray-900 transition relative" id="cartBtn">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        <button class="text-gray-700 hover:text-gray-900 transition relative" id="cartBtn" aria-label="Abrir carrito">
+                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
                                     d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                             </svg>
                             @php $cartCount = array_sum(array_column(session('cart', []), 'quantity')); @endphp
                             <span class="cart-badge absolute -top-2 -right-2 bg-[#E8B4B8] text-white text-xs rounded-full w-5 h-5 items-center justify-center {{ $cartCount > 0 ? 'flex' : 'hidden' }}">{{ $cartCount }}</span>
-                        </a>
-
-                        <div class="cart-dropdown absolute top-full right-0 pt-2 w-80" id="cartDropdown">
-                        <div class="bg-white shadow-2xl rounded-lg p-6">
-                            <div id="cartDropdownContent">
-                                <div class="text-center py-8">
-                                    <i class="fas fa-shopping-bag text-4xl text-gray-300 mb-4"></i>
-                                    <p class="text-gray-500">Tu carrito está vacío</p>
-                                    <a href="{{ route('catalog') }}" class="inline-block mt-4 bg-gray-900 text-white px-6 py-2 rounded-full hover:bg-gray-800 transition text-sm font-medium">Explorar Tienda</a>
-                                </div>
-                            </div>
-                        </div>
-                        </div>
+                        </button>
                     </div>
 
                     <!-- Icono de usuario - Desktop -->
@@ -490,14 +524,14 @@
                             </div>
                         @else
                             {{-- Usuario no autenticado: icono simple --}}
-                            <a href="{{ route('login') }}" class="text-gray-700 hover:text-gray-900 transition">
+                            <a href="{{ route('login') }}" class="text-gray-700 hover:text-gray-900 transition" aria-label="Iniciar sesión">
                                 <i class="fas fa-user text-xl"></i>
                             </a>
                         @endauth
                     </div>
 
                     <!-- Botón hamburguesa solo en móvil -->
-                    <button class="lg:hidden text-gray-700 hover:text-gray-900 transition" id="hamburgerBtn">
+                    <button class="lg:hidden text-gray-700 hover:text-gray-900 transition" id="hamburgerBtn" aria-label="Abrir menú">
                         <i class="fas fa-bars text-xl"></i>
                     </button>
                 </div>
@@ -508,7 +542,7 @@
     <!-- Modal de Búsqueda -->
     <div class="search-modal fixed inset-0 bg-black/50 backdrop-blur-sm z-50 items-center justify-center" id="searchModal">
         <div class="bg-white rounded-2xl p-6 sm:p-8 max-w-2xl w-full mx-4 relative shadow-2xl" style="max-height: 80vh; display: flex; flex-direction: column;">
-            <button class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl" id="closeSearchBtn">
+            <button class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl" id="closeSearchBtn" aria-label="Cerrar búsqueda">
                 <i class="fas fa-times"></i>
             </button>
             <div class="mb-4 relative">
@@ -546,13 +580,15 @@
         <div class="bg-green-50 border-b border-green-200 px-4 py-3">
             <div class="max-w-7xl mx-auto flex items-center justify-between">
                 <p class="text-green-800 font-medium"><i class="fas fa-check-circle mr-2"></i>{{ session('success') }}</p>
-                <button onclick="this.parentElement.parentElement.remove()" class="text-green-600 hover:text-green-800"><i class="fas fa-times"></i></button>
+                <button onclick="this.parentElement.parentElement.remove()" class="text-green-600 hover:text-green-800" aria-label="Cerrar notificación"><i class="fas fa-times"></i></button>
             </div>
         </div>
     @endif
 
     <!-- Contenido Principal -->
-    @yield('content')
+    <main id="main-content">
+        @yield('content')
+    </main>
 
     <!-- Footer -->
     <footer class="bg-white py-16 border-t border-gray-200">
@@ -560,15 +596,12 @@
             <div class="grid md:grid-cols-4 gap-12 mb-12">
                 <div>
                     <div class="flex items-center space-x-2 mb-4">
-                        <div class="w-10 h-10 bg-gradient-to-br from-rose-400 to-pink-300 rounded-full flex items-center justify-center">
-                            <i class="fas fa-heart text-white text-lg"></i>
-                        </div>
-                        <span class="font-serif text-2xl font-semibold text-gray-900">Arixna</span>
+                        <img src="{{ asset('images/logo_arixna.png') }}" alt="Arixna" class="h-14">
                     </div>
                     <p class="text-gray-600 leading-relaxed">Creando momentos inolvidables con detalles que expresan amor verdadero.</p>
                 </div>
                 <div>
-                    <h4 class="font-semibold text-gray-900 mb-4">Comprar</h4>
+                    <h2 class="font-semibold text-gray-900 mb-4">Comprar</h2>
                     <ul class="space-y-2 text-gray-600">
                         @foreach($navCategories as $cat)
                             <li><a href="{{ route('catalog', ['categories' => [$cat->slug]]) }}" class="hover:text-gray-900 transition">{{ $cat->name }}</a></li>
@@ -576,7 +609,7 @@
                     </ul>
                 </div>
                 <div>
-                    <h4 class="font-semibold text-gray-900 mb-4">Ayuda</h4>
+                    <h2 class="font-semibold text-gray-900 mb-4">Ayuda</h2>
                     <ul class="space-y-2 text-gray-600">
                         <li><a href="#" class="hover:text-gray-900 transition">Envíos</a></li>
                         <li><a href="#" class="hover:text-gray-900 transition">Devoluciones</a></li>
@@ -586,12 +619,12 @@
                     </ul>
                 </div>
                 <div>
-                    <h4 class="font-semibold text-gray-900 mb-4">Síguenos</h4>
+                    <h2 class="font-semibold text-gray-900 mb-4">Síguenos</h2>
                     <div class="flex gap-3">
-                        <a href="#" class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-900 hover:text-white transition"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#" class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-900 hover:text-white transition"><i class="fab fa-instagram"></i></a>
-                        <a href="#" class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-900 hover:text-white transition"><i class="fab fa-pinterest"></i></a>
-                        <a href="#" class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-900 hover:text-white transition"><i class="fab fa-tiktok"></i></a>
+                        <a href="#" class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-900 hover:text-white transition" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-900 hover:text-white transition" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-900 hover:text-white transition" aria-label="Pinterest"><i class="fab fa-pinterest"></i></a>
+                        <a href="#" class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-900 hover:text-white transition" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
                     </div>
                 </div>
             </div>
@@ -689,10 +722,10 @@
         function renderProducts(products) {
             let html = '';
             products.forEach(p => {
-                html += `<div class="flex items-center gap-2 p-2 hover:bg-gray-50 rounded-lg cursor-pointer transition">
+                html += `<a href="/producto/${p.slug}" class="flex items-center gap-2 p-2 hover:bg-gray-50 rounded-lg transition">
                     <img src="${p.image}" alt="${p.name}" class="w-14 h-14 object-cover rounded-lg" loading="lazy">
-                    <div class="flex-1 min-w-0"><h5 class="font-medium text-xs truncate">${p.name}</h5><p class="text-gray-900 font-semibold text-sm">$${p.price}</p></div>
-                </div>`;
+                    <div class="flex-1 min-w-0"><p class="font-medium text-xs truncate">${p.name}</p><p class="text-gray-900 font-semibold text-sm">S/ ${p.price}</p></div>
+                </a>`;
             });
             productGrid.innerHTML = html;
             productPanel.classList.add('active');
@@ -719,77 +752,123 @@
 
         // Cart Dropdown
         const cartBtn = document.getElementById('cartBtn');
-        const cartDropdown = document.getElementById('cartDropdown');
-        const cartDropdownContent = document.getElementById('cartDropdownContent');
-        let cartTimeout;
-        let cartDropdownLoaded = false;
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
 
-        function loadCartDropdown() {
+        function getCartEl(id) { return document.getElementById(id); }
+
+        function openCartSidebar() {
+            loadCartSidebar();
+            getCartEl('cartSidebar').classList.add('active');
+            getCartEl('cartOverlay').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeCartSidebar() {
+            getCartEl('cartSidebar').classList.remove('active');
+            getCartEl('cartOverlay').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        function loadCartSidebar() {
             fetch('/carrito/items', {
-                method: 'GET',
-                credentials: 'same-origin',
-                headers: {
-                    'Accept': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
+                method: 'GET', credentials: 'same-origin',
+                headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
             })
-            .then(r => {
-                if (!r.ok) throw new Error('HTTP ' + r.status);
-                return r.json();
-            })
+            .then(r => r.json())
             .then(data => {
-                cartDropdownLoaded = true;
                 if (!data.items || data.items.length === 0) {
-                    cartDropdownContent.innerHTML = `
-                        <div class="text-center py-8">
-                            <i class="fas fa-shopping-bag text-4xl text-gray-300 mb-4"></i>
-                            <p class="text-gray-500">Tu carrito está vacío</p>
-                            <a href="/catalogo" class="inline-block mt-4 bg-gray-900 text-white px-6 py-2 rounded-full hover:bg-gray-800 transition text-sm font-medium">Explorar Tienda</a>
-                        </div>`;
+                    getCartEl('cartSidebarItems').innerHTML =
+                        '<div class="p-6"><div class="text-center py-12">' +
+                        '<div class="w-20 h-20 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-4">' +
+                        '<i class="fas fa-shopping-bag text-3xl text-gray-300"></i></div>' +
+                        '<p class="text-gray-500 font-medium">Tu carrito está vacío</p>' +
+                        '<p class="text-sm text-gray-400 mt-1">Agrega productos para comenzar</p></div></div>';
+                    getCartEl('cartSidebarFooter').style.display = 'none';
+                    getCartEl('cartSidebarCount').textContent = '0 productos';
                     return;
                 }
 
-                let itemsHtml = '';
+                var html = '<div class="divide-y divide-gray-100">';
                 data.items.forEach(function(item) {
-                    const imgSrc = item.image || '/images/placeholder.png';
-                    const price = Number(item.price).toFixed(2);
-                    const lineTotal = Number(item.line_total).toFixed(2);
-                    itemsHtml += '<div class="flex items-center gap-3 py-2">' +
-                        '<img src="' + imgSrc + '" alt="' + item.name + '" class="w-12 h-12 object-cover rounded-lg flex-shrink-0">' +
+                    var imgSrc = item.image || '/images/placeholder.png';
+                    var price = Number(item.price).toFixed(2);
+                    var lineTotal = Number(item.line_total).toFixed(2);
+                    html += '<div class="p-4 hover:bg-gray-50/50 transition-colors">' +
+                        '<div class="flex gap-4">' +
+                        '<a href="/producto/' + item.slug + '" class="flex-shrink-0">' +
+                        '<img src="' + imgSrc + '" alt="' + item.name + '" class="w-20 h-20 object-cover rounded-xl border border-gray-100"></a>' +
                         '<div class="flex-1 min-w-0">' +
-                        '<p class="text-sm font-medium text-gray-900 truncate">' + item.name + '</p>' +
-                        '<p class="text-xs text-gray-500">' + item.quantity + ' × S/ ' + price + '</p>' +
-                        '</div>' +
-                        '<span class="text-sm font-semibold text-gray-900 flex-shrink-0">S/ ' + lineTotal + '</span>' +
-                        '</div>';
+                        '<div class="flex items-start justify-between gap-2">' +
+                        '<a href="/producto/' + item.slug + '" class="text-sm font-semibold text-gray-900 line-clamp-2 hover:text-[#D4A574] transition leading-snug">' + item.name + '</a>' +
+                        '<button onclick="removeFromCart(' + item.id + ')" class="w-7 h-7 rounded-lg hover:bg-red-50 flex items-center justify-center text-gray-300 hover:text-red-500 transition flex-shrink-0" aria-label="Eliminar ' + item.name + '">' +
+                        '<i class="fas fa-trash-alt text-xs"></i></button></div>' +
+                        '<p class="text-sm text-[#D4A574] font-semibold mt-1">S/ ' + price + '</p>' +
+                        '<div class="flex items-center justify-between mt-2">' +
+                        '<div class="flex items-center bg-gray-100 rounded-xl overflow-hidden">' +
+                        '<button onclick="updateCartQty(' + item.id + ',' + (item.quantity - 1) + ')" class="w-8 h-8 flex items-center justify-center text-gray-600 hover:bg-gray-200 transition" aria-label="Disminuir cantidad">' +
+                        '<i class="fas fa-minus text-[10px]"></i></button>' +
+                        '<span class="w-8 h-8 flex items-center justify-center text-sm font-bold text-gray-900">' + item.quantity + '</span>' +
+                        '<button onclick="updateCartQty(' + item.id + ',' + (item.quantity + 1) + ')" class="w-8 h-8 flex items-center justify-center text-gray-600 hover:bg-gray-200 transition" aria-label="Aumentar cantidad">' +
+                        '<i class="fas fa-plus text-[10px]"></i></button></div>' +
+                        '<span class="text-sm font-bold text-gray-900">S/ ' + lineTotal + '</span>' +
+                        '</div></div></div></div>';
                 });
+                html += '</div>';
 
-                const total = Number(data.total).toFixed(2);
-                cartDropdownContent.innerHTML = '<h3 class="font-semibold text-gray-900 mb-3">Mi Carrito (' + data.count + ')</h3>' +
-                    '<div class="cart-dropdown-items divide-y divide-gray-100">' + itemsHtml + '</div>' +
-                    '<div class="border-t border-gray-200 mt-3 pt-3 flex items-center justify-between">' +
-                    '<span class="font-semibold text-gray-900">Total:</span>' +
-                    '<span class="font-bold text-lg text-gray-900">S/ ' + total + '</span>' +
-                    '</div>' +
-                    '<a href="/carrito" class="block mt-3 bg-gray-900 text-white text-center px-6 py-2.5 rounded-full hover:bg-gray-800 transition text-sm font-medium">Ver Carrito</a>';
+                getCartEl('cartSidebarItems').innerHTML = html;
+                getCartEl('cartSidebarFooter').style.display = 'block';
+                getCartEl('cartSidebarCount').textContent = data.count + (data.count === 1 ? ' producto' : ' productos');
+                getCartEl('cartSidebarTotal').textContent = 'S/ ' + Number(data.total).toFixed(2);
             })
-            .catch(function(err) {
-                console.error('Cart dropdown error:', err);
+            .catch(function(err) { console.error('Cart sidebar error:', err); });
+        }
+
+        function updateCartQty(productId, qty) {
+            if (qty < 1) { removeFromCart(productId); return; }
+            fetch('/carrito/actualizar', {
+                method: 'PATCH', credentials: 'same-origin',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                body: JSON.stringify({ product_id: productId, quantity: qty })
+            }).then(r => r.json()).then(data => {
+                updateCartBadge(data.cart_count);
+                loadCartSidebar();
             });
         }
 
-        if (cartBtn && cartDropdown) {
-            var cartContainer = cartBtn.parentElement;
-            cartContainer.addEventListener('mouseenter', () => {
-                clearTimeout(cartTimeout);
-                cartDropdownLoaded = false;
-                loadCartDropdown();
-                cartDropdown.classList.add('active');
-            });
-            cartContainer.addEventListener('mouseleave', () => {
-                cartTimeout = setTimeout(() => cartDropdown.classList.remove('active'), 300);
+        function removeFromCart(productId) {
+            fetch('/carrito/eliminar', {
+                method: 'DELETE', credentials: 'same-origin',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                body: JSON.stringify({ product_id: productId })
+            }).then(r => r.json()).then(data => {
+                updateCartBadge(data.cart_count);
+                loadCartSidebar();
             });
         }
+
+        function updateCartBadge(count) {
+            var badge = document.querySelector('.cart-badge');
+            if (badge) {
+                badge.textContent = count;
+                badge.style.display = count > 0 ? 'flex' : 'none';
+            }
+        }
+
+        if (cartBtn) {
+            cartBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                var badge = document.querySelector('.cart-badge');
+                var count = badge ? parseInt(badge.textContent) : 0;
+                if (count > 0) openCartSidebar();
+            });
+        }
+        document.addEventListener('click', function(e) {
+            if (e.target && e.target.id === 'cartOverlay') closeCartSidebar();
+        });
+        document.addEventListener('keydown', function(e) {
+            var sb = getCartEl('cartSidebar');
+            if (e.key === 'Escape' && sb && sb.classList.contains('active')) closeCartSidebar();
+        });
 
         // User Dropdown (solo si existe)
         const userBtn = document.getElementById('userBtn');
@@ -1031,5 +1110,52 @@
     </script>
 
     @yield('scripts')
+
+    <!-- Cart Sidebar -->
+    <div class="cart-sidebar-overlay" id="cartOverlay"></div>
+    <aside class="cart-sidebar" id="cartSidebar" aria-label="Carrito de compras">
+        <!-- Header -->
+        <div class="flex items-center justify-between px-6 py-5 border-b border-gray-100">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-gray-900 rounded-xl flex items-center justify-center">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                    </svg>
+                </div>
+                <div>
+                    <h2 class="font-semibold text-gray-900 text-lg">Mi Carrito</h2>
+                    <p class="text-xs text-gray-400" id="cartSidebarCount">0 productos</p>
+                </div>
+            </div>
+            <button onclick="closeCartSidebar()" class="w-9 h-9 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition" aria-label="Cerrar carrito">
+                <i class="fas fa-times text-gray-500"></i>
+            </button>
+        </div>
+        <!-- Items -->
+        <div class="flex-1 overflow-y-auto cart-sidebar-items" id="cartSidebarItems">
+            <div class="p-6">
+                <div class="text-center py-12">
+                    <div class="w-20 h-20 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-shopping-bag text-3xl text-gray-300"></i>
+                    </div>
+                    <p class="text-gray-500 font-medium">Tu carrito está vacío</p>
+                    <p class="text-sm text-gray-400 mt-1">Agrega productos para comenzar</p>
+                </div>
+            </div>
+        </div>
+        <!-- Footer -->
+        <div class="border-t border-gray-100 px-6 py-5 bg-white" id="cartSidebarFooter" style="display:none">
+            <div class="flex items-center justify-between mb-4">
+                <span class="text-gray-500">Subtotal</span>
+                <span class="text-xl font-bold text-gray-900" id="cartSidebarTotal">S/ 0.00</span>
+            </div>
+            <a href="{{ route('cart') }}" class="block w-full bg-gray-900 text-white text-center py-3.5 rounded-xl font-semibold hover:bg-gray-800 transition shadow-lg shadow-gray-900/10">
+                Ver Carrito Completo
+            </a>
+            <a href="{{ route('catalog') }}" class="block text-center text-sm text-gray-500 hover:text-gray-700 mt-3 transition">
+                Continuar comprando
+            </a>
+        </div>
+    </aside>
 </body>
 </html>

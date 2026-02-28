@@ -265,14 +265,14 @@
             @if($movements->hasPages())
             <nav class="flex items-center gap-1">
                 @if($movements->currentPage() > 2)
-                <a href="{{ $movements->url(1) }}" class="w-8 h-8 flex items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 transition text-xs" title="Primera">
+                <a href="{{ $movements->url(1) }}" class="w-8 h-8 flex items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 transition text-xs" title="Primera" aria-label="Primera página">
                     <i class="fas fa-angles-left"></i>
                 </a>
                 @endif
                 @if($movements->onFirstPage())
                 <span class="w-8 h-8 flex items-center justify-center rounded-md text-gray-300 cursor-not-allowed text-xs"><i class="fas fa-chevron-left"></i></span>
                 @else
-                <a href="{{ $movements->previousPageUrl() }}" class="w-8 h-8 flex items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 transition text-xs"><i class="fas fa-chevron-left"></i></a>
+                <a href="{{ $movements->previousPageUrl() }}" class="w-8 h-8 flex items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 transition text-xs" aria-label="Página anterior"><i class="fas fa-chevron-left"></i></a>
                 @endif
                 @php
                     $current = $movements->currentPage();
@@ -297,12 +297,12 @@
                     @endif
                 @endforeach
                 @if($movements->hasMorePages())
-                <a href="{{ $movements->nextPageUrl() }}" class="w-8 h-8 flex items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 transition text-xs"><i class="fas fa-chevron-right"></i></a>
+                <a href="{{ $movements->nextPageUrl() }}" class="w-8 h-8 flex items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 transition text-xs" aria-label="Página siguiente"><i class="fas fa-chevron-right"></i></a>
                 @else
                 <span class="w-8 h-8 flex items-center justify-center rounded-md text-gray-300 cursor-not-allowed text-xs"><i class="fas fa-chevron-right"></i></span>
                 @endif
                 @if($movements->currentPage() < $last - 1)
-                <a href="{{ $movements->url($last) }}" class="w-8 h-8 flex items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 transition text-xs" title="Última">
+                <a href="{{ $movements->url($last) }}" class="w-8 h-8 flex items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 transition text-xs" title="Última" aria-label="Última página">
                     <i class="fas fa-angles-right"></i>
                 </a>
                 @endif

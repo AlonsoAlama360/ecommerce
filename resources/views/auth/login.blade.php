@@ -30,7 +30,7 @@
             </div>
 
             <div class="text-center space-y-4">
-                <h2 class="text-4xl font-serif font-bold gradient-text">Detalles que enamoran</h2>
+                <h1 class="text-4xl font-serif font-bold gradient-text">Detalles que enamoran</h1>
                 <p class="text-gray-600 text-lg max-w-md">Más de 10,000 clientes felices han encontrado el regalo perfecto</p>
 
                 <div class="flex items-center justify-center gap-8 pt-6">
@@ -58,7 +58,7 @@
             <!-- Logo -->
             <div class="text-center mb-8">
                 <a href="{{ route('home') }}" class="inline-flex items-center justify-center space-x-2 mb-6 group">
-                    <img src="https://aztrosperu.com/cdn/shop/files/Logo_Aztros_copia.png?v=1669076562&width=500"
+                    <img src="{{ asset('images/logo_arixna.png') }}"
                         alt="Logo" class="h-10">
                 </a>
             </div>

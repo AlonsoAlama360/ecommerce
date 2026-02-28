@@ -1,6 +1,116 @@
 @extends('layouts.app')
 
-@section('title', $product->name . ' - Arixna')
+@section('title', $product->name . ' - Comprar en Arixna')
+@section('meta_description', Str::limit(strip_tags($product->description), 155, '...'))
+@section('meta_keywords', $product->name . ', ' . ($product->category->name ?? '') . ', comprar online, Arixna, Perú')
+@section('canonical', route('product.show', $product->slug))
+@section('og_type', 'product')
+@section('og_title', $product->name . ' - Comprar en Arixna')
+@section('og_description', Str::limit(strip_tags($product->description), 200, '...'))
+@section('og_image', $product->primaryImage ? $product->primaryImage->image_url : asset('images/logo_arixna.png'))
+@section('og_url', route('product.show', $product->slug))
+
+@section('seo')
+    {{-- Product Price Meta --}}
+    <meta property="product:price:amount" content="{{ $product->sale_price ?? $product->price }}">
+    <meta property="product:price:currency" content="PEN">
+    <meta property="og:price:amount" content="{{ $product->sale_price ?? $product->price }}">
+    <meta property="og:price:currency" content="PEN">
+    <meta property="og:availability" content="{{ $product->stock > 0 ? 'instock' : 'oos' }}">
+
+    {{-- JSON-LD Product Schema --}}
+    <script type="application/ld+json">
+    {
+        "@@context": "https://schema.org",
+        "@@type": "Product",
+        "name": "{{ $product->name }}",
+        "description": "{{ Str::limit(strip_tags($product->description), 300) }}",
+        "sku": "{{ $product->sku ?? '' }}",
+        "url": "{{ route('product.show', $product->slug) }}",
+        @if($product->primaryImage)
+        "image": "{{ $product->primaryImage->image_url }}",
+        @endif
+        "brand": {
+            "@@type": "Brand",
+            "name": "{{ $product->brand ?? 'Arixna' }}"
+        },
+        "category": "{{ $product->category->name ?? '' }}",
+        "offers": {
+            "@@type": "Offer",
+            "url": "{{ route('product.show', $product->slug) }}",
+            "priceCurrency": "PEN",
+            "price": "{{ $product->sale_price ?? $product->price }}",
+            @if($product->sale_price)
+            "priceValidUntil": "{{ now()->addMonths(3)->format('Y-m-d') }}",
+            @endif
+            "availability": "{{ $product->stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock' }}",
+            "seller": {
+                "@@type": "Organization",
+                "name": "Arixna"
+            }
+        }
+        @if($reviewStats['total'] > 0)
+        ,"aggregateRating": {
+            "@@type": "AggregateRating",
+            "ratingValue": "{{ $reviewStats['average'] }}",
+            "reviewCount": "{{ $reviewStats['total'] }}",
+            "bestRating": "5",
+            "worstRating": "1"
+        }
+        @endif
+        @if($reviews->count() > 0)
+        ,"review": [
+            @foreach($reviews->take(5) as $review)
+            {
+                "@@type": "Review",
+                "author": {
+                    "@@type": "Person",
+                    "name": "{{ $review->user->first_name }} {{ substr($review->user->last_name, 0, 1) }}."
+                },
+                "datePublished": "{{ $review->created_at->format('Y-m-d') }}",
+                "reviewRating": {
+                    "@@type": "Rating",
+                    "ratingValue": "{{ $review->rating }}",
+                    "bestRating": "5"
+                }
+                @if($review->comment)
+                ,"reviewBody": "{{ Str::limit($review->comment, 200) }}"
+                @endif
+            }@if(!$loop->last),@endif
+            @endforeach
+        ]
+        @endif
+    }
+    </script>
+
+    {{-- BreadcrumbList Schema --}}
+    <script type="application/ld+json">
+    {
+        "@@context": "https://schema.org",
+        "@@type": "BreadcrumbList",
+        "itemListElement": [
+            {
+                "@@type": "ListItem",
+                "position": 1,
+                "name": "Inicio",
+                "item": "{{ url('/') }}"
+            },
+            {
+                "@@type": "ListItem",
+                "position": 2,
+                "name": "{{ $product->category->name ?? 'Catálogo' }}",
+                "item": "{{ route('catalog', ['categories' => [$product->category->slug ?? '']]) }}"
+            },
+            {
+                "@@type": "ListItem",
+                "position": 3,
+                "name": "{{ $product->name }}",
+                "item": "{{ route('product.show', $product->slug) }}"
+            }
+        ]
+    }
+    </script>
+@endsection
 
 @section('content')
     <!-- Breadcrumb -->
@@ -19,7 +129,7 @@
     </div>
 
     <!-- Product Detail -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
 
             <!-- Product Images -->
@@ -38,7 +148,8 @@
                         @foreach($product->images as $index => $image)
                             <button type="button"
                                     class="thumb-btn aspect-square bg-white rounded-lg overflow-hidden border-2 shadow-sm hover:shadow-md transition-all {{ $index === 0 ? 'border-[#D4A574]' : 'border-transparent hover:border-[#D4A574]' }}"
-                                    data-image="{{ $image->image_url }}">
+                                    data-image="{{ $image->image_url }}"
+                                    aria-label="Ver imagen {{ $index + 1 }}">
                                 <img src="{{ $image->image_url }}" alt="{{ $image->alt_text ?? $product->name }}" class="w-full h-full object-cover">
                             </button>
                         @endforeach
@@ -104,11 +215,11 @@
                 <div>
                     <label class="block text-sm font-semibold text-gray-900 mb-3">Cantidad</label>
                     <div class="flex items-center gap-4">
-                        <button type="button" id="decreaseQty" class="w-12 h-12 border-2 border-gray-300 rounded-lg flex items-center justify-center hover:border-[#D4A574] hover:text-[#D4A574] transition">
+                        <button type="button" id="decreaseQty" class="w-12 h-12 border-2 border-gray-300 rounded-lg flex items-center justify-center hover:border-[#D4A574] hover:text-[#D4A574] transition" aria-label="Disminuir cantidad">
                             <i class="fas fa-minus"></i>
                         </button>
-                        <input id="quantity" type="text" value="1" readonly class="w-20 h-12 text-center border-2 border-gray-300 rounded-lg font-semibold text-lg">
-                        <button type="button" id="increaseQty" class="w-12 h-12 border-2 border-gray-300 rounded-lg flex items-center justify-center hover:border-[#D4A574] hover:text-[#D4A574] transition">
+                        <input id="quantity" type="text" value="1" readonly class="w-20 h-12 text-center border-2 border-gray-300 rounded-lg font-semibold text-lg" aria-label="Cantidad">
+                        <button type="button" id="increaseQty" class="w-12 h-12 border-2 border-gray-300 rounded-lg flex items-center justify-center hover:border-[#D4A574] hover:text-[#D4A574] transition" aria-label="Aumentar cantidad">
                             <i class="fas fa-plus"></i>
                         </button>
                         @if($product->stock > 0)
@@ -180,7 +291,7 @@
             <div class="py-8">
                 <!-- Description Tab -->
                 <div id="tab-content-description" class="tab-content space-y-4">
-                    <h3 class="text-2xl font-serif font-semibold text-gray-900">Detalles del Producto</h3>
+                    <h2 class="text-2xl font-serif font-semibold text-gray-900">Detalles del Producto</h2>
                     <div class="text-gray-700 leading-relaxed prose max-w-none">
                         {!! nl2br(e($product->description)) !!}
                     </div>
@@ -287,7 +398,7 @@
                             @auth
                                 @if(!$userReview)
                                     <div id="reviewForm" class="bg-white rounded-2xl border border-gray-200 p-6">
-                                        <h4 class="font-semibold text-lg text-gray-900 mb-4">Escribe tu reseña</h4>
+                                        <h3 class="font-semibold text-lg text-gray-900 mb-4">Escribe tu reseña</h3>
                                         <form action="{{ route('reviews.store', $product) }}" method="POST" class="space-y-4">
                                             @csrf
                                             <!-- Star Rating -->
@@ -364,7 +475,7 @@
                                                 </div>
                                             </div>
                                             @if($review->title)
-                                                <h5 class="font-semibold text-gray-900 mb-1">{{ $review->title }}</h5>
+                                                <h3 class="font-semibold text-gray-900 mb-1">{{ $review->title }}</h3>
                                             @endif
                                             <p class="text-gray-600 text-sm leading-relaxed">{{ $review->comment }}</p>
                                         </div>
@@ -382,7 +493,7 @@
                                     <div class="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
                                         <i class="fas fa-comment-dots text-2xl text-gray-400"></i>
                                     </div>
-                                    <h4 class="font-semibold text-gray-700 mb-1">Sin reseñas aún</h4>
+                                    <h3 class="font-semibold text-gray-700 mb-1">Sin reseñas aún</h3>
                                     <p class="text-gray-500 text-sm">Sé el primero en dejar tu opinión sobre este producto.</p>
                                 </div>
                             @endif
@@ -424,7 +535,7 @@
                 </div>
             </div>
         @endif
-    </main>
+    </div>
 @endsection
 
 @section('scripts')
@@ -500,9 +611,7 @@
                 b.style.display = data.cart_count > 0 ? 'flex' : 'none';
             });
 
-            if (typeof showToast === 'function') {
-                showToast('¡Producto agregado al carrito!');
-            }
+            if (typeof openCartSidebar === 'function') openCartSidebar();
 
             setTimeout(() => {
                 btn.innerHTML = originalHTML;
@@ -523,26 +632,20 @@
         const qty = parseInt(qtyInput.value);
         const productUrl = window.location.href;
 
-        let message = '🎁 *Consulta sobre producto - Arixna*\n\n';
-        message += '━━━━━━━━━━━━━━━\n';
-        message += '📦 *{{ $product->name }}*\n';
-        message += '━━━━━━━━━━━━━━━\n\n';
+        var e = { gift: '\uD83C\uDF81', pkg: '\uD83D\uDCE6', spark: '\u2728', money: '\uD83D\uDCB0', cash: '\uD83D\uDCB5', down: '\uD83D\uDC47', pray: '\uD83D\uDE4F' };
+        let message = 'Hola, estoy interesado/a en este producto de *Arixna* ' + e.pray + '\n\n';
+        message += e.pkg + ' *{{ $product->name }}*\n';
         @if($product->material)
-        message += '✨ Material: {{ $product->material }}\n';
+        message += e.spark + ' {{ $product->material }}\n';
         @endif
-        message += '🏷️ SKU: {{ $product->sku }}\n';
-        message += '💰 Precio: S/ {{ number_format($product->current_price, 2) }}';
+        message += e.money + ' S/ {{ number_format($product->current_price, 2) }}';
         @if($product->discount_percentage)
-        message += ' (antes S/ {{ number_format($product->price, 2) }} — {{ $product->discount_percentage }}% OFF)';
+        message += ' _(antes S/ {{ number_format($product->price, 2) }})_';
         @endif
         message += '\n';
-        message += '📦 Cantidad: ' + qty + '\n';
-        message += '💵 Total: S/ ' + ({{ $product->current_price }} * qty).toFixed(2) + '\n\n';
-        message += '🔗 Ver producto: ' + productUrl + '\n\n';
-        @if($product->primaryImage)
-        message += '📸 Imagen: {{ $product->primaryImage->image_url }}\n\n';
-        @endif
-        message += 'Hola, estoy interesado/a en este producto. ¿Está disponible? Me gustaría más información. 🙏';
+        message += e.pkg + ' Cantidad: ' + qty + '\n';
+        message += e.cash + ' Total: *S/ ' + ({{ $product->current_price }} * qty).toFixed(2) + '*\n\n';
+        message += e.down + ' *Ver producto:*\n' + productUrl;
 
         window.open('https://wa.me/' + phone + '?text=' + encodeURIComponent(message), '_blank');
     });

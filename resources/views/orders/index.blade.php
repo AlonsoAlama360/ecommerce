@@ -234,7 +234,7 @@
                         </div>
                     </div>
                 </div>
-                <h3 class="font-serif text-2xl sm:text-3xl font-bold text-gray-900 mb-3">
+                <h2 class="font-serif text-2xl sm:text-3xl font-bold text-gray-900 mb-3">
                     @if(request('status'))
                         No tienes pedidos {{ strtolower($filterStatuses[request('status')]['label'] ?? '') }}
                     @else
@@ -323,7 +323,7 @@
                                     <div class="flex items-start justify-between gap-3 mb-3">
                                         <div>
                                             <div class="flex items-center gap-2.5 mb-1">
-                                                <h3 class="font-bold text-gray-900 text-base sm:text-lg">{{ $order->order_number }}</h3>
+                                                <h2 class="font-bold text-gray-900 text-base sm:text-lg">{{ $order->order_number }}</h2>
                                                 <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold {{ $colors['bg'] }} {{ $colors['text'] }}">
                                                     <i class="fas {{ $statusIcon }} text-[9px]"></i>
                                                     {{ $order->status_label }}
@@ -388,7 +388,7 @@
                                         </div>
                                     @endif
 
-                                    <div class="order-arrow flex-shrink-0 w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-300">
+                                    <div class="order-arrow flex-shrink-0 w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-300" aria-hidden="true">
                                         <i class="fas fa-arrow-right text-xs"></i>
                                     </div>
                                 </div>
@@ -406,7 +406,7 @@
                             <i class="fas fa-chevron-left text-sm"></i>
                         </span>
                     @else
-                        <a href="{{ $orders->previousPageUrl() }}" class="w-10 h-10 border border-gray-200 rounded-xl flex items-center justify-center hover:bg-[#D4A574]/5 hover:border-[#D4A574]/30 hover:text-[#D4A574] transition text-gray-500">
+                        <a href="{{ $orders->previousPageUrl() }}" class="w-10 h-10 border border-gray-200 rounded-xl flex items-center justify-center hover:bg-[#D4A574]/5 hover:border-[#D4A574]/30 hover:text-[#D4A574] transition text-gray-500" aria-label="Página anterior">
                             <i class="fas fa-chevron-left text-sm"></i>
                         </a>
                     @endif
@@ -422,7 +422,7 @@
                         <a href="{{ $orders->withQueryString()->url($orders->lastPage()) }}" class="w-10 h-10 border border-gray-200 rounded-xl flex items-center justify-center hover:bg-[#D4A574]/5 hover:border-[#D4A574]/30 hover:text-[#D4A574] transition text-gray-500 text-sm">{{ $orders->lastPage() }}</a>
                     @endif
                     @if($orders->hasMorePages())
-                        <a href="{{ $orders->nextPageUrl() }}" class="w-10 h-10 border border-gray-200 rounded-xl flex items-center justify-center hover:bg-[#D4A574]/5 hover:border-[#D4A574]/30 hover:text-[#D4A574] transition text-gray-500">
+                        <a href="{{ $orders->nextPageUrl() }}" class="w-10 h-10 border border-gray-200 rounded-xl flex items-center justify-center hover:bg-[#D4A574]/5 hover:border-[#D4A574]/30 hover:text-[#D4A574] transition text-gray-500" aria-label="Página siguiente">
                             <i class="fas fa-chevron-right text-sm"></i>
                         </a>
                     @else

@@ -20,6 +20,7 @@ class CategoryProductController extends Controller
                 ->get()
                 ->map(fn($p) => [
                     'name' => $p->name,
+                    'slug' => $p->slug,
                     'price' => $p->current_price,
                     'image' => $p->primaryImage?->image_url ?? '',
                 ]);

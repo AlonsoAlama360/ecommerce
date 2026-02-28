@@ -1,6 +1,41 @@
 @extends('layouts.app')
 
-@section('title', 'Arixna - Tu Tienda Online')
+@section('title', 'Arixna - Tu Tienda Online | Perfumes, Electrodomésticos, Joyería y Zapatillas')
+@section('meta_description', 'Arixna es tu tienda online en Perú. Encuentra perfumes, electrodomésticos, joyería y zapatillas de las mejores marcas con envío a todo el país.')
+@section('meta_keywords', 'tienda online Perú, perfumes originales, electrodomésticos, anillos, joyería, zapatillas, compras online, envíos Perú')
+@section('og_title', 'Arixna - Tu Tienda Online | Perfumes, Electrodomésticos, Joyería y Zapatillas')
+@section('og_description', 'Encuentra perfumes, electrodomésticos, joyería y zapatillas de las mejores marcas. Envíos a todo el Perú.')
+
+@section('seo')
+    <script type="application/ld+json">
+    {
+        "@@context": "https://schema.org",
+        "@@type": "WebSite",
+        "name": "Arixna",
+        "url": "{{ url('/') }}",
+        "description": "Tu tienda online de perfumes, electrodomésticos, joyería y zapatillas en Perú.",
+        "potentialAction": {
+            "@@type": "SearchAction",
+            "target": "{{ url('/buscar') }}?q={search_term_string}",
+            "query-input": "required name=search_term_string"
+        }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+        "@@context": "https://schema.org",
+        "@@type": "Organization",
+        "name": "Arixna",
+        "url": "{{ url('/') }}",
+        "logo": "{{ asset('images/logo_arixna.png') }}",
+        "contactPoint": {
+            "@@type": "ContactPoint",
+            "contactType": "customer service",
+            "availableLanguage": "Spanish"
+        }
+    }
+    </script>
+@endsection
 
 @section('styles')
     /* ── Hero ── */
@@ -374,10 +409,10 @@
                     <h2 class="font-serif text-4xl md:text-5xl font-bold text-gray-900">Más Vendidos</h2>
                 </div>
                 <div class="hidden sm:flex gap-3">
-                    <button class="w-12 h-12 rounded-full bg-gray-100 hover:bg-[#D4A574] hover:text-white transition-all duration-300 flex items-center justify-center group" id="prevBtn">
+                    <button class="w-12 h-12 rounded-full bg-gray-100 hover:bg-[#D4A574] hover:text-white transition-all duration-300 flex items-center justify-center group" id="prevBtn" aria-label="Producto anterior">
                         <i class="fas fa-chevron-left text-sm"></i>
                     </button>
-                    <button class="w-12 h-12 rounded-full bg-gray-100 hover:bg-[#D4A574] hover:text-white transition-all duration-300 flex items-center justify-center group" id="nextBtn">
+                    <button class="w-12 h-12 rounded-full bg-gray-100 hover:bg-[#D4A574] hover:text-white transition-all duration-300 flex items-center justify-center group" id="nextBtn" aria-label="Producto siguiente">
                         <i class="fas fa-chevron-right text-sm"></i>
                     </button>
                 </div>
@@ -593,7 +628,7 @@
                                 @endfor
                             </div>
                             @if($review->title)
-                                <h4 class="font-semibold text-gray-900 mb-2">{{ $review->title }}</h4>
+                                <h3 class="font-semibold text-gray-900 mb-2">{{ $review->title }}</h3>
                             @endif
                             <p class="text-gray-600 mb-6 leading-relaxed">"{{ Str::limit($review->comment, 200) }}"</p>
                             <div class="flex items-center gap-3">
@@ -684,16 +719,16 @@
                     <i class="fas fa-envelope text-2xl text-white"></i>
                 </div>
                 <h2 class="font-serif text-4xl md:text-5xl font-bold mb-4">No te pierdas nada</h2>
-                <p class="text-xl text-gray-300 max-w-xl mx-auto">Suscríbete y recibe ofertas exclusivas, novedades y un 10% de descuento en tu primera compra</p>
+                <p class="text-xl text-gray-300 max-w-xl mx-auto">Suscríbete y recibe ofertas exclusivas, novedades y contenido especial directamente en tu correo</p>
             </div>
-            <form class="flex flex-col sm:flex-row gap-3 max-w-lg mx-auto reveal">
-                <input type="email" placeholder="Tu correo electrónico"
+            <form id="newsletterForm" class="flex flex-col sm:flex-row gap-3 max-w-lg mx-auto reveal">
+                <input type="email" id="newsletterEmail" placeholder="Tu correo electrónico" required
                     class="flex-1 px-6 py-4 rounded-full text-gray-900 focus:outline-none focus:ring-4 focus:ring-[#D4A574]/30 bg-white/95 placeholder:text-gray-400 font-medium">
-                <button type="submit" class="shimmer-btn px-8 py-4 rounded-full font-semibold text-white shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 whitespace-nowrap">
+                <button type="submit" id="newsletterBtn" class="shimmer-btn px-8 py-4 rounded-full font-semibold text-white shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 whitespace-nowrap">
                     Suscribirme
                 </button>
             </form>
-            <p class="text-gray-400 text-xs mt-4">Sin spam, cancela cuando quieras.</p>
+            <p class="text-gray-400 text-xs mt-4" id="newsletterHint">Sin spam, cancela cuando quieras.</p>
         </div>
     </section>
 
@@ -814,6 +849,43 @@
         startAutoplay();
     });
 
+    // ── Touch/Swipe Support ──
+    var touchStartX = 0;
+    var touchStartY = 0;
+    var touchSwiping = false;
+
+    sliderTrack.parentElement.addEventListener('touchstart', function(e) {
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+        touchSwiping = true;
+        clearInterval(autoplayTimer);
+    }, { passive: true });
+
+    sliderTrack.parentElement.addEventListener('touchmove', function(e) {
+        if (!touchSwiping) return;
+        var diffX = Math.abs(e.touches[0].clientX - touchStartX);
+        var diffY = Math.abs(e.touches[0].clientY - touchStartY);
+        if (diffX > diffY && diffX > 10) {
+            e.preventDefault();
+        }
+    }, { passive: false });
+
+    sliderTrack.parentElement.addEventListener('touchend', function(e) {
+        if (!touchSwiping) return;
+        touchSwiping = false;
+        var touchEndX = e.changedTouches[0].clientX;
+        var diff = touchStartX - touchEndX;
+        if (Math.abs(diff) > 40) {
+            isTransitioning = false;
+            if (diff > 0) {
+                slideNext();
+            } else {
+                slidePrev();
+            }
+        }
+        startAutoplay();
+    }, { passive: true });
+
     // Handle cart click for cloned slides
     function handleCartClick(e) {
         e.preventDefault();
@@ -845,9 +917,7 @@
                 b.style.display = data.cart_count > 0 ? 'flex' : 'none';
             });
 
-            if (typeof showToast === 'function') {
-                showToast('¡Producto agregado al carrito!');
-            }
+            if (typeof openCartSidebar === 'function') openCartSidebar();
 
             setTimeout(function() {
                 button.innerHTML = originalHTML;
@@ -868,6 +938,47 @@
             btn.dataset.cartBound = '1';
             btn.addEventListener('click', handleCartClick);
         }
+    });
+
+    // ── Newsletter AJAX ──
+    document.getElementById('newsletterForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        var emailInput = document.getElementById('newsletterEmail');
+        var btn = document.getElementById('newsletterBtn');
+        var email = emailInput.value.trim();
+
+        if (!email) return;
+
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Enviando...';
+
+        fetch('{{ route("newsletter.subscribe") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ email: email })
+        })
+        .then(function(res) { return res.json().then(function(data) { return { ok: res.ok, data: data }; }); })
+        .then(function(result) {
+            if (result.ok) {
+                showToast(result.data.message);
+                emailInput.value = '';
+            } else {
+                var errors = result.data.errors;
+                var msg = errors && errors.email ? errors.email[0] : 'Ocurrió un error, intenta de nuevo.';
+                showToast(msg);
+            }
+        })
+        .catch(function() {
+            showToast('Error de conexión, intenta de nuevo.');
+        })
+        .finally(function() {
+            btn.disabled = false;
+            btn.innerHTML = 'Suscribirme';
+        });
     });
 </script>
 @endsection

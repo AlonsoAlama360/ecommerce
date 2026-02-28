@@ -32,7 +32,7 @@
                     <!-- Header with logo -->
                     <tr>
                         <td style="background-color: #FFFFFF; padding: 35px 40px 25px; text-align: center;">
-                            <img src="https://aztrosperu.com/cdn/shop/files/Logo_Aztros_copia.png?v=1669076562&width=500"
+                            <img src="https://arixna.com/images/logo_arixna.png"
                                 alt="Arixna" style="height: 45px; display: inline-block;">
                         </td>
                     </tr>

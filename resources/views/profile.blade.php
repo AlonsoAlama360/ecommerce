@@ -345,7 +345,8 @@
                                     <input type="password" name="current_password" id="currentPassword" required
                                         class="{{ $inputClass }} !pl-10 @error('current_password') !border-red-400 @enderror">
                                     <button type="button" onclick="togglePassword('currentPassword')"
-                                        class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#D4A574] transition-colors">
+                                        class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#D4A574] transition-colors"
+                                        aria-label="Mostrar contraseña">
                                         <i class="fas fa-eye text-sm"></i>
                                     </button>
                                 </div>
@@ -358,7 +359,8 @@
                                     <input type="password" name="password" id="newPassword" required
                                         class="{{ $inputClass }} !pl-10 @error('password') !border-red-400 @enderror">
                                     <button type="button" onclick="togglePassword('newPassword')"
-                                        class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#D4A574] transition-colors">
+                                        class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#D4A574] transition-colors"
+                                        aria-label="Mostrar contraseña">
                                         <i class="fas fa-eye text-sm"></i>
                                     </button>
                                 </div>
@@ -380,7 +382,8 @@
                                     <input type="password" name="password_confirmation" id="confirmNewPassword" required
                                         class="{{ $inputClass }} !pl-10">
                                     <button type="button" onclick="togglePassword('confirmNewPassword')"
-                                        class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#D4A574] transition-colors">
+                                        class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#D4A574] transition-colors"
+                                        aria-label="Mostrar contraseña">
                                         <i class="fas fa-eye text-sm"></i>
                                     </button>
                                 </div>

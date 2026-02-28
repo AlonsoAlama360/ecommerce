@@ -5,7 +5,7 @@
 {{-- ==================== PRODUCT HEADER ==================== --}}
 <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-5 mb-6">
     <div class="flex items-center gap-4">
-        <a href="{{ route('admin.wishlists.index') }}" class="w-9 h-9 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition flex-shrink-0">
+        <a href="{{ route('admin.wishlists.index') }}" class="w-9 h-9 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition flex-shrink-0" aria-label="Volver a lista de deseos">
             <i class="fas fa-arrow-left text-gray-500 text-sm"></i>
         </a>
         @if($product->primaryImage)
@@ -63,7 +63,7 @@
                         class="w-full sm:w-52 pl-9 pr-3 py-2 border border-gray-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition">
                 </div>
                 @if(request('search'))
-                <a href="{{ route('admin.wishlists.show', $product) }}" class="w-9 h-9 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition" title="Limpiar búsqueda">
+                <a href="{{ route('admin.wishlists.show', $product) }}" class="w-9 h-9 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition" title="Limpiar búsqueda" aria-label="Limpiar búsqueda">
                     <i class="fas fa-rotate-left text-xs"></i>
                 </a>
                 @endif
@@ -184,7 +184,7 @@
                 @if($wishlists->onFirstPage())
                 <span class="w-8 h-8 flex items-center justify-center rounded-md text-gray-300 cursor-not-allowed text-xs"><i class="fas fa-chevron-left"></i></span>
                 @else
-                <a href="{{ $wishlists->previousPageUrl() }}" class="w-8 h-8 flex items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 transition text-xs"><i class="fas fa-chevron-left"></i></a>
+                <a href="{{ $wishlists->previousPageUrl() }}" class="w-8 h-8 flex items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 transition text-xs" aria-label="Página anterior"><i class="fas fa-chevron-left"></i></a>
                 @endif
                 @php
                     $current = $wishlists->currentPage();
@@ -209,7 +209,7 @@
                     @endif
                 @endforeach
                 @if($wishlists->hasMorePages())
-                <a href="{{ $wishlists->nextPageUrl() }}" class="w-8 h-8 flex items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 transition text-xs"><i class="fas fa-chevron-right"></i></a>
+                <a href="{{ $wishlists->nextPageUrl() }}" class="w-8 h-8 flex items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 transition text-xs" aria-label="Página siguiente"><i class="fas fa-chevron-right"></i></a>
                 @else
                 <span class="w-8 h-8 flex items-center justify-center rounded-md text-gray-300 cursor-not-allowed text-xs"><i class="fas fa-chevron-right"></i></span>
                 @endif
