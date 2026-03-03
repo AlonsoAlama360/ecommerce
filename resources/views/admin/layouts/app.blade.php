@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Admin') - Panel de Administración</title>
-    <link rel="icon" type="image/webp" href="{{ asset('images/logo_arixna1024512_min.webp') }}">
+    <link rel="icon" href="{{ !empty($settings['site_favicon']) ? asset('storage/' . $settings['site_favicon']) : asset('images/logo_arixna1024512_min.webp') }}">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -107,7 +107,7 @@
             transition: max-height 0.25s ease;
         }
         .sidebar-dropdown.open .sidebar-dropdown-items {
-            max-height: 200px;
+            max-height: 500px;
         }
         .sidebar-dropdown .dropdown-arrow {
             transition: transform 0.25s ease;
@@ -130,13 +130,17 @@
         <!-- Logo -->
         <div class="px-6 py-6 flex items-center justify-between">
             <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 group">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-500/25 group-hover:shadow-indigo-500/40 transition-shadow">
-                    <i class="fas fa-gem text-white text-sm"></i>
-                </div>
-                <div>
-                    <h1 class="font-bold text-[15px] text-white leading-tight tracking-tight">Arixna Admin</h1>
-                    <p class="text-[10px] text-slate-500 font-medium tracking-widest uppercase">E-Commerce</p>
-                </div>
+                @if(!empty($settings['site_logo']))
+                    <img src="{{ asset('storage/' . $settings['site_logo']) }}" alt="Logo" class="h-10 max-w-[160px] object-contain brightness-0 invert">
+                @else
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-500/25 group-hover:shadow-indigo-500/40 transition-shadow">
+                        <i class="fas fa-gem text-white text-sm"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-[15px] text-white leading-tight tracking-tight">Arixna Admin</h1>
+                        <p class="text-[10px] text-slate-500 font-medium tracking-widest uppercase">E-Commerce</p>
+                    </div>
+                @endif
             </a>
             <button class="lg:hidden w-8 h-8 rounded-lg hover:bg-white/10 flex items-center justify-center text-slate-400 transition" onclick="closeSidebar()">
                 <i class="fas fa-times text-sm"></i>
@@ -267,6 +271,67 @@
                         class="sidebar-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-[12.5px] font-medium mb-0.5 {{ request()->routeIs('admin.subscribers.*') ? 'active' : 'text-slate-400' }}">
                         <i class="fas fa-bell text-[10px] {{ request()->routeIs('admin.subscribers.*') ? 'text-indigo-400' : 'text-slate-500' }}"></i>
                         <span>Suscriptores</span>
+                    </a>
+                </div>
+            </div>
+
+            @php
+                $reportesActive = request()->routeIs('admin.reports.*');
+            @endphp
+            <div class="sidebar-dropdown {{ $reportesActive ? 'open' : '' }}">
+                <button onclick="this.closest('.sidebar-dropdown').classList.toggle('open')" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium mb-0.5 w-full {{ $reportesActive ? 'text-white' : 'text-slate-400' }}">
+                    <div class="w-8 h-8 rounded-lg {{ $reportesActive ? 'bg-indigo-500/20' : 'bg-white/5' }} flex items-center justify-center transition">
+                        <i class="fas fa-chart-bar text-xs {{ $reportesActive ? 'text-indigo-400' : 'text-slate-500' }}"></i>
+                    </div>
+                    <span class="flex-1 text-left">Reportes</span>
+                    <i class="fas fa-chevron-down text-[9px] text-slate-500 dropdown-arrow"></i>
+                </button>
+                <div class="sidebar-dropdown-items pl-[2.75rem]">
+                    <a href="{{ route('admin.reports.sales') }}"
+                        class="sidebar-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-[12.5px] font-medium mb-0.5 {{ request()->routeIs('admin.reports.sales') ? 'active' : 'text-slate-400' }}">
+                        <i class="fas fa-dollar-sign text-[10px] {{ request()->routeIs('admin.reports.sales') ? 'text-indigo-400' : 'text-slate-500' }}"></i>
+                        <span>Ventas</span>
+                    </a>
+                    <a href="{{ route('admin.reports.products') }}"
+                        class="sidebar-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-[12.5px] font-medium mb-0.5 {{ request()->routeIs('admin.reports.products') ? 'active' : 'text-slate-400' }}">
+                        <i class="fas fa-box text-[10px] {{ request()->routeIs('admin.reports.products') ? 'text-indigo-400' : 'text-slate-500' }}"></i>
+                        <span>Productos</span>
+                    </a>
+                    <a href="{{ route('admin.reports.customers') }}"
+                        class="sidebar-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-[12.5px] font-medium mb-0.5 {{ request()->routeIs('admin.reports.customers') ? 'active' : 'text-slate-400' }}">
+                        <i class="fas fa-user-group text-[10px] {{ request()->routeIs('admin.reports.customers') ? 'text-indigo-400' : 'text-slate-500' }}"></i>
+                        <span>Clientes</span>
+                    </a>
+                    <a href="{{ route('admin.reports.purchases') }}"
+                        class="sidebar-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-[12.5px] font-medium mb-0.5 {{ request()->routeIs('admin.reports.purchases') ? 'active' : 'text-slate-400' }}">
+                        <i class="fas fa-cart-shopping text-[10px] {{ request()->routeIs('admin.reports.purchases') ? 'text-indigo-400' : 'text-slate-500' }}"></i>
+                        <span>Compras</span>
+                    </a>
+                    <div class="border-t border-slate-700/50 my-1.5"></div>
+                    <a href="{{ route('admin.reports.profitability') }}"
+                        class="sidebar-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-[12.5px] font-medium mb-0.5 {{ request()->routeIs('admin.reports.profitability') ? 'active' : 'text-slate-400' }}">
+                        <i class="fas fa-coins text-[10px] {{ request()->routeIs('admin.reports.profitability') ? 'text-indigo-400' : 'text-slate-500' }}"></i>
+                        <span>Rentabilidad</span>
+                    </a>
+                    <a href="{{ route('admin.reports.inventory') }}"
+                        class="sidebar-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-[12.5px] font-medium mb-0.5 {{ request()->routeIs('admin.reports.inventory') ? 'active' : 'text-slate-400' }}">
+                        <i class="fas fa-warehouse text-[10px] {{ request()->routeIs('admin.reports.inventory') ? 'text-indigo-400' : 'text-slate-500' }}"></i>
+                        <span>Inventario</span>
+                    </a>
+                    <a href="{{ route('admin.reports.geographic') }}"
+                        class="sidebar-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-[12.5px] font-medium mb-0.5 {{ request()->routeIs('admin.reports.geographic') ? 'active' : 'text-slate-400' }}">
+                        <i class="fas fa-map-location-dot text-[10px] {{ request()->routeIs('admin.reports.geographic') ? 'text-indigo-400' : 'text-slate-500' }}"></i>
+                        <span>Geográfico</span>
+                    </a>
+                    <a href="{{ route('admin.reports.trends') }}"
+                        class="sidebar-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-[12.5px] font-medium mb-0.5 {{ request()->routeIs('admin.reports.trends') ? 'active' : 'text-slate-400' }}">
+                        <i class="fas fa-chart-line text-[10px] {{ request()->routeIs('admin.reports.trends') ? 'text-indigo-400' : 'text-slate-500' }}"></i>
+                        <span>Tendencias</span>
+                    </a>
+                    <a href="{{ route('admin.reports.satisfaction') }}"
+                        class="sidebar-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-[12.5px] font-medium mb-0.5 {{ request()->routeIs('admin.reports.satisfaction') ? 'active' : 'text-slate-400' }}">
+                        <i class="fas fa-face-smile text-[10px] {{ request()->routeIs('admin.reports.satisfaction') ? 'text-indigo-400' : 'text-slate-500' }}"></i>
+                        <span>Satisfacción</span>
                     </a>
                 </div>
             </div>

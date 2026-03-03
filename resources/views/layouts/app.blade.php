@@ -8,8 +8,9 @@
     <title>@yield('title', ($settings['business_name'] ?? 'Arixna') . ' - Tu Tienda Online')</title>
 
     {{-- Favicon --}}
-    <link rel="icon" type="image/webp" href="{{ asset('images/logo_arixna1024512_min.webp') }}">
-    <link rel="apple-touch-icon" href="{{ asset('images/logo_arixna1024512_min.webp') }}">
+    @php $faviconUrl = !empty($settings['site_favicon']) ? asset('storage/' . $settings['site_favicon']) : asset('images/logo_arixna1024512_min.webp'); @endphp
+    <link rel="icon" href="{{ $faviconUrl }}">
+    <link rel="apple-touch-icon" href="{{ $faviconUrl }}">
 
     {{-- SEO Meta Tags --}}
     <meta name="description" content="@yield('meta_description', $settings['meta_description'] ?? '')">
@@ -334,7 +335,7 @@
     <div class="mobile-menu" id="mobileMenu">
         <div class="p-6 border-b border-gray-200 flex items-center justify-between">
             <div class="flex items-center space-x-2">
-                <img src="{{ asset('images/logo_arixna.png') }}"
+                <img src="{{ !empty($settings['site_logo']) ? asset('storage/' . $settings['site_logo']) : asset('images/logo_arixna.png') }}"
                     alt="Logo" class="h-10">
             </div>
             <button id="closeMobileMenu" class="text-gray-600 hover:text-gray-900" aria-label="Cerrar menú">
@@ -427,7 +428,7 @@
                 <!-- Logo -->
                 <div class="flex-shrink-0">
                     <a href="{{ route('home') }}" class="flex items-center space-x-2">
-                        <img src="{{ asset('images/logo_arixna.png') }}"
+                        <img src="{{ !empty($settings['site_logo']) ? asset('storage/' . $settings['site_logo']) : asset('images/logo_arixna.png') }}"
                             alt="Logo" class="h-14">
                     </a>
                 </div>
@@ -596,7 +597,7 @@
             <div class="grid md:grid-cols-4 gap-12 mb-12">
                 <div>
                     <div class="flex items-center space-x-2 mb-4">
-                        <img src="{{ asset('images/logo_arixna.png') }}" alt="Arixna" class="h-14">
+                        <img src="{{ !empty($settings['site_logo']) ? asset('storage/' . $settings['site_logo']) : asset('images/logo_arixna.png') }}" alt="Arixna" class="h-14">
                     </div>
                     <p class="text-gray-600 leading-relaxed">{{ $settings['tagline'] ?? '' }}</p>
                 </div>

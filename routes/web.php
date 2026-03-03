@@ -34,6 +34,7 @@ use App\Http\Controllers\ComplaintController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\Admin\ComplaintController as AdminComplaintController;
 use App\Http\Controllers\Admin\ContactMessageController as AdminContactMessageController;
+use App\Http\Controllers\Admin\ReportController as AdminReportController;
 use App\Http\Controllers\Admin\SiteSettingController as AdminSiteSettingController;
 use Illuminate\Support\Facades\Route;
 
@@ -171,6 +172,17 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('contact-messages/{contactMessage}', [AdminContactMessageController::class, 'show'])->name('contact-messages.show');
     Route::put('contact-messages/{contactMessage}', [AdminContactMessageController::class, 'update'])->name('contact-messages.update');
     Route::delete('contact-messages/{contactMessage}', [AdminContactMessageController::class, 'destroy'])->name('contact-messages.destroy');
+
+    // Reportes
+    Route::get('reports/sales', [AdminReportController::class, 'sales'])->name('reports.sales');
+    Route::get('reports/products', [AdminReportController::class, 'products'])->name('reports.products');
+    Route::get('reports/customers', [AdminReportController::class, 'customers'])->name('reports.customers');
+    Route::get('reports/purchases', [AdminReportController::class, 'purchases'])->name('reports.purchases');
+    Route::get('reports/profitability', [AdminReportController::class, 'profitability'])->name('reports.profitability');
+    Route::get('reports/inventory', [AdminReportController::class, 'inventory'])->name('reports.inventory');
+    Route::get('reports/geographic', [AdminReportController::class, 'geographic'])->name('reports.geographic');
+    Route::get('reports/trends', [AdminReportController::class, 'trends'])->name('reports.trends');
+    Route::get('reports/satisfaction', [AdminReportController::class, 'satisfaction'])->name('reports.satisfaction');
 
     // Configuración del sitio
     Route::get('settings', [AdminSiteSettingController::class, 'index'])->name('settings.index');
