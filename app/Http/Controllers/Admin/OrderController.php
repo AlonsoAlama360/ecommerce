@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use App\Mail\OrderConfirmationMail;
 use App\Mail\WelcomeMail;
 
 class OrderController extends Controller
@@ -160,6 +161,16 @@ class OrderController extends Controller
                 $product = Product::find($itemData['product_id']);
                 if ($product) {
                     StockService::decrement($product, $itemData['quantity'], $order, "Venta {$order->order_number}");
+                }
+            }
+
+            // Send order confirmation email
+            if ($order->customer_email) {
+                try {
+                    Mail::to($order->customer_email)->send(new OrderConfirmationMail($order->load('items')));
+                } catch (\Exception $e) {
+                    // Log but don't fail the order
+                    \Log::warning("No se pudo enviar email de confirmación para {$order->order_number}: " . $e->getMessage());
                 }
             }
 
