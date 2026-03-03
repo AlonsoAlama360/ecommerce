@@ -31,7 +31,9 @@ use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\NewsletterController;
 use App\Http\Controllers\LegalController;
 use App\Http\Controllers\ComplaintController;
+use App\Http\Controllers\ContactController;
 use App\Http\Controllers\Admin\ComplaintController as AdminComplaintController;
+use App\Http\Controllers\Admin\ContactMessageController as AdminContactMessageController;
 use Illuminate\Support\Facades\Route;
 
 // Rutas públicas - cualquier usuario puede navegar
@@ -47,6 +49,9 @@ Route::post('/newsletter', [NewsletterController::class, 'subscribe'])->name('ne
 // Páginas legales
 Route::get('/terminos-y-condiciones', [LegalController::class, 'terms'])->name('legal.terms');
 Route::get('/politica-cambios-devoluciones', [LegalController::class, 'returns'])->name('legal.returns');
+Route::get('/preguntas-frecuentes', [LegalController::class, 'faq'])->name('legal.faq');
+Route::get('/contacto', [ContactController::class, 'show'])->name('contact.show');
+Route::post('/contacto', [ContactController::class, 'store'])->name('contact.store');
 Route::get('/libro-de-reclamaciones', [ComplaintController::class, 'create'])->name('complaint.create');
 Route::post('/libro-de-reclamaciones', [ComplaintController::class, 'store'])->name('complaint.store');
 Route::get('/libro-de-reclamaciones/{complaint}/confirmacion', [ComplaintController::class, 'confirmation'])->name('complaint.confirmation');
@@ -159,6 +164,12 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('complaints', [AdminComplaintController::class, 'index'])->name('complaints.index');
     Route::get('complaints/{complaint}', [AdminComplaintController::class, 'show'])->name('complaints.show');
     Route::put('complaints/{complaint}', [AdminComplaintController::class, 'update'])->name('complaints.update');
+
+    // Mensajes de Contacto
+    Route::get('contact-messages', [AdminContactMessageController::class, 'index'])->name('contact-messages.index');
+    Route::get('contact-messages/{contactMessage}', [AdminContactMessageController::class, 'show'])->name('contact-messages.show');
+    Route::put('contact-messages/{contactMessage}', [AdminContactMessageController::class, 'update'])->name('contact-messages.update');
+    Route::delete('contact-messages/{contactMessage}', [AdminContactMessageController::class, 'destroy'])->name('contact-messages.destroy');
 
     // Product Specifications (AJAX)
     Route::get('products/{product}/specifications', [AdminProductController::class, 'specifications'])->name('products.specifications');

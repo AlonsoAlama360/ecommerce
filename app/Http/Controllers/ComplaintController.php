@@ -47,6 +47,13 @@ class ComplaintController extends Controller
 
         $complaint = Complaint::create($validated);
 
+        if ($request->expectsJson()) {
+            return response()->json([
+                'message' => 'Tu reclamo ha sido registrado exitosamente. Recibirás una respuesta en un plazo máximo de 30 días calendario.',
+                'complaint_number' => $complaint->complaint_number,
+            ]);
+        }
+
         return redirect()->route('complaint.confirmation', $complaint)
             ->with('success', 'Tu reclamo ha sido registrado exitosamente.');
     }

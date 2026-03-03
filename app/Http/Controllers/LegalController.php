@@ -13,4 +13,9 @@ class LegalController extends Controller
     {
         return view('legal.returns');
     }
+
+    public function faq()
+    {
+        return view('legal.faq');
+    }
 }

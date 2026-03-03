@@ -613,9 +613,8 @@
                     <ul class="space-y-2 text-gray-600">
                         <li><a href="{{ route('legal.terms') }}" class="hover:text-gray-900 transition">Términos y Condiciones</a></li>
                         <li><a href="{{ route('legal.returns') }}" class="hover:text-gray-900 transition">Cambios y Devoluciones</a></li>
-                        <li><a href="{{ route('complaint.create') }}" class="hover:text-gray-900 transition">Libro de Reclamaciones</a></li>
-                        <li><a href="#" class="hover:text-gray-900 transition">Preguntas Frecuentes</a></li>
-                        <li><a href="#" class="hover:text-gray-900 transition">Contacto</a></li>
+                        <li><a href="{{ route('legal.faq') }}" class="hover:text-gray-900 transition">Preguntas Frecuentes</a></li>
+                        <li><a href="{{ route('contact.show') }}" class="hover:text-gray-900 transition">Contacto</a></li>
                     </ul>
                 </div>
                 <div>
@@ -628,8 +627,20 @@
                     </div>
                 </div>
             </div>
-            <div class="border-t border-gray-200 pt-8 text-center text-gray-600">
-                <p>&copy; {{ date('Y') }} Arixna. Todos los derechos reservados.</p>
+
+            <!-- Libro de Reclamaciones + Copyright -->
+            <div class="border-t border-gray-200 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <p class="text-gray-600">&copy; {{ date('Y') }} Arixna. Todos los derechos reservados.</p>
+                <a href="{{ route('complaint.create') }}" class="group relative flex items-center gap-3 border border-gray-200 bg-gray-50/50 rounded-xl px-5 py-3 hover:bg-gray-100/80 hover:border-gray-300 hover:shadow-sm transition-all duration-300">
+                    <div class="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:bg-gray-900 group-hover:scale-105 transition-all duration-300 shadow-sm">
+                        <i class="fas fa-book-open text-white text-sm"></i>
+                    </div>
+                    <div class="text-left">
+                        <span class="block text-[11px] font-semibold text-gray-400 uppercase tracking-wider leading-none mb-0.5">Libro de</span>
+                        <span class="block text-sm font-bold text-gray-800 leading-tight">Reclamaciones</span>
+                    </div>
+                    <i class="fas fa-arrow-right text-gray-300 text-xs ml-1 group-hover:translate-x-1 group-hover:text-gray-500 transition-all duration-300"></i>
+                </a>
             </div>
         </div>
     </footer>

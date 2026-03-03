@@ -99,6 +99,22 @@
         .sidebar-scroll::-webkit-scrollbar-thumb:hover {
             background: rgba(255, 255, 255, 0.2);
         }
+
+        /* Sidebar dropdown */
+        .sidebar-dropdown-items {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.25s ease;
+        }
+        .sidebar-dropdown.open .sidebar-dropdown-items {
+            max-height: 200px;
+        }
+        .sidebar-dropdown .dropdown-arrow {
+            transition: transform 0.25s ease;
+        }
+        .sidebar-dropdown.open .dropdown-arrow {
+            transform: rotate(180deg);
+        }
     </style>
     @yield('styles')
 </head>
@@ -200,37 +216,60 @@
                 <span>Kardex</span>
             </a>
 
-            <a href="{{ route('admin.wishlists.index') }}"
-                class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium mb-0.5 {{ request()->routeIs('admin.wishlists.*') ? 'active' : 'text-slate-400' }}">
-                <div class="w-8 h-8 rounded-lg {{ request()->routeIs('admin.wishlists.*') ? 'bg-indigo-500/20' : 'bg-white/5' }} flex items-center justify-center transition">
-                    <i class="fas fa-heart text-xs {{ request()->routeIs('admin.wishlists.*') ? 'text-indigo-400' : 'text-slate-500' }}"></i>
+            @php
+                $clientesActive = request()->routeIs('admin.wishlists.*') || request()->routeIs('admin.reviews.*');
+            @endphp
+            <div class="sidebar-dropdown {{ $clientesActive ? 'open' : '' }}">
+                <button onclick="this.closest('.sidebar-dropdown').classList.toggle('open')" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium mb-0.5 w-full {{ $clientesActive ? 'text-white' : 'text-slate-400' }}">
+                    <div class="w-8 h-8 rounded-lg {{ $clientesActive ? 'bg-indigo-500/20' : 'bg-white/5' }} flex items-center justify-center transition">
+                        <i class="fas fa-users-gear text-xs {{ $clientesActive ? 'text-indigo-400' : 'text-slate-500' }}"></i>
+                    </div>
+                    <span class="flex-1 text-left">Clientes</span>
+                    <i class="fas fa-chevron-down text-[9px] text-slate-500 dropdown-arrow"></i>
+                </button>
+                <div class="sidebar-dropdown-items pl-[2.75rem]">
+                    <a href="{{ route('admin.wishlists.index') }}"
+                        class="sidebar-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-[12.5px] font-medium mb-0.5 {{ request()->routeIs('admin.wishlists.*') ? 'active' : 'text-slate-400' }}">
+                        <i class="fas fa-heart text-[10px] {{ request()->routeIs('admin.wishlists.*') ? 'text-indigo-400' : 'text-slate-500' }}"></i>
+                        <span>Lista de Deseos</span>
+                    </a>
+                    <a href="{{ route('admin.reviews.index') }}"
+                        class="sidebar-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-[12.5px] font-medium mb-0.5 {{ request()->routeIs('admin.reviews.*') ? 'active' : 'text-slate-400' }}">
+                        <i class="fas fa-star text-[10px] {{ request()->routeIs('admin.reviews.*') ? 'text-indigo-400' : 'text-slate-500' }}"></i>
+                        <span>Reseñas</span>
+                    </a>
                 </div>
-                <span>Lista de Deseos</span>
-            </a>
+            </div>
 
-            <a href="{{ route('admin.reviews.index') }}"
-                class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium mb-0.5 {{ request()->routeIs('admin.reviews.*') ? 'active' : 'text-slate-400' }}">
-                <div class="w-8 h-8 rounded-lg {{ request()->routeIs('admin.reviews.*') ? 'bg-indigo-500/20' : 'bg-white/5' }} flex items-center justify-center transition">
-                    <i class="fas fa-star text-xs {{ request()->routeIs('admin.reviews.*') ? 'text-indigo-400' : 'text-slate-500' }}"></i>
+            @php
+                $atencionActive = request()->routeIs('admin.contact-messages.*') || request()->routeIs('admin.complaints.*') || request()->routeIs('admin.subscribers.*');
+            @endphp
+            <div class="sidebar-dropdown {{ $atencionActive ? 'open' : '' }}">
+                <button onclick="this.closest('.sidebar-dropdown').classList.toggle('open')" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium mb-0.5 w-full {{ $atencionActive ? 'text-white' : 'text-slate-400' }}">
+                    <div class="w-8 h-8 rounded-lg {{ $atencionActive ? 'bg-indigo-500/20' : 'bg-white/5' }} flex items-center justify-center transition">
+                        <i class="fas fa-headset text-xs {{ $atencionActive ? 'text-indigo-400' : 'text-slate-500' }}"></i>
+                    </div>
+                    <span class="flex-1 text-left">Atención</span>
+                    <i class="fas fa-chevron-down text-[9px] text-slate-500 dropdown-arrow"></i>
+                </button>
+                <div class="sidebar-dropdown-items pl-[2.75rem]">
+                    <a href="{{ route('admin.contact-messages.index') }}"
+                        class="sidebar-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-[12.5px] font-medium mb-0.5 {{ request()->routeIs('admin.contact-messages.*') ? 'active' : 'text-slate-400' }}">
+                        <i class="fas fa-envelope text-[10px] {{ request()->routeIs('admin.contact-messages.*') ? 'text-indigo-400' : 'text-slate-500' }}"></i>
+                        <span>Contacto</span>
+                    </a>
+                    <a href="{{ route('admin.complaints.index') }}"
+                        class="sidebar-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-[12.5px] font-medium mb-0.5 {{ request()->routeIs('admin.complaints.*') ? 'active' : 'text-slate-400' }}">
+                        <i class="fas fa-book text-[10px] {{ request()->routeIs('admin.complaints.*') ? 'text-indigo-400' : 'text-slate-500' }}"></i>
+                        <span>Reclamaciones</span>
+                    </a>
+                    <a href="{{ route('admin.subscribers.index') }}"
+                        class="sidebar-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-[12.5px] font-medium mb-0.5 {{ request()->routeIs('admin.subscribers.*') ? 'active' : 'text-slate-400' }}">
+                        <i class="fas fa-bell text-[10px] {{ request()->routeIs('admin.subscribers.*') ? 'text-indigo-400' : 'text-slate-500' }}"></i>
+                        <span>Suscriptores</span>
+                    </a>
                 </div>
-                <span>Reseñas</span>
-            </a>
-
-            <a href="{{ route('admin.subscribers.index') }}"
-                class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium mb-0.5 {{ request()->routeIs('admin.subscribers.*') ? 'active' : 'text-slate-400' }}">
-                <div class="w-8 h-8 rounded-lg {{ request()->routeIs('admin.subscribers.*') ? 'bg-indigo-500/20' : 'bg-white/5' }} flex items-center justify-center transition">
-                    <i class="fas fa-envelope text-xs {{ request()->routeIs('admin.subscribers.*') ? 'text-indigo-400' : 'text-slate-500' }}"></i>
-                </div>
-                <span>Suscriptores</span>
-            </a>
-
-            <a href="{{ route('admin.complaints.index') }}"
-                class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium mb-0.5 {{ request()->routeIs('admin.complaints.*') ? 'active' : 'text-slate-400' }}">
-                <div class="w-8 h-8 rounded-lg {{ request()->routeIs('admin.complaints.*') ? 'bg-indigo-500/20' : 'bg-white/5' }} flex items-center justify-center transition">
-                    <i class="fas fa-book text-xs {{ request()->routeIs('admin.complaints.*') ? 'text-indigo-400' : 'text-slate-500' }}"></i>
-                </div>
-                <span>Reclamaciones</span>
-            </a>
+            </div>
 
             {{-- Tienda --}}
             <p class="px-3 pt-5 pb-2 text-[10px] font-semibold text-slate-500/80 uppercase tracking-[0.15em]">Tienda</p>

@@ -60,23 +60,17 @@
             </div>
         </div>
 
-        @if($errors->any())
-            <div class="bg-red-50 border border-red-200 rounded-xl p-5 mb-8">
-                <div class="flex gap-3">
-                    <i class="fas fa-exclamation-circle text-red-500 mt-0.5"></i>
-                    <div class="text-sm text-red-700">
-                        <p class="font-semibold mb-2">Por favor corrige los siguientes errores:</p>
-                        <ul class="list-disc list-inside space-y-1">
-                            @foreach($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
+        <div id="complaintErrors" class="bg-red-50 border border-red-200 rounded-xl p-5 mb-8 hidden">
+            <div class="flex gap-3">
+                <i class="fas fa-exclamation-circle text-red-500 mt-0.5"></i>
+                <div class="text-sm text-red-700">
+                    <p class="font-semibold mb-2">Por favor corrige los siguientes errores:</p>
+                    <ul id="complaintErrorList" class="list-disc list-inside space-y-1"></ul>
                 </div>
             </div>
-        @endif
+        </div>
 
-        <form action="{{ route('complaint.store') }}" method="POST" class="complaint-form space-y-8">
+        <form id="complaintForm" action="{{ route('complaint.store') }}" method="POST" class="complaint-form space-y-8">
             @csrf
 
             <!-- Datos del proveedor (read-only) -->
@@ -234,4 +228,96 @@
         </form>
     </div>
 </div>
+
+<!-- Toast container -->
+<div id="toastContainer" class="fixed top-6 right-6 z-50 flex flex-col gap-3 pointer-events-none"></div>
+
+@endsection
+
+@section('scripts')
+<script>
+function showToast(title, message, type = 'success') {
+    const container = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    const isSuccess = type === 'success';
+
+    toast.className = 'pointer-events-auto flex items-center gap-3 bg-white rounded-2xl shadow-lg border px-5 py-4 max-w-md transform translate-x-full transition-transform duration-300';
+    toast.style.borderColor = isSuccess ? '#d1fae5' : '#fecaca';
+    toast.innerHTML = `
+        <div class="w-9 h-9 ${isSuccess ? 'bg-emerald-100' : 'bg-red-100'} rounded-xl flex items-center justify-center flex-shrink-0">
+            <i class="fas ${isSuccess ? 'fa-check text-emerald-500' : 'fa-times text-red-500'} text-sm"></i>
+        </div>
+        <div class="flex-1 min-w-0">
+            <p class="text-sm font-semibold text-gray-900">${title}</p>
+            <p class="text-xs text-gray-500 mt-0.5">${message}</p>
+        </div>
+        <button onclick="this.closest('.pointer-events-auto').remove()" class="text-gray-300 hover:text-gray-500 transition flex-shrink-0">
+            <i class="fas fa-times text-xs"></i>
+        </button>
+    `;
+
+    container.appendChild(toast);
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => toast.classList.remove('translate-x-full'));
+    });
+    setTimeout(() => {
+        toast.classList.add('translate-x-full');
+        setTimeout(() => toast.remove(), 300);
+    }, 6000);
+}
+
+document.getElementById('complaintForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const form = this;
+    const btn = form.querySelector('button[type="submit"]');
+    const btnText = btn.innerHTML;
+    const errorsDiv = document.getElementById('complaintErrors');
+    const errorsList = document.getElementById('complaintErrorList');
+
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Enviando...';
+    errorsDiv.classList.add('hidden');
+
+    try {
+        const res = await fetch(form.action, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': form.querySelector('[name="_token"]').value,
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(Object.fromEntries(new FormData(form))),
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+            showToast(
+                'Reclamo registrado',
+                data.message + (data.complaint_number ? ' N°: ' + data.complaint_number : ''),
+                'success'
+            );
+            form.reset();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else if (res.status === 422 && data.errors) {
+            errorsList.innerHTML = '';
+            Object.values(data.errors).flat().forEach(err => {
+                const li = document.createElement('li');
+                li.textContent = err;
+                errorsList.appendChild(li);
+            });
+            errorsDiv.classList.remove('hidden');
+            errorsDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } else {
+            showToast('Error', 'Ocurrió un error inesperado. Intenta de nuevo.', 'error');
+        }
+    } catch {
+        showToast('Error', 'Error de conexión. Verifica tu internet.', 'error');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = btnText;
+    }
+});
+</script>
 @endsection
