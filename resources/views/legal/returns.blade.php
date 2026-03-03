@@ -73,7 +73,7 @@
                 <h2 class="text-xl font-semibold text-gray-900 mb-4">4. Procedimiento para solicitar un cambio o devolución</h2>
                 <ol class="space-y-4 list-decimal list-inside">
                     <li>
-                        <strong>Comunícate con nosotros</strong> enviando un correo a <strong>contacto@arixna.com</strong> indicando:
+                        <strong>Comunícate con nosotros</strong> enviando un correo a <strong>{{ $settings['contact_email'] ?? 'contacto@arixna.com' }}</strong> indicando:
                         <ul class="mt-2 ml-6 space-y-1 list-disc list-inside text-sm">
                             <li>Número de pedido</li>
                             <li>Nombre completo del comprador</li>
@@ -127,9 +127,9 @@
                 <h2 class="text-xl font-semibold text-gray-900 mb-4">8. Contacto</h2>
                 <p>Para cualquier consulta sobre cambios y devoluciones:</p>
                 <ul class="mt-3 space-y-1 list-disc list-inside">
-                    <li><strong>Correo:</strong> contacto@arixna.com</li>
-                    <li><strong>Teléfono:</strong> [Completar teléfono]</li>
-                    <li><strong>Horario:</strong> Lunes a Viernes de 9:00 a 18:00 horas</li>
+                    <li><strong>Correo:</strong> {{ $settings['contact_email'] ?? 'contacto@arixna.com' }}</li>
+                    <li><strong>Teléfono:</strong> {{ $settings['phone'] ?? 'Por definir' }}</li>
+                    <li><strong>Horario:</strong> {{ $settings['business_hours'] ?? '' }}</li>
                 </ul>
                 <p class="mt-4">Si no estás conforme con la resolución, puedes presentar tu reclamo en nuestro <a href="{{ route('complaint.create') }}" class="text-rose-600 hover:text-rose-700 underline">Libro de Reclamaciones</a> o acudir a INDECOPI.</p>
             </section>

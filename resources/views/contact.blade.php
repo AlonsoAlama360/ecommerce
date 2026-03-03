@@ -33,13 +33,13 @@
 
     <!-- Canales rápidos -->
     <div class="grid sm:grid-cols-3 gap-4 mb-16">
-        <a href="mailto:contacto@arixna.com" class="group bg-white rounded-2xl border border-gray-100 p-6 flex items-center gap-4 hover:shadow-lg hover:shadow-gray-200/60 hover:-translate-y-1 transition-all duration-300">
+        <a href="mailto:{{ $settings['contact_email'] ?? 'contacto@arixna.com' }}" class="group bg-white rounded-2xl border border-gray-100 p-6 flex items-center gap-4 hover:shadow-lg hover:shadow-gray-200/60 hover:-translate-y-1 transition-all duration-300">
             <div class="w-12 h-12 bg-gray-900 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform duration-300">
                 <i class="fas fa-envelope text-white"></i>
             </div>
             <div>
                 <p class="font-semibold text-gray-900 text-sm">Email</p>
-                <p class="text-gray-400 text-sm">contacto@arixna.com</p>
+                <p class="text-gray-400 text-sm">{{ $settings['contact_email'] ?? 'contacto@arixna.com' }}</p>
             </div>
         </a>
         <div class="group bg-white rounded-2xl border border-gray-100 p-6 flex items-center gap-4">
@@ -48,7 +48,7 @@
             </div>
             <div>
                 <p class="font-semibold text-gray-900 text-sm">Horario</p>
-                <p class="text-gray-400 text-sm">Lun - Vie, 9am - 6pm</p>
+                <p class="text-gray-400 text-sm">{{ $settings['business_hours'] ?? 'Lun - Vie, 9am - 6pm' }}</p>
             </div>
         </div>
         <div class="bg-white rounded-2xl border border-gray-100 p-6">
@@ -60,13 +60,13 @@
                 <div>
                     <p class="font-semibold text-gray-900 text-sm mb-1.5">Síguenos</p>
                     <div class="flex items-center gap-3">
-                        <a href="https://instagram.com/arixna" target="_blank" class="w-8 h-8 bg-gray-100 hover:bg-gradient-to-r hover:from-purple-500 hover:to-pink-500 rounded-lg flex items-center justify-center group/s transition-all duration-300">
+                        <a href="{{ $settings['instagram_url'] ?? '#' }}" target="_blank" class="w-8 h-8 bg-gray-100 hover:bg-gradient-to-r hover:from-purple-500 hover:to-pink-500 rounded-lg flex items-center justify-center group/s transition-all duration-300">
                             <i class="fab fa-instagram text-gray-500 group-hover/s:text-white transition-colors text-sm"></i>
                         </a>
-                        <a href="https://facebook.com/arixna" target="_blank" class="w-8 h-8 bg-gray-100 hover:bg-blue-600 rounded-lg flex items-center justify-center group/s transition-all duration-300">
+                        <a href="{{ $settings['facebook_url'] ?? '#' }}" target="_blank" class="w-8 h-8 bg-gray-100 hover:bg-blue-600 rounded-lg flex items-center justify-center group/s transition-all duration-300">
                             <i class="fab fa-facebook-f text-gray-500 group-hover/s:text-white transition-colors text-sm"></i>
                         </a>
-                        <a href="https://tiktok.com/@arixna" target="_blank" class="w-8 h-8 bg-gray-100 hover:bg-gray-900 rounded-lg flex items-center justify-center group/s transition-all duration-300">
+                        <a href="{{ $settings['tiktok_url'] ?? '#' }}" target="_blank" class="w-8 h-8 bg-gray-100 hover:bg-gray-900 rounded-lg flex items-center justify-center group/s transition-all duration-300">
                             <i class="fab fa-tiktok text-gray-500 group-hover/s:text-white transition-colors text-sm"></i>
                         </a>
                     </div>
@@ -76,15 +76,15 @@
             <div class="hidden sm:block">
                 <p class="font-semibold text-gray-900 text-sm mb-3">Síguenos</p>
                 <div class="flex items-center gap-2">
-                    <a href="https://instagram.com/arixna" target="_blank" class="group/s flex items-center gap-2 bg-gray-50 hover:bg-gradient-to-r hover:from-purple-500 hover:to-pink-500 rounded-lg px-3 py-2 transition-all duration-300">
+                    <a href="{{ $settings['instagram_url'] ?? '#' }}" target="_blank" class="group/s flex items-center gap-2 bg-gray-50 hover:bg-gradient-to-r hover:from-purple-500 hover:to-pink-500 rounded-lg px-3 py-2 transition-all duration-300">
                         <i class="fab fa-instagram text-gray-500 group-hover/s:text-white transition-colors text-sm"></i>
                         <span class="text-xs font-medium text-gray-500 group-hover/s:text-white transition-colors">Instagram</span>
                     </a>
-                    <a href="https://facebook.com/arixna" target="_blank" class="group/s flex items-center gap-2 bg-gray-50 hover:bg-blue-600 rounded-lg px-3 py-2 transition-all duration-300">
+                    <a href="{{ $settings['facebook_url'] ?? '#' }}" target="_blank" class="group/s flex items-center gap-2 bg-gray-50 hover:bg-blue-600 rounded-lg px-3 py-2 transition-all duration-300">
                         <i class="fab fa-facebook-f text-gray-500 group-hover/s:text-white transition-colors text-sm"></i>
                         <span class="text-xs font-medium text-gray-500 group-hover/s:text-white transition-colors">Facebook</span>
                     </a>
-                    <a href="https://tiktok.com/@arixna" target="_blank" class="group/s flex items-center gap-2 bg-gray-50 hover:bg-gray-900 rounded-lg px-3 py-2 transition-all duration-300">
+                    <a href="{{ $settings['tiktok_url'] ?? '#' }}" target="_blank" class="group/s flex items-center gap-2 bg-gray-50 hover:bg-gray-900 rounded-lg px-3 py-2 transition-all duration-300">
                         <i class="fab fa-tiktok text-gray-500 group-hover/s:text-white transition-colors text-sm"></i>
                         <span class="text-xs font-medium text-gray-500 group-hover/s:text-white transition-colors">TikTok</span>
                     </a>
@@ -159,8 +159,8 @@
             <div class="bg-gray-900 rounded-3xl p-8 text-white">
                 <h3 class="font-serif text-xl font-semibold mb-3">¿Necesitas ayuda urgente?</h3>
                 <p class="text-white/50 text-sm leading-relaxed mb-6">Para consultas sobre pedidos en curso, escríbenos directamente y te responderemos lo antes posible.</p>
-                <a href="mailto:contacto@arixna.com" class="inline-flex items-center gap-2 bg-white text-gray-900 px-6 py-3 rounded-full text-sm font-semibold hover:bg-gray-100 transition">
-                    <i class="fas fa-envelope text-xs"></i> contacto@arixna.com
+                <a href="mailto:{{ $settings['contact_email'] ?? 'contacto@arixna.com' }}" class="inline-flex items-center gap-2 bg-white text-gray-900 px-6 py-3 rounded-full text-sm font-semibold hover:bg-gray-100 transition">
+                    <i class="fas fa-envelope text-xs"></i> {{ $settings['contact_email'] ?? 'contacto@arixna.com' }}
                 </a>
             </div>
 
@@ -199,11 +199,11 @@
                 <div class="space-y-4 text-sm">
                     <div class="flex items-start gap-3">
                         <i class="fas fa-map-marker-alt text-gray-300 mt-0.5"></i>
-                        <p class="text-gray-600">[Completar dirección]</p>
+                        <p class="text-gray-600">{{ $settings['address'] ?? 'Por definir' }}</p>
                     </div>
                     <div class="flex items-start gap-3">
                         <i class="fas fa-clock text-gray-300 mt-0.5"></i>
-                        <p class="text-gray-600">Lun - Vie, 9:00 am - 6:00 pm</p>
+                        <p class="text-gray-600">{{ $settings['business_hours'] ?? '' }}</p>
                     </div>
                 </div>
             </div>

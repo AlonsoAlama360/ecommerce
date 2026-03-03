@@ -101,7 +101,7 @@
                             <span class="faq-icon text-gray-400 text-xl transition-transform duration-300 flex-shrink-0">+</span>
                         </summary>
                         <div class="faq-answer px-6 pb-5 text-gray-600 text-sm leading-relaxed">
-                            <p>Si tu pedido aún no ha sido enviado, puedes solicitar la modificación o cancelación enviando un correo a <strong>contacto@arixna.com</strong> con tu número de pedido. Una vez que el pedido ha sido despachado, ya no es posible cancelarlo, pero puedes solicitar una devolución al recibirlo.</p>
+                            <p>Si tu pedido aún no ha sido enviado, puedes solicitar la modificación o cancelación enviando un correo a <strong>{{ $settings['contact_email'] ?? 'contacto@arixna.com' }}</strong> con tu número de pedido. Una vez que el pedido ha sido despachado, ya no es posible cancelarlo, pero puedes solicitar una devolución al recibirlo.</p>
                         </div>
                     </details>
 
@@ -177,7 +177,7 @@
                             <span class="faq-icon text-gray-400 text-xl transition-transform duration-300 flex-shrink-0">+</span>
                         </summary>
                         <div class="faq-answer px-6 pb-5 text-gray-600 text-sm leading-relaxed">
-                            <p>El courier intentará la entrega hasta 2 veces. Si no encuentra a nadie, dejará un aviso con instrucciones para coordinar una nueva entrega. También puedes contactarnos a <strong>contacto@arixna.com</strong> para coordinar la entrega.</p>
+                            <p>El courier intentará la entrega hasta 2 veces. Si no encuentra a nadie, dejará un aviso con instrucciones para coordinar una nueva entrega. También puedes contactarnos a <strong>{{ $settings['contact_email'] ?? 'contacto@arixna.com' }}</strong> para coordinar la entrega.</p>
                         </div>
                     </details>
                 </div>
@@ -269,7 +269,7 @@
                             <span class="faq-icon text-gray-400 text-xl transition-transform duration-300 flex-shrink-0">+</span>
                         </summary>
                         <div class="faq-answer px-6 pb-5 text-gray-600 text-sm leading-relaxed">
-                            <p>Envía un correo a <strong>contacto@arixna.com</strong> indicando:</p>
+                            <p>Envía un correo a <strong>{{ $settings['contact_email'] ?? 'contacto@arixna.com' }}</strong> indicando:</p>
                             <ul class="mt-2 space-y-1 list-disc list-inside">
                                 <li>Tu número de pedido</li>
                                 <li>El producto que deseas cambiar o devolver</li>
@@ -296,7 +296,7 @@
                             <span class="faq-icon text-gray-400 text-xl transition-transform duration-300 flex-shrink-0">+</span>
                         </summary>
                         <div class="faq-answer px-6 pb-5 text-gray-600 text-sm leading-relaxed">
-                            <p>Lamentamos mucho esta situación. Contáctanos inmediatamente a <strong>contacto@arixna.com</strong> con fotos del producto y del empaque. En caso de defectos de fábrica, tienes hasta <strong>30 días</strong> para reportarlo y los costos de envío de devolución corren por nuestra cuenta. También puedes usar nuestro <a href="{{ route('complaint.create') }}" class="text-rose-600 hover:text-rose-700 underline">Libro de Reclamaciones</a>.</p>
+                            <p>Lamentamos mucho esta situación. Contáctanos inmediatamente a <strong>{{ $settings['contact_email'] ?? 'contacto@arixna.com' }}</strong> con fotos del producto y del empaque. En caso de defectos de fábrica, tienes hasta <strong>30 días</strong> para reportarlo y los costos de envío de devolución corren por nuestra cuenta. También puedes usar nuestro <a href="{{ route('complaint.create') }}" class="text-rose-600 hover:text-rose-700 underline">Libro de Reclamaciones</a>.</p>
                         </div>
                     </details>
                 </div>
@@ -416,8 +416,8 @@
             <h2 class="font-serif text-xl font-semibold text-gray-900 mb-2">¿No encontraste lo que buscabas?</h2>
             <p class="text-gray-500 mb-5">Nuestro equipo está listo para ayudarte.</p>
             <div class="flex flex-col sm:flex-row gap-3 justify-center">
-                <a href="mailto:contacto@arixna.com" class="bg-gray-900 text-white px-6 py-3 rounded-full font-medium hover:bg-gray-800 transition inline-flex items-center justify-center gap-2">
-                    <i class="fas fa-envelope"></i> contacto@arixna.com
+                <a href="mailto:{{ $settings['contact_email'] ?? 'contacto@arixna.com' }}" class="bg-gray-900 text-white px-6 py-3 rounded-full font-medium hover:bg-gray-800 transition inline-flex items-center justify-center gap-2">
+                    <i class="fas fa-envelope"></i> {{ $settings['contact_email'] ?? 'contacto@arixna.com' }}
                 </a>
                 <a href="{{ route('complaint.create') }}" class="border border-gray-300 text-gray-700 px-6 py-3 rounded-full font-medium hover:bg-gray-50 transition inline-flex items-center justify-center gap-2">
                     <i class="fas fa-book"></i> Libro de Reclamaciones

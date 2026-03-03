@@ -80,10 +80,10 @@
                     1. Identificación del proveedor
                 </h2>
                 <div class="grid md:grid-cols-2 gap-4 text-sm text-gray-600">
-                    <div><strong>Razón Social:</strong> Arixna E.I.R.L.</div>
-                    <div><strong>RUC:</strong> [Completar RUC]</div>
-                    <div><strong>Dirección:</strong> [Completar dirección]</div>
-                    <div><strong>Email:</strong> contacto@arixna.com</div>
+                    <div><strong>Razón Social:</strong> {{ $settings['legal_name'] ?? 'Arixna E.I.R.L.' }}</div>
+                    <div><strong>RUC:</strong> {{ $settings['ruc'] ?? 'Por definir' }}</div>
+                    <div><strong>Dirección:</strong> {{ $settings['address'] ?? 'Por definir' }}</div>
+                    <div><strong>Email:</strong> {{ $settings['contact_email'] ?? 'contacto@arixna.com' }}</div>
                 </div>
             </div>
 

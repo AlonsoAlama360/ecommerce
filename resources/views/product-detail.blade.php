@@ -628,7 +628,7 @@
 
     // WhatsApp button
     document.getElementById('whatsappBtn').addEventListener('click', function() {
-        const phone = '{{ config("app.whatsapp_phone") }}';
+        const phone = '{{ $settings["whatsapp_number"] ?? "" }}';
         const qty = parseInt(qtyInput.value);
         const productUrl = window.location.href;
 

@@ -17,13 +17,13 @@
             <!-- 1. Información del proveedor -->
             <section>
                 <h2 class="text-xl font-semibold text-gray-900 mb-4">1. Identificación del proveedor</h2>
-                <p>La tienda online <strong>Arixna</strong> es operada por:</p>
+                <p>La tienda online <strong>{{ $settings['business_name'] ?? 'Arixna' }}</strong> es operada por:</p>
                 <ul class="mt-3 space-y-1 list-disc list-inside">
-                    <li><strong>Razón Social:</strong> Arixna E.I.R.L.</li>
-                    <li><strong>RUC:</strong> [Completar RUC]</li>
-                    <li><strong>Domicilio fiscal:</strong> [Completar dirección]</li>
-                    <li><strong>Correo electrónico:</strong> contacto@arixna.com</li>
-                    <li><strong>Teléfono:</strong> [Completar teléfono]</li>
+                    <li><strong>Razón Social:</strong> {{ $settings['legal_name'] ?? 'Arixna E.I.R.L.' }}</li>
+                    <li><strong>RUC:</strong> {{ $settings['ruc'] ?? 'Por definir' }}</li>
+                    <li><strong>Domicilio fiscal:</strong> {{ $settings['address'] ?? 'Por definir' }}</li>
+                    <li><strong>Correo electrónico:</strong> {{ $settings['contact_email'] ?? 'contacto@arixna.com' }}</li>
+                    <li><strong>Teléfono:</strong> {{ $settings['phone'] ?? 'Por definir' }}</li>
                 </ul>
             </section>
 
@@ -106,7 +106,7 @@
                 <ul class="mt-3 space-y-2 list-disc list-inside">
                     <li>Los datos personales proporcionados serán tratados para la gestión de pedidos, comunicaciones sobre el estado de la compra y, en caso de consentimiento, para el envío de promociones y novedades.</li>
                     <li>Los datos no serán compartidos con terceros, salvo los necesarios para el procesamiento de pagos y envíos.</li>
-                    <li>El usuario puede ejercer sus derechos ARCO (Acceso, Rectificación, Cancelación y Oposición) enviando un correo a <strong>contacto@arixna.com</strong>.</li>
+                    <li>El usuario puede ejercer sus derechos ARCO (Acceso, Rectificación, Cancelación y Oposición) enviando un correo a <strong>{{ $settings['contact_email'] ?? 'contacto@arixna.com' }}</strong>.</li>
                 </ul>
             </section>
 
@@ -144,9 +144,9 @@
                 <h2 class="text-xl font-semibold text-gray-900 mb-4">14. Contacto</h2>
                 <p>Para cualquier consulta relacionada con estos Términos y Condiciones, puedes comunicarte con nosotros a través de:</p>
                 <ul class="mt-3 space-y-1 list-disc list-inside">
-                    <li><strong>Correo electrónico:</strong> contacto@arixna.com</li>
-                    <li><strong>Teléfono:</strong> [Completar teléfono]</li>
-                    <li><strong>Horario de atención:</strong> Lunes a Viernes de 9:00 a 18:00 horas</li>
+                    <li><strong>Correo electrónico:</strong> {{ $settings['contact_email'] ?? 'contacto@arixna.com' }}</li>
+                    <li><strong>Teléfono:</strong> {{ $settings['phone'] ?? 'Por definir' }}</li>
+                    <li><strong>Horario de atención:</strong> {{ $settings['business_hours'] ?? '' }}</li>
                 </ul>
             </section>
 

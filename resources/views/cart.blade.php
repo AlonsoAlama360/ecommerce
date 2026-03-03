@@ -305,7 +305,7 @@
     const whatsappCartBtn = document.getElementById('whatsappCartBtn');
     if (whatsappCartBtn) {
         whatsappCartBtn.addEventListener('click', function() {
-            const phone = '{{ config("app.whatsapp_phone") }}';
+            const phone = '{{ $settings["whatsapp_number"] ?? "" }}';
             var e = { cart: '\uD83D\uDED2', dot: '\u25B8', money: '\uD83D\uDCB0', line: '\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500' };
             let message = e.cart + ' *Mi Pedido - Arixna*\n\n';
 

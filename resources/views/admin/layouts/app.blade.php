@@ -271,8 +271,16 @@
                 </div>
             </div>
 
-            {{-- Tienda --}}
-            <p class="px-3 pt-5 pb-2 text-[10px] font-semibold text-slate-500/80 uppercase tracking-[0.15em]">Tienda</p>
+            {{-- Sistema --}}
+            <p class="px-3 pt-5 pb-2 text-[10px] font-semibold text-slate-500/80 uppercase tracking-[0.15em]">Sistema</p>
+
+            <a href="{{ route('admin.settings.index') }}"
+                class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium mb-0.5 {{ request()->routeIs('admin.settings.*') ? 'active' : 'text-slate-400' }}">
+                <div class="w-8 h-8 rounded-lg {{ request()->routeIs('admin.settings.*') ? 'bg-indigo-500/20' : 'bg-white/5' }} flex items-center justify-center transition">
+                    <i class="fas fa-gear text-xs {{ request()->routeIs('admin.settings.*') ? 'text-indigo-400' : 'text-slate-500' }}"></i>
+                </div>
+                <span>Configuración</span>
+            </a>
 
             <a href="{{ route('home') }}" target="_blank"
                 class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium mb-0.5 text-slate-400">

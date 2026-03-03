@@ -5,24 +5,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Arixna - Tu Tienda Online')</title>
+    <title>@yield('title', ($settings['business_name'] ?? 'Arixna') . ' - Tu Tienda Online')</title>
 
     {{-- Favicon --}}
     <link rel="icon" type="image/webp" href="{{ asset('images/logo_arixna1024512_min.webp') }}">
     <link rel="apple-touch-icon" href="{{ asset('images/logo_arixna1024512_min.webp') }}">
 
     {{-- SEO Meta Tags --}}
-    <meta name="description" content="@yield('meta_description', 'Arixna - Tu tienda online de perfumes, electrodomésticos, joyería y zapatillas. Envíos a todo el Perú.')">
+    <meta name="description" content="@yield('meta_description', $settings['meta_description'] ?? '')">
     <meta name="keywords" content="@yield('meta_keywords', 'tienda online, perfumes, electrodomésticos, joyería, anillos, zapatillas, Perú, envíos')">
-    <meta name="author" content="Arixna">
+    <meta name="author" content="{{ $settings['business_name'] ?? 'Arixna' }}">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="@yield('canonical', url()->current())">
 
     {{-- Open Graph (Facebook, WhatsApp, Messenger) --}}
     <meta property="og:type" content="@yield('og_type', 'website')">
-    <meta property="og:site_name" content="Arixna">
-    <meta property="og:title" content="@yield('og_title', 'Arixna - Tu Tienda Online')">
-    <meta property="og:description" content="@yield('og_description', 'Descubre perfumes, electrodomésticos, joyería y zapatillas en Arixna. Envíos a todo el Perú.')">
+    <meta property="og:site_name" content="{{ $settings['business_name'] ?? 'Arixna' }}">
+    <meta property="og:title" content="@yield('og_title', ($settings['business_name'] ?? 'Arixna') . ' - Tu Tienda Online')">
+    <meta property="og:description" content="@yield('og_description', $settings['meta_description'] ?? '')">
     <meta property="og:image" content="@yield('og_image', asset('images/logo_arixna.png'))">
     <meta property="og:url" content="@yield('og_url', url()->current())">
     <meta property="og:locale" content="es_PE">
@@ -598,7 +598,7 @@
                     <div class="flex items-center space-x-2 mb-4">
                         <img src="{{ asset('images/logo_arixna.png') }}" alt="Arixna" class="h-14">
                     </div>
-                    <p class="text-gray-600 leading-relaxed">Creando momentos inolvidables con detalles que expresan amor verdadero.</p>
+                    <p class="text-gray-600 leading-relaxed">{{ $settings['tagline'] ?? '' }}</p>
                 </div>
                 <div>
                     <h2 class="font-semibold text-gray-900 mb-4">Comprar</h2>
@@ -620,17 +620,25 @@
                 <div>
                     <h2 class="font-semibold text-gray-900 mb-4">Síguenos</h2>
                     <div class="flex gap-3">
-                        <a href="#" class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-900 hover:text-white transition" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#" class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-900 hover:text-white transition" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-                        <a href="#" class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-900 hover:text-white transition" aria-label="Pinterest"><i class="fab fa-pinterest"></i></a>
-                        <a href="#" class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-900 hover:text-white transition" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
+                        @if(!empty($settings['facebook_url']))
+                            <a href="{{ $settings['facebook_url'] }}" target="_blank" class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-900 hover:text-white transition" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        @endif
+                        @if(!empty($settings['instagram_url']))
+                            <a href="{{ $settings['instagram_url'] }}" target="_blank" class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-900 hover:text-white transition" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        @endif
+                        @if(!empty($settings['pinterest_url']))
+                            <a href="{{ $settings['pinterest_url'] }}" target="_blank" class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-900 hover:text-white transition" aria-label="Pinterest"><i class="fab fa-pinterest"></i></a>
+                        @endif
+                        @if(!empty($settings['tiktok_url']))
+                            <a href="{{ $settings['tiktok_url'] }}" target="_blank" class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-900 hover:text-white transition" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
+                        @endif
                     </div>
                 </div>
             </div>
 
             <!-- Libro de Reclamaciones + Copyright -->
             <div class="border-t border-gray-200 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-                <p class="text-gray-600">&copy; {{ date('Y') }} Arixna. Todos los derechos reservados.</p>
+                <p class="text-gray-600">&copy; {{ date('Y') }} {{ $settings['business_name'] ?? 'Arixna' }}. Todos los derechos reservados.</p>
                 <a href="{{ route('complaint.create') }}" class="group relative flex items-center gap-3 border border-gray-200 bg-gray-50/50 rounded-xl px-5 py-3 hover:bg-gray-100/80 hover:border-gray-300 hover:shadow-sm transition-all duration-300">
                     <div class="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:bg-gray-900 group-hover:scale-105 transition-all duration-300 shadow-sm">
                         <i class="fas fa-book-open text-white text-sm"></i>

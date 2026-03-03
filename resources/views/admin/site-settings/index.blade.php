@@ -1,0 +1,183 @@
+@extends('admin.layouts.app')
+@section('title', 'Configuración')
+
+@section('content')
+<div class="max-w-5xl">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Configuración</h1>
+            <p class="text-sm text-gray-500 mt-1">Administra la información de tu negocio que se muestra en la tienda.</p>
+        </div>
+        <button type="submit" form="settingsForm" class="bg-indigo-500 text-white px-6 py-2.5 rounded-xl text-sm font-semibold hover:bg-indigo-600 transition shadow-sm shadow-indigo-200 flex items-center gap-2 self-start">
+            <i class="fas fa-save text-xs"></i> Guardar cambios
+        </button>
+    </div>
+
+    <!-- Tabs navigation -->
+    @php
+        $groups = [
+            'negocio' => ['label' => 'Negocio', 'icon' => 'fa-building'],
+            'redes' => ['label' => 'Redes Sociales', 'icon' => 'fa-share-nodes'],
+            'seo' => ['label' => 'SEO', 'icon' => 'fa-magnifying-glass'],
+        ];
+        $groupDescriptions = [
+            'negocio' => 'Datos legales, dirección y contacto de tu empresa. Esta información se muestra en el footer, páginas legales y formularios.',
+            'redes' => 'Conecta tus perfiles de redes sociales. Los iconos se mostrarán automáticamente en el footer y la página de contacto.',
+            'seo' => 'Optimiza cómo aparece tu tienda en los resultados de búsqueda de Google.',
+        ];
+
+        $iconMap = [
+            'business_name' => 'fa-store',
+            'legal_name' => 'fa-file-contract',
+            'ruc' => 'fa-id-card',
+            'address' => 'fa-map-marker-alt',
+            'phone' => 'fa-phone',
+            'contact_email' => 'fa-envelope',
+            'business_hours' => 'fa-clock',
+            'instagram_url' => 'fa-instagram fab',
+            'facebook_url' => 'fa-facebook fab',
+            'tiktok_url' => 'fa-tiktok fab',
+            'pinterest_url' => 'fa-pinterest fab',
+            'whatsapp_number' => 'fa-whatsapp fab',
+            'whatsapp_message' => 'fa-comment-dots',
+            'meta_description' => 'fa-align-left',
+            'tagline' => 'fa-quote-right',
+        ];
+
+        $iconColors = [
+            'instagram_url' => 'text-pink-500 bg-pink-50',
+            'facebook_url' => 'text-blue-600 bg-blue-50',
+            'tiktok_url' => 'text-gray-900 bg-gray-100',
+            'pinterest_url' => 'text-red-600 bg-red-50',
+            'whatsapp_number' => 'text-green-600 bg-green-50',
+            'whatsapp_message' => 'text-green-600 bg-green-50',
+        ];
+    @endphp
+
+    <div class="flex gap-2 mb-6 border-b border-gray-200 overflow-x-auto pb-px">
+        @foreach($groups as $groupKey => $groupInfo)
+            <button type="button" onclick="switchTab('{{ $groupKey }}')"
+                id="tab-{{ $groupKey }}"
+                class="tab-btn flex items-center gap-2 px-5 py-3 text-sm font-medium border-b-2 transition-all whitespace-nowrap {{ $loop->first ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-400 hover:text-gray-600' }}">
+                <i class="fas {{ $groupInfo['icon'] }} text-xs"></i>
+                {{ $groupInfo['label'] }}
+            </button>
+        @endforeach
+    </div>
+
+    <form id="settingsForm" action="{{ route('admin.settings.update') }}" method="POST">
+        @csrf
+        @method('PUT')
+
+        @foreach($settingsGroups as $group => $items)
+            <div id="panel-{{ $group }}" class="tab-panel {{ $loop->first ? '' : 'hidden' }}">
+
+                <!-- Group description -->
+                <div class="flex items-start gap-3 bg-indigo-50/60 rounded-xl px-5 py-4 mb-6">
+                    <i class="fas fa-circle-info text-indigo-400 mt-0.5 text-sm"></i>
+                    <p class="text-sm text-indigo-700/80">{{ $groupDescriptions[$group] ?? '' }}</p>
+                </div>
+
+                <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+                    <div class="divide-y divide-gray-50">
+                        @foreach($items as $setting)
+                            @php
+                                $icon = $iconMap[$setting->key] ?? 'fa-cog';
+                                $isBrand = str_contains($icon, 'fab');
+                                $iconClass = $isBrand ? str_replace(' fab', '', $icon) : $icon;
+                                $iconPrefix = $isBrand ? 'fab' : 'fas';
+                                $colorClass = $iconColors[$setting->key] ?? 'text-gray-500 bg-gray-50';
+                            @endphp
+                            <div class="flex items-start gap-4 px-6 py-5 hover:bg-gray-50/40 transition">
+                                <div class="w-10 h-10 rounded-xl {{ $colorClass }} flex items-center justify-center flex-shrink-0 mt-0.5">
+                                    <i class="{{ $iconPrefix }} {{ $iconClass }} text-sm"></i>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <label for="setting_{{ $setting->key }}" class="block text-sm font-semibold text-gray-800 mb-1">
+                                        {{ $setting->label }}
+                                    </label>
+                                    @if($setting->key === 'meta_description' || $setting->key === 'tagline' || $setting->key === 'whatsapp_message')
+                                        <textarea
+                                            id="setting_{{ $setting->key }}"
+                                            name="settings[{{ $setting->key }}]"
+                                            rows="2"
+                                            class="w-full border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition resize-none"
+                                            placeholder="{{ $setting->label }}..."
+                                        >{{ old("settings.{$setting->key}", $setting->value) }}</textarea>
+                                        @if($setting->key === 'meta_description')
+                                            <div class="flex items-center justify-between mt-1.5">
+                                                <p class="text-xs text-gray-400">Recomendado: 150-160 caracteres</p>
+                                                <p class="text-xs text-gray-400"><span id="metaCount">{{ strlen($setting->value ?? '') }}</span>/160</p>
+                                            </div>
+                                        @endif
+                                    @else
+                                        <div class="relative">
+                                            @if($setting->type === 'url')
+                                                <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs text-gray-300"><i class="fas fa-link"></i></span>
+                                            @elseif($setting->type === 'email')
+                                                <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs text-gray-300"><i class="fas fa-at"></i></span>
+                                            @elseif($setting->type === 'tel')
+                                                <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs text-gray-300"><i class="fas fa-phone"></i></span>
+                                            @endif
+                                            <input
+                                                type="{{ $setting->type === 'url' ? 'url' : ($setting->type === 'email' ? 'email' : 'text') }}"
+                                                id="setting_{{ $setting->key }}"
+                                                name="settings[{{ $setting->key }}]"
+                                                value="{{ old("settings.{$setting->key}", $setting->value) }}"
+                                                class="w-full border border-gray-200 rounded-lg {{ in_array($setting->type, ['url', 'email', 'tel']) ? 'pl-9' : 'px-3.5' }} pr-3.5 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition"
+                                                placeholder="{{ $setting->label }}..."
+                                            >
+                                        </div>
+                                        @if($setting->key === 'whatsapp_number')
+                                            <p class="text-xs text-gray-400 mt-1.5">Formato: 51999999999 (código país + número, sin espacios ni +)</p>
+                                        @elseif($setting->key === 'ruc')
+                                            <p class="text-xs text-gray-400 mt-1.5">RUC de 11 dígitos</p>
+                                        @endif
+                                    @endif
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+
+                <!-- Save button mobile -->
+                <div class="mt-6 sm:hidden">
+                    <button type="submit" class="w-full bg-indigo-500 text-white py-3 rounded-xl text-sm font-semibold hover:bg-indigo-600 transition shadow-sm shadow-indigo-200">
+                        <i class="fas fa-save mr-2"></i> Guardar cambios
+                    </button>
+                </div>
+            </div>
+        @endforeach
+    </form>
+</div>
+
+@endsection
+
+@section('scripts')
+<script>
+function switchTab(group) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.add('hidden'));
+    document.querySelectorAll('.tab-btn').forEach(b => {
+        b.classList.remove('border-indigo-500', 'text-indigo-600');
+        b.classList.add('border-transparent', 'text-gray-400');
+    });
+
+    document.getElementById('panel-' + group).classList.remove('hidden');
+    const btn = document.getElementById('tab-' + group);
+    btn.classList.add('border-indigo-500', 'text-indigo-600');
+    btn.classList.remove('border-transparent', 'text-gray-400');
+}
+
+// Meta description counter
+const metaInput = document.getElementById('setting_meta_description');
+const metaCount = document.getElementById('metaCount');
+if (metaInput && metaCount) {
+    metaInput.addEventListener('input', () => {
+        const len = metaInput.value.length;
+        metaCount.textContent = len;
+        metaCount.className = len > 160 ? 'text-red-500' : 'text-gray-400';
+    });
+}
+</script>
+@endsection

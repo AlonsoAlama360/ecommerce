@@ -3,9 +3,10 @@
 namespace App\Providers;
 
 use App\Models\Category;
+use App\Models\SiteSetting;
 use Illuminate\Support\ServiceProvider;
-// use Illuminate\View\View;
 use Illuminate\Support\Facades\View;
+
 class ViewServiceProvider extends ServiceProvider
 {
     /**
@@ -29,6 +30,11 @@ class ViewServiceProvider extends ServiceProvider
                 ->get();
 
             $view->with('navCategories', $navCategories);
+        });
+
+        // Compartir settings del sitio con todas las vistas
+        View::composer('*', function ($view) {
+            $view->with('settings', SiteSetting::allCached());
         });
     }
 }

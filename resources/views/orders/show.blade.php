@@ -485,7 +485,7 @@
                             </div>
                         </div>
                         <p class="text-sm text-gray-600 mb-4">Si tienes dudas sobre tu pedido, contáctanos por WhatsApp.</p>
-                        <a href="https://wa.me/{{ config('app.whatsapp_phone') }}?text=Hola, tengo una consulta sobre mi pedido {{ $order->order_number }}" target="_blank"
+                        <a href="https://wa.me/{{ $settings['whatsapp_number'] ?? '' }}?text=Hola, tengo una consulta sobre mi pedido {{ $order->order_number }}" target="_blank"
                            class="flex items-center justify-center gap-2 bg-[#25D366] text-white px-4 py-3 rounded-xl text-sm font-semibold hover:bg-[#20bd5a] transition-all hover:shadow-lg hover:shadow-[#25D366]/25 w-full">
                             <i class="fab fa-whatsapp text-lg"></i>
                             Escribir por WhatsApp

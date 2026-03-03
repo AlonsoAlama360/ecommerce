@@ -195,7 +195,7 @@
                         <td style="background-color: #F9F5F0; border-radius: 0 0 20px 20px; padding: 28px 40px; text-align: center;">
                             <!-- Social links -->
                             <p style="margin: 0 0 15px;">
-                                <a href="https://wa.me/{{ config('app.whatsapp_phone') }}" style="display: inline-block; width: 32px; height: 32px; background-color: #D4A574; border-radius: 8px; text-align: center; line-height: 32px; text-decoration: none; margin: 0 4px; font-size: 14px;">&#128172;</a>
+                                <a href="https://wa.me/{{ App\Models\SiteSetting::get('whatsapp_number') }}" style="display: inline-block; width: 32px; height: 32px; background-color: #D4A574; border-radius: 8px; text-align: center; line-height: 32px; text-decoration: none; margin: 0 4px; font-size: 14px;">&#128172;</a>
                             </p>
                             <p style="margin: 0 0 8px; color: #999999; font-size: 12px;">
                                 &copy; {{ date('Y') }} {{ config('app.name') }}. Todos los derechos reservados.
