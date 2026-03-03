@@ -224,6 +224,14 @@
                 <span>Suscriptores</span>
             </a>
 
+            <a href="{{ route('admin.complaints.index') }}"
+                class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium mb-0.5 {{ request()->routeIs('admin.complaints.*') ? 'active' : 'text-slate-400' }}">
+                <div class="w-8 h-8 rounded-lg {{ request()->routeIs('admin.complaints.*') ? 'bg-indigo-500/20' : 'bg-white/5' }} flex items-center justify-center transition">
+                    <i class="fas fa-book text-xs {{ request()->routeIs('admin.complaints.*') ? 'text-indigo-400' : 'text-slate-500' }}"></i>
+                </div>
+                <span>Reclamaciones</span>
+            </a>
+
             {{-- Tienda --}}
             <p class="px-3 pt-5 pb-2 text-[10px] font-semibold text-slate-500/80 uppercase tracking-[0.15em]">Tienda</p>
 

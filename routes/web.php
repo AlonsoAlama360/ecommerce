@@ -29,6 +29,9 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\NewsletterController;
+use App\Http\Controllers\LegalController;
+use App\Http\Controllers\ComplaintController;
+use App\Http\Controllers\Admin\ComplaintController as AdminComplaintController;
 use Illuminate\Support\Facades\Route;
 
 // Rutas públicas - cualquier usuario puede navegar
@@ -40,6 +43,13 @@ Route::get('/ofertas', [OfertasController::class, 'index'])->name('ofertas');
 
 // Newsletter
 Route::post('/newsletter', [NewsletterController::class, 'subscribe'])->name('newsletter.subscribe');
+
+// Páginas legales
+Route::get('/terminos-y-condiciones', [LegalController::class, 'terms'])->name('legal.terms');
+Route::get('/politica-cambios-devoluciones', [LegalController::class, 'returns'])->name('legal.returns');
+Route::get('/libro-de-reclamaciones', [ComplaintController::class, 'create'])->name('complaint.create');
+Route::post('/libro-de-reclamaciones', [ComplaintController::class, 'store'])->name('complaint.store');
+Route::get('/libro-de-reclamaciones/{complaint}/confirmacion', [ComplaintController::class, 'confirmation'])->name('complaint.confirmation');
 
 // Carrito de compras (sesión, sin auth requerido)
 Route::get('/carrito', [CartController::class, 'index'])->name('cart');
@@ -144,6 +154,11 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::put('subscribers/{subscriber}/toggle', [AdminSubscriberController::class, 'toggleStatus'])->name('subscribers.toggle');
     Route::delete('subscribers/{subscriber}', [AdminSubscriberController::class, 'destroy'])->name('subscribers.destroy');
     Route::get('subscribers-export', [AdminSubscriberController::class, 'export'])->name('subscribers.export');
+
+    // Libro de Reclamaciones
+    Route::get('complaints', [AdminComplaintController::class, 'index'])->name('complaints.index');
+    Route::get('complaints/{complaint}', [AdminComplaintController::class, 'show'])->name('complaints.show');
+    Route::put('complaints/{complaint}', [AdminComplaintController::class, 'update'])->name('complaints.update');
 
     // Product Specifications (AJAX)
     Route::get('products/{product}/specifications', [AdminProductController::class, 'specifications'])->name('products.specifications');

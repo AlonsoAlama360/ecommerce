@@ -611,11 +611,11 @@
                 <div>
                     <h2 class="font-semibold text-gray-900 mb-4">Ayuda</h2>
                     <ul class="space-y-2 text-gray-600">
-                        <li><a href="#" class="hover:text-gray-900 transition">Envíos</a></li>
-                        <li><a href="#" class="hover:text-gray-900 transition">Devoluciones</a></li>
+                        <li><a href="{{ route('legal.terms') }}" class="hover:text-gray-900 transition">Términos y Condiciones</a></li>
+                        <li><a href="{{ route('legal.returns') }}" class="hover:text-gray-900 transition">Cambios y Devoluciones</a></li>
+                        <li><a href="{{ route('complaint.create') }}" class="hover:text-gray-900 transition">Libro de Reclamaciones</a></li>
                         <li><a href="#" class="hover:text-gray-900 transition">Preguntas Frecuentes</a></li>
                         <li><a href="#" class="hover:text-gray-900 transition">Contacto</a></li>
-                        <li><a href="#" class="hover:text-gray-900 transition">Garantía</a></li>
                     </ul>
                 </div>
                 <div>

@@ -2,53 +2,41 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Application\User\DTOs\CreateUserDTO;
+use App\Application\User\DTOs\UserFiltersDTO;
+use App\Application\User\UseCases\CreateUser;
+use App\Application\User\UseCases\DeleteUser;
+use App\Application\User\UseCases\ListUsers;
+use App\Application\User\UseCases\UpdateUser;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\User\AdminCreateUserRequest;
+use App\Http\Requests\User\AdminUpdateUserRequest;
 use App\Models\Department;
 use App\Models\User;
-use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
-    public function index(Request $request)
+    public function __construct(
+        private ListUsers $listUsers,
+        private CreateUser $createUser,
+        private UpdateUser $updateUser,
+        private DeleteUser $deleteUser,
+    ) {}
+
+    public function index(\Illuminate\Http\Request $request)
     {
-        $query = User::query();
-
-        if ($search = $request->get('search')) {
-            $query->where(function ($q) use ($search) {
-                $q->where('first_name', 'like', "%{$search}%")
-                  ->orWhere('last_name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
-            });
-        }
-
-        if ($role = $request->get('role')) {
-            $query->where('role', $role);
-        }
-
-        if ($request->has('status') && $request->get('status') !== '') {
-            $query->where('is_active', $request->get('status'));
-        }
-
-        if ($dateFrom = $request->get('date_from')) {
-            $query->whereDate('created_at', '>=', $dateFrom);
-        }
-
-        if ($dateTo = $request->get('date_to')) {
-            $query->whereDate('created_at', '<=', $dateTo);
-        }
-
-        $perPage = $request->get('per_page', 10);
-        $users = $query->latest()->paginate($perPage)->withQueryString();
-
-        $totalUsers = User::count();
-        $activeUsers = User::where('is_active', true)->count();
-        $inactiveUsers = User::where('is_active', false)->count();
-        $newUsersWeek = User::where('created_at', '>=', now()->subWeek())->count();
+        $data = $this->listUsers->execute(new UserFiltersDTO(
+            search: $request->get('search'),
+            role: $request->get('role'),
+            status: $request->has('status') && $request->get('status') !== '' ? $request->get('status') : null,
+            dateFrom: $request->get('date_from'),
+            dateTo: $request->get('date_to'),
+            perPage: (int) $request->get('per_page', 10),
+        ));
 
         $departments = Department::orderBy('name')->get(['id', 'name']);
 
-        return view('admin.users.index', compact('users', 'totalUsers', 'activeUsers', 'inactiveUsers', 'newUsersWeek', 'departments'));
+        return view('admin.users.index', array_merge($data, compact('departments')));
     }
 
     public function create()
@@ -56,30 +44,25 @@ class UserController extends Controller
         return redirect()->route('admin.users.index');
     }
 
-    public function store(Request $request)
+    public function store(AdminCreateUserRequest $request)
     {
-        $validated = $request->validate([
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'phone' => 'nullable|string|max:20',
-            'password' => 'required|string|min:8|confirmed',
-            'newsletter' => 'boolean',
-            'role' => 'required|in:admin,vendedor,cliente',
-            'is_active' => 'boolean',
-            'document_type' => 'nullable|in:DNI,CE,RUC',
-            'document_number' => 'nullable|string|max:20',
-            'department_id' => 'nullable|exists:departments,id',
-            'province_id' => 'nullable|exists:provinces,id',
-            'district_id' => 'nullable|exists:districts,id',
-            'address' => 'nullable|string|max:255',
-            'address_reference' => 'nullable|string|max:255',
-        ]);
-
-        $validated['newsletter'] = $request->boolean('newsletter');
-        $validated['is_active'] = $request->boolean('is_active');
-
-        User::create($validated);
+        $this->createUser->execute(new CreateUserDTO(
+            firstName: $request->first_name,
+            lastName: $request->last_name,
+            email: $request->email,
+            password: $request->password,
+            role: $request->role,
+            isActive: $request->boolean('is_active'),
+            newsletter: $request->boolean('newsletter'),
+            phone: $request->phone,
+            documentType: $request->document_type,
+            documentNumber: $request->document_number,
+            departmentId: $request->department_id ? (int) $request->department_id : null,
+            provinceId: $request->province_id ? (int) $request->province_id : null,
+            districtId: $request->district_id ? (int) $request->district_id : null,
+            address: $request->address,
+            addressReference: $request->address_reference,
+        ));
 
         return redirect()->route('admin.users.index')
             ->with('success', 'Usuario creado exitosamente.');
@@ -90,34 +73,25 @@ class UserController extends Controller
         return redirect()->route('admin.users.index');
     }
 
-    public function update(Request $request, User $user)
+    public function update(AdminUpdateUserRequest $request, User $user)
     {
-        $validated = $request->validate([
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
-            'email' => ['required', 'email', Rule::unique('users')->ignore($user->id)],
-            'phone' => 'nullable|string|max:20',
-            'password' => 'nullable|string|min:8|confirmed',
-            'newsletter' => 'boolean',
-            'role' => 'required|in:admin,vendedor,cliente',
-            'is_active' => 'boolean',
-            'document_type' => 'nullable|in:DNI,CE,RUC',
-            'document_number' => 'nullable|string|max:20',
-            'department_id' => 'nullable|exists:departments,id',
-            'province_id' => 'nullable|exists:provinces,id',
-            'district_id' => 'nullable|exists:districts,id',
-            'address' => 'nullable|string|max:255',
-            'address_reference' => 'nullable|string|max:255',
-        ]);
-
-        $validated['newsletter'] = $request->boolean('newsletter');
-        $validated['is_active'] = $request->boolean('is_active');
-
-        if (empty($validated['password'])) {
-            unset($validated['password']);
-        }
-
-        $user->update($validated);
+        $this->updateUser->execute($user, new CreateUserDTO(
+            firstName: $request->first_name,
+            lastName: $request->last_name,
+            email: $request->email,
+            password: $request->password,
+            role: $request->role,
+            isActive: $request->boolean('is_active'),
+            newsletter: $request->boolean('newsletter'),
+            phone: $request->phone,
+            documentType: $request->document_type,
+            documentNumber: $request->document_number,
+            departmentId: $request->department_id ? (int) $request->department_id : null,
+            provinceId: $request->province_id ? (int) $request->province_id : null,
+            districtId: $request->district_id ? (int) $request->district_id : null,
+            address: $request->address,
+            addressReference: $request->address_reference,
+        ));
 
         return redirect()->route('admin.users.index')
             ->with('success', 'Usuario actualizado exitosamente.');
@@ -125,11 +99,11 @@ class UserController extends Controller
 
     public function destroy(User $user)
     {
-        if ($user->id === auth()->id()) {
-            return back()->with('error', 'No puedes eliminar tu propia cuenta.');
+        try {
+            $this->deleteUser->execute($user, auth()->id());
+        } catch (\LogicException $e) {
+            return back()->with('error', $e->getMessage());
         }
-
-        $user->delete();
 
         return redirect()->route('admin.users.index')
             ->with('success', 'Usuario eliminado exitosamente.');

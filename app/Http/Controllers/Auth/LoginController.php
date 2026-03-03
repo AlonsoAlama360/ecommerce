@@ -2,43 +2,46 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Application\User\DTOs\LoginDTO;
+use App\Application\User\UseCases\LoginUser;
+use App\Application\User\UseCases\LogoutUser;
+use App\Domain\User\Exceptions\InvalidCredentialsException;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\User\LoginRequest;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class LoginController extends Controller
 {
+    public function __construct(
+        private LoginUser $loginUser,
+        private LogoutUser $logoutUser,
+    ) {}
+
     public function showLoginForm()
     {
         return view('auth.login');
     }
 
-    public function login(Request $request)
+    public function login(LoginRequest $request)
     {
-        $credentials = $request->validate([
-            'email' => ['required', 'email'],
-            'password' => ['required'],
-        ]);
-
-        $remember = $request->boolean('remember');
-
-        if (Auth::attempt($credentials, $remember)) {
-            $request->session()->regenerate();
-
-            return redirect()->intended('/');
+        try {
+            $this->loginUser->execute(new LoginDTO(
+                email: $request->email,
+                password: $request->password,
+                remember: $request->boolean('remember'),
+            ));
+        } catch (InvalidCredentialsException $e) {
+            return back()->withErrors([
+                'email' => $e->getMessage(),
+            ])->onlyInput('email');
         }
 
-        return back()->withErrors([
-            'email' => 'Las credenciales no coinciden con nuestros registros.',
-        ])->onlyInput('email');
+        return redirect()->intended('/');
     }
 
     public function logout(Request $request)
     {
-        Auth::logout();
-
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
+        $this->logoutUser->execute();
 
         return redirect('/');
     }
