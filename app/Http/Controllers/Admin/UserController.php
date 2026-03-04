@@ -12,7 +12,9 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\User\AdminCreateUserRequest;
 use App\Http\Requests\User\AdminUpdateUserRequest;
 use App\Models\Department;
+use App\Models\Role;
 use App\Models\User;
+use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
@@ -35,8 +37,9 @@ class UserController extends Controller
         ));
 
         $departments = Department::orderBy('name')->get(['id', 'name']);
+        $roles = Role::orderBy('display_name')->get(['name', 'display_name']);
 
-        return view('admin.users.index', array_merge($data, compact('departments')));
+        return view('admin.users.index', array_merge($data, compact('departments', 'roles')));
     }
 
     public function create()
@@ -57,11 +60,6 @@ class UserController extends Controller
             phone: $request->phone,
             documentType: $request->document_type,
             documentNumber: $request->document_number,
-            departmentId: $request->department_id ? (int) $request->department_id : null,
-            provinceId: $request->province_id ? (int) $request->province_id : null,
-            districtId: $request->district_id ? (int) $request->district_id : null,
-            address: $request->address,
-            addressReference: $request->address_reference,
         ));
 
         return redirect()->route('admin.users.index')
@@ -86,15 +84,46 @@ class UserController extends Controller
             phone: $request->phone,
             documentType: $request->document_type,
             documentNumber: $request->document_number,
-            departmentId: $request->department_id ? (int) $request->department_id : null,
-            provinceId: $request->province_id ? (int) $request->province_id : null,
-            districtId: $request->district_id ? (int) $request->district_id : null,
-            address: $request->address,
-            addressReference: $request->address_reference,
         ));
 
         return redirect()->route('admin.users.index')
             ->with('success', 'Usuario actualizado exitosamente.');
+    }
+
+    public function updateAddress(Request $request, User $user)
+    {
+        $validated = $request->validate([
+            'department_id' => 'nullable|exists:departments,id',
+            'province_id' => 'nullable|exists:provinces,id',
+            'district_id' => 'nullable|exists:districts,id',
+            'address' => 'nullable|string|max:255',
+            'address_reference' => 'nullable|string|max:255',
+        ]);
+
+        $user->update([
+            'department_id' => $validated['department_id'] ?: null,
+            'province_id' => $validated['province_id'] ?: null,
+            'district_id' => $validated['district_id'] ?: null,
+            'address' => $validated['address'] ?: null,
+            'address_reference' => $validated['address_reference'] ?: null,
+        ]);
+
+        return redirect()->route('admin.users.index')
+            ->with('success', 'Dirección actualizada exitosamente.');
+    }
+
+    public function destroyAddress(User $user)
+    {
+        $user->update([
+            'department_id' => null,
+            'province_id' => null,
+            'district_id' => null,
+            'address' => null,
+            'address_reference' => null,
+        ]);
+
+        return redirect()->route('admin.users.index')
+            ->with('success', 'Dirección eliminada exitosamente.');
     }
 
     public function destroy(User $user)

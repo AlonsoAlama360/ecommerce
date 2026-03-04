@@ -424,7 +424,7 @@
                         <div class="min-w-[280px] sm:min-w-[300px] px-3">
                             <div class="product-card-home bg-white rounded-2xl overflow-hidden border border-gray-100 group">
                                 <a href="{{ route('product.show', $product->slug) }}" class="block relative overflow-hidden">
-                                    <img src="{{ $product->primaryImage?->image_url ?? '' }}"
+                                    <img src="{{ $product->primaryImage?->thumbnail() ?? '' }}"
                                         alt="{{ $product->name }}"
                                         class="w-full h-80 object-cover group-hover:scale-105 transition-transform duration-700" loading="lazy">
                                     <div class="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -532,7 +532,7 @@
                 @foreach($newArrivals->take(4) as $product)
                     <div class="product-card-home bg-white rounded-2xl overflow-hidden border border-gray-100 group">
                         <a href="{{ route('product.show', $product->slug) }}" class="block relative overflow-hidden">
-                            <img src="{{ $product->primaryImage?->image_url ?? '' }}"
+                            <img src="{{ $product->primaryImage?->thumbnail() ?? '' }}"
                                 alt="{{ $product->name }}"
                                 class="w-full h-56 sm:h-72 object-cover group-hover:scale-105 transition-transform duration-700" loading="lazy">
                             <div class="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>

@@ -198,7 +198,7 @@ if ($stock <= 5) return ['bg'=> 'bg-amber-50', 'text' => 'text-amber-600', 'labe
                         <td class="px-4 py-3">
                             <div class="flex items-center gap-3">
                                 @if($product->primaryImage)
-                                <img src="{{ $product->primaryImage->image_url }}" alt="{{ $product->name }}" class="w-10 h-10 rounded-lg object-cover border border-gray-100 flex-shrink-0">
+                                <img src="{{ $product->primaryImage->thumbnail() }}" alt="{{ $product->name }}" class="w-10 h-10 rounded-lg object-cover border border-gray-100 flex-shrink-0">
                                 @else
                                 <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center flex-shrink-0">
                                     <i class="fas fa-image text-gray-400 text-xs"></i>
@@ -291,7 +291,7 @@ if ($stock <= 5) return ['bg'=> 'bg-amber-50', 'text' => 'text-amber-600', 'labe
             <div class="p-4">
                 <div class="flex items-center gap-3">
                     @if($product->primaryImage)
-                    <img src="{{ $product->primaryImage->image_url }}" alt="{{ $product->name }}" class="w-12 h-12 rounded-lg object-cover border border-gray-100 flex-shrink-0">
+                    <img src="{{ $product->primaryImage->thumbnail() }}" alt="{{ $product->name }}" class="w-12 h-12 rounded-lg object-cover border border-gray-100 flex-shrink-0">
                     @else
                     <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center flex-shrink-0">
                         <i class="fas fa-image text-gray-400 text-sm"></i>
@@ -632,6 +632,7 @@ if ($stock <= 5) return ['bg'=> 'bg-amber-50', 'text' => 'text-amber-600', 'labe
             <form method="POST" action="" id="editProductForm" class="p-6" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
+                <input type="hidden" name="_product_id" id="edit_product_id" value="">
                 {{-- Image Preview --}}
                 <div class="flex justify-center mb-6">
                     <div id="editImgPreviewWrap" class="w-20 h-20 rounded-2xl bg-gradient-to-br from-indigo-400 to-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-200 overflow-hidden">
@@ -1048,11 +1049,15 @@ if ($stock <= 5) return ['bg'=> 'bg-amber-50', 'text' => 'text-amber-600', 'labe
             document.getElementById('edit_sale_price').value = product.sale_price || '';
             document.getElementById('edit_stock').value = product.stock ?? 0;
             document.getElementById('edit_material').value = product.material || '';
-            document.getElementById('edit_image_url').value = product.image_url || '';
+
+            // Only set URL field if it's an external URL (starts with http)
+            const isExternalUrl = product.image_url && product.image_url.startsWith('http');
+            document.getElementById('edit_image_url').value = isExternalUrl ? product.image_url : '';
 
             document.getElementById('editProductForm').action = '/admin/products/' + product.id;
+            document.getElementById('edit_product_id').value = product.id;
             document.getElementById('editDrawerSubtitle').textContent = product.name;
-            switchEditImgTab('url');
+            switchEditImgTab(isExternalUrl ? 'url' : 'file');
             clearEditFile();
 
             document.getElementById('edit_is_active').checked = product.is_active;

@@ -285,7 +285,7 @@
                             {{-- Left: Product Images Mosaic --}}
                             <div class="sm:w-44 lg:w-52 flex-shrink-0 bg-gradient-to-br from-gray-50 to-gray-100 p-3 sm:p-4">
                                 @if($order->items->count() === 1)
-                                    @php $img = $order->items->first()->product?->primaryImage?->image_url; @endphp
+                                    @php $img = $order->items->first()->product?->primaryImage?->thumbnail(); @endphp
                                     <div class="order-img-wrapper w-full aspect-square rounded-xl overflow-hidden bg-white shadow-sm">
                                         @if($img)
                                             <img src="{{ $img }}" alt="{{ $order->items->first()->product_name }}" class="w-full h-full object-cover">
@@ -298,7 +298,7 @@
                                 @elseif($order->items->count() >= 2)
                                     <div class="order-img-wrapper grid grid-cols-2 gap-1.5 aspect-square">
                                         @foreach($order->items->take(4) as $i => $item)
-                                            @php $img = $item->product?->primaryImage?->image_url; @endphp
+                                            @php $img = $item->product?->primaryImage?->thumbnail(); @endphp
                                             <div class="rounded-lg overflow-hidden bg-white shadow-sm {{ $order->items->count() === 2 ? 'row-span-1' : '' }} {{ $order->items->count() === 3 && $i === 0 ? 'row-span-2' : '' }}">
                                                 @if($img)
                                                     <img src="{{ $img }}" alt="{{ $item->product_name }}" class="w-full h-full object-cover">

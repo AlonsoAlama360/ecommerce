@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\ProductImage;
+use App\Services\ImageService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -35,6 +36,7 @@ class ProductImageController extends Controller
         if ($request->hasFile('image_file')) {
             $path = $request->file('image_file')->store('products', 'public');
             $validated['image_url'] = '/storage/' . $path;
+            $validated['thumbnail_url'] = app(ImageService::class)->generateThumbnail($path);
             unset($validated['image_file']);
         }
 

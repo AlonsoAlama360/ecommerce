@@ -36,6 +36,7 @@ use App\Http\Controllers\Admin\ComplaintController as AdminComplaintController;
 use App\Http\Controllers\Admin\ContactMessageController as AdminContactMessageController;
 use App\Http\Controllers\Admin\ReportController as AdminReportController;
 use App\Http\Controllers\Admin\SiteSettingController as AdminSiteSettingController;
+use App\Http\Controllers\Admin\RolePermissionController;
 use Illuminate\Support\Facades\Route;
 
 // Rutas públicas - cualquier usuario puede navegar
@@ -116,86 +117,123 @@ Route::middleware('auth')->group(function () {
 
 // Panel de administración
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
-    Route::resource('users', AdminUserController::class)->except(['show']);
-    Route::resource('categories', AdminCategoryController::class)->except(['show']);
-    Route::resource('products', AdminProductController::class)->except(['show']);
-    Route::resource('suppliers', AdminSupplierController::class)->except(['show']);
+    Route::get('/', [DashboardController::class, 'index'])->middleware('permission:dashboard.view')->name('dashboard');
+
+    // Users
+    Route::resource('users', AdminUserController::class)->except(['show'])->middleware('permission:users.view');
+    Route::put('users/{user}/address', [AdminUserController::class, 'updateAddress'])->name('users.update-address')->middleware('permission:users.view');
+    Route::delete('users/{user}/address', [AdminUserController::class, 'destroyAddress'])->name('users.destroy-address')->middleware('permission:users.view');
+
+    // Categories
+    Route::resource('categories', AdminCategoryController::class)->except(['show'])->middleware('permission:categories.view');
+
+    // Products
+    Route::middleware('permission:products.view')->group(function () {
+        Route::resource('products', AdminProductController::class)->except(['show']);
+        Route::get('products/{product}/specifications', [AdminProductController::class, 'specifications'])->name('products.specifications');
+        Route::put('products/{product}/specifications', [AdminProductController::class, 'updateSpecifications'])->name('products.specifications.update');
+        Route::get('products/{product}/images', [AdminProductImageController::class, 'index'])->name('products.images.index');
+        Route::post('products/{product}/images', [AdminProductImageController::class, 'store'])->name('products.images.store');
+        Route::put('products/{product}/images/{image}', [AdminProductImageController::class, 'update'])->name('products.images.update');
+        Route::delete('products/{product}/images/{image}', [AdminProductImageController::class, 'destroy'])->name('products.images.destroy');
+        Route::post('products/{product}/images/reorder', [AdminProductImageController::class, 'reorder'])->name('products.images.reorder');
+    });
+
+    // Suppliers
+    Route::resource('suppliers', AdminSupplierController::class)->except(['show'])->middleware('permission:suppliers.view');
 
     // Orders (Sales)
-    Route::resource('orders', AdminOrderController::class);
-    Route::put('orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.status');
-    Route::get('orders-export', [AdminOrderController::class, 'export'])->name('orders.export');
-    Route::get('orders-search-products', [AdminOrderController::class, 'searchProducts'])->name('orders.search-products');
-    Route::get('orders-search-users', [AdminOrderController::class, 'searchUsers'])->name('orders.search-users');
+    Route::middleware('permission:orders.view')->group(function () {
+        Route::resource('orders', AdminOrderController::class);
+        Route::put('orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.status');
+        Route::get('orders-export', [AdminOrderController::class, 'export'])->name('orders.export');
+        Route::get('orders-search-products', [AdminOrderController::class, 'searchProducts'])->name('orders.search-products');
+        Route::get('orders-search-users', [AdminOrderController::class, 'searchUsers'])->name('orders.search-users');
+    });
 
     // Purchases (Compras a proveedores)
-    Route::resource('purchases', AdminPurchaseController::class);
-    Route::put('purchases/{purchase}/status', [AdminPurchaseController::class, 'updateStatus'])->name('purchases.status');
-    Route::get('purchases-search-suppliers', [AdminPurchaseController::class, 'searchSuppliers'])->name('purchases.search-suppliers');
-    Route::get('purchases-search-products', [AdminPurchaseController::class, 'searchProducts'])->name('purchases.search-products');
+    Route::middleware('permission:purchases.view')->group(function () {
+        Route::resource('purchases', AdminPurchaseController::class);
+        Route::put('purchases/{purchase}/status', [AdminPurchaseController::class, 'updateStatus'])->name('purchases.status');
+        Route::get('purchases-search-suppliers', [AdminPurchaseController::class, 'searchSuppliers'])->name('purchases.search-suppliers');
+        Route::get('purchases-search-products', [AdminPurchaseController::class, 'searchProducts'])->name('purchases.search-products');
+    });
 
     // Kardex (Stock Movements)
-    Route::get('kardex', [AdminKardexController::class, 'index'])->name('kardex.index');
-    Route::get('kardex/exportar', [AdminKardexController::class, 'export'])->name('kardex.export');
-    Route::get('kardex/producto/{product}', [AdminKardexController::class, 'show'])->name('kardex.show');
-    Route::get('kardex/producto/{product}/exportar', [AdminKardexController::class, 'exportProduct'])->name('kardex.export-product');
-    Route::post('kardex/ajuste', [AdminKardexController::class, 'adjust'])->name('kardex.adjust');
-    Route::get('kardex-search-products', [AdminKardexController::class, 'searchProducts'])->name('kardex.search-products');
+    Route::middleware('permission:kardex.view')->group(function () {
+        Route::get('kardex', [AdminKardexController::class, 'index'])->name('kardex.index');
+        Route::get('kardex/exportar', [AdminKardexController::class, 'export'])->name('kardex.export');
+        Route::get('kardex/producto/{product}', [AdminKardexController::class, 'show'])->name('kardex.show');
+        Route::get('kardex/producto/{product}/exportar', [AdminKardexController::class, 'exportProduct'])->name('kardex.export-product');
+        Route::post('kardex/ajuste', [AdminKardexController::class, 'adjust'])->name('kardex.adjust');
+        Route::get('kardex-search-products', [AdminKardexController::class, 'searchProducts'])->name('kardex.search-products');
+    });
 
     // Wishlists (Lista de Deseos)
-    Route::get('wishlists', [AdminWishlistController::class, 'index'])->name('wishlists.index');
-    Route::get('wishlists/exportar', [AdminWishlistController::class, 'export'])->name('wishlists.export');
-    Route::get('wishlists/producto/{product}', [AdminWishlistController::class, 'show'])->name('wishlists.show');
-    Route::get('wishlists/producto/{product}/exportar', [AdminWishlistController::class, 'exportProduct'])->name('wishlists.export-product');
+    Route::middleware('permission:wishlists.view')->group(function () {
+        Route::get('wishlists', [AdminWishlistController::class, 'index'])->name('wishlists.index');
+        Route::get('wishlists/exportar', [AdminWishlistController::class, 'export'])->name('wishlists.export');
+        Route::get('wishlists/producto/{product}', [AdminWishlistController::class, 'show'])->name('wishlists.show');
+        Route::get('wishlists/producto/{product}/exportar', [AdminWishlistController::class, 'exportProduct'])->name('wishlists.export-product');
+    });
 
     // Reviews
-    Route::get('reviews', [AdminReviewController::class, 'index'])->name('reviews.index');
-    Route::put('reviews/{review}/approve', [AdminReviewController::class, 'approve'])->name('reviews.approve');
-    Route::put('reviews/{review}/reject', [AdminReviewController::class, 'reject'])->name('reviews.reject');
-    Route::put('reviews/{review}/featured', [AdminReviewController::class, 'toggleFeatured'])->name('reviews.featured');
-    Route::delete('reviews/{review}', [AdminReviewController::class, 'destroy'])->name('reviews.destroy');
+    Route::middleware('permission:reviews.view')->group(function () {
+        Route::get('reviews', [AdminReviewController::class, 'index'])->name('reviews.index');
+        Route::put('reviews/{review}/approve', [AdminReviewController::class, 'approve'])->name('reviews.approve');
+        Route::put('reviews/{review}/reject', [AdminReviewController::class, 'reject'])->name('reviews.reject');
+        Route::put('reviews/{review}/featured', [AdminReviewController::class, 'toggleFeatured'])->name('reviews.featured');
+        Route::delete('reviews/{review}', [AdminReviewController::class, 'destroy'])->name('reviews.destroy');
+    });
 
     // Subscribers (Newsletter)
-    Route::get('subscribers', [AdminSubscriberController::class, 'index'])->name('subscribers.index');
-    Route::put('subscribers/{subscriber}/toggle', [AdminSubscriberController::class, 'toggleStatus'])->name('subscribers.toggle');
-    Route::delete('subscribers/{subscriber}', [AdminSubscriberController::class, 'destroy'])->name('subscribers.destroy');
-    Route::get('subscribers-export', [AdminSubscriberController::class, 'export'])->name('subscribers.export');
+    Route::middleware('permission:subscribers.view')->group(function () {
+        Route::get('subscribers', [AdminSubscriberController::class, 'index'])->name('subscribers.index');
+        Route::put('subscribers/{subscriber}/toggle', [AdminSubscriberController::class, 'toggleStatus'])->name('subscribers.toggle');
+        Route::delete('subscribers/{subscriber}', [AdminSubscriberController::class, 'destroy'])->name('subscribers.destroy');
+        Route::get('subscribers-export', [AdminSubscriberController::class, 'export'])->name('subscribers.export');
+    });
 
     // Libro de Reclamaciones
-    Route::get('complaints', [AdminComplaintController::class, 'index'])->name('complaints.index');
-    Route::get('complaints/{complaint}', [AdminComplaintController::class, 'show'])->name('complaints.show');
-    Route::put('complaints/{complaint}', [AdminComplaintController::class, 'update'])->name('complaints.update');
+    Route::middleware('permission:complaints.view')->group(function () {
+        Route::get('complaints', [AdminComplaintController::class, 'index'])->name('complaints.index');
+        Route::get('complaints/{complaint}', [AdminComplaintController::class, 'show'])->name('complaints.show');
+        Route::put('complaints/{complaint}', [AdminComplaintController::class, 'update'])->name('complaints.update');
+    });
 
     // Mensajes de Contacto
-    Route::get('contact-messages', [AdminContactMessageController::class, 'index'])->name('contact-messages.index');
-    Route::get('contact-messages/{contactMessage}', [AdminContactMessageController::class, 'show'])->name('contact-messages.show');
-    Route::put('contact-messages/{contactMessage}', [AdminContactMessageController::class, 'update'])->name('contact-messages.update');
-    Route::delete('contact-messages/{contactMessage}', [AdminContactMessageController::class, 'destroy'])->name('contact-messages.destroy');
+    Route::middleware('permission:contact_messages.view')->group(function () {
+        Route::get('contact-messages', [AdminContactMessageController::class, 'index'])->name('contact-messages.index');
+        Route::get('contact-messages/{contactMessage}', [AdminContactMessageController::class, 'show'])->name('contact-messages.show');
+        Route::put('contact-messages/{contactMessage}', [AdminContactMessageController::class, 'update'])->name('contact-messages.update');
+        Route::delete('contact-messages/{contactMessage}', [AdminContactMessageController::class, 'destroy'])->name('contact-messages.destroy');
+    });
 
     // Reportes
-    Route::get('reports/sales', [AdminReportController::class, 'sales'])->name('reports.sales');
-    Route::get('reports/products', [AdminReportController::class, 'products'])->name('reports.products');
-    Route::get('reports/customers', [AdminReportController::class, 'customers'])->name('reports.customers');
-    Route::get('reports/purchases', [AdminReportController::class, 'purchases'])->name('reports.purchases');
-    Route::get('reports/profitability', [AdminReportController::class, 'profitability'])->name('reports.profitability');
-    Route::get('reports/inventory', [AdminReportController::class, 'inventory'])->name('reports.inventory');
-    Route::get('reports/geographic', [AdminReportController::class, 'geographic'])->name('reports.geographic');
-    Route::get('reports/trends', [AdminReportController::class, 'trends'])->name('reports.trends');
-    Route::get('reports/satisfaction', [AdminReportController::class, 'satisfaction'])->name('reports.satisfaction');
+    Route::middleware('permission:reports.view')->group(function () {
+        Route::get('reports/sales', [AdminReportController::class, 'sales'])->name('reports.sales');
+        Route::get('reports/products', [AdminReportController::class, 'products'])->name('reports.products');
+        Route::get('reports/customers', [AdminReportController::class, 'customers'])->name('reports.customers');
+        Route::get('reports/purchases', [AdminReportController::class, 'purchases'])->name('reports.purchases');
+        Route::get('reports/profitability', [AdminReportController::class, 'profitability'])->name('reports.profitability');
+        Route::get('reports/inventory', [AdminReportController::class, 'inventory'])->name('reports.inventory');
+        Route::get('reports/geographic', [AdminReportController::class, 'geographic'])->name('reports.geographic');
+        Route::get('reports/trends', [AdminReportController::class, 'trends'])->name('reports.trends');
+        Route::get('reports/satisfaction', [AdminReportController::class, 'satisfaction'])->name('reports.satisfaction');
+    });
 
     // Configuración del sitio
-    Route::get('settings', [AdminSiteSettingController::class, 'index'])->name('settings.index');
-    Route::put('settings', [AdminSiteSettingController::class, 'update'])->name('settings.update');
+    Route::middleware('permission:settings.view')->group(function () {
+        Route::get('settings', [AdminSiteSettingController::class, 'index'])->name('settings.index');
+        Route::put('settings', [AdminSiteSettingController::class, 'update'])->name('settings.update');
+    });
 
-    // Product Specifications (AJAX)
-    Route::get('products/{product}/specifications', [AdminProductController::class, 'specifications'])->name('products.specifications');
-    Route::put('products/{product}/specifications', [AdminProductController::class, 'updateSpecifications'])->name('products.specifications.update');
-
-    // Product Images (API-style for AJAX)
-    Route::get('products/{product}/images', [AdminProductImageController::class, 'index'])->name('products.images.index');
-    Route::post('products/{product}/images', [AdminProductImageController::class, 'store'])->name('products.images.store');
-    Route::put('products/{product}/images/{image}', [AdminProductImageController::class, 'update'])->name('products.images.update');
-    Route::delete('products/{product}/images/{image}', [AdminProductImageController::class, 'destroy'])->name('products.images.destroy');
-    Route::post('products/{product}/images/reorder', [AdminProductImageController::class, 'reorder'])->name('products.images.reorder');
+    // Roles y Permisos
+    Route::middleware('permission:roles.view')->group(function () {
+        Route::get('roles', [RolePermissionController::class, 'index'])->name('roles.index');
+        Route::post('roles', [RolePermissionController::class, 'store'])->middleware('permission:roles.edit')->name('roles.store');
+        Route::put('roles/permissions', [RolePermissionController::class, 'update'])->middleware('permission:roles.edit')->name('roles.update');
+        Route::put('roles/{role}', [RolePermissionController::class, 'updateRole'])->middleware('permission:roles.edit')->name('roles.updateRole');
+        Route::delete('roles/{role}', [RolePermissionController::class, 'destroy'])->middleware('permission:roles.edit')->name('roles.destroy');
+    });
 });

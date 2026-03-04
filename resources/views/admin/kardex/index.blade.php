@@ -151,7 +151,7 @@
                     <td class="px-4 py-3">
                         <a href="{{ route('admin.kardex.show', $movement->product_id) }}" class="flex items-center gap-3 group">
                             @if($movement->product?->primaryImage)
-                            <img src="{{ $movement->product->primaryImage->image_url }}" class="w-9 h-9 rounded-lg object-cover border border-gray-100 flex-shrink-0">
+                            <img src="{{ $movement->product->primaryImage->thumbnail() }}" class="w-9 h-9 rounded-lg object-cover border border-gray-100 flex-shrink-0">
                             @else
                             <div class="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
                                 <i class="fas fa-image text-gray-300 text-xs"></i>

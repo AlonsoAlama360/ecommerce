@@ -228,7 +228,7 @@
                 @foreach($lowStockProducts as $product)
                 <div class="flex items-center gap-3 px-6 py-2.5">
                     @if($product->primaryImage)
-                    <img src="{{ $product->primaryImage->image_url }}" class="w-8 h-8 rounded-lg object-cover flex-shrink-0">
+                    <img src="{{ $product->primaryImage->thumbnail() }}" class="w-8 h-8 rounded-lg object-cover flex-shrink-0">
                     @else
                     <div class="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0"><i class="fas fa-image text-gray-300 text-[10px]"></i></div>
                     @endif

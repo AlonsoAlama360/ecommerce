@@ -264,7 +264,7 @@
                     <div class="divide-y divide-gray-50">
                         @foreach($order->items as $item)
                             @php
-                                $img = $item->product?->primaryImage?->image_url;
+                                $img = $item->product?->primaryImage?->thumbnail();
                                 $productUrl = $item->product ? route('product.show', $item->product->slug) : null;
                             @endphp
                             <div class="product-item px-5 sm:px-6 py-5 flex items-center gap-4 sm:gap-5">

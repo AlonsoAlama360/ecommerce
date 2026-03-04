@@ -512,7 +512,7 @@
                         <a href="{{ route('product.show', $related->slug) }}" class="group">
                             <div class="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-shadow">
                                 <div class="relative aspect-square overflow-hidden">
-                                    <img src="{{ $related->primaryImage?->image_url ?? 'https://via.placeholder.com/300x300?text=Sin+Imagen' }}"
+                                    <img src="{{ $related->primaryImage?->thumbnail() ?? 'https://via.placeholder.com/300x300?text=Sin+Imagen' }}"
                                          alt="{{ $related->name }}"
                                          class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                                          loading="lazy">

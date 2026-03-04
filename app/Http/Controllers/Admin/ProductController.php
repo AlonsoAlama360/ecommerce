@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Models\ProductImage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use App\Services\ImageService;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
@@ -100,10 +101,12 @@ class ProductController extends Controller
         $validated['slug'] = $validated['slug'] ?: Str::slug($validated['name']);
 
         $imageUrl = $validated['image_url'] ?? null;
+        $thumbnailPath = null;
 
         if ($request->hasFile('image_file')) {
             $path = $request->file('image_file')->store('products', 'public');
             $imageUrl = '/storage/' . $path;
+            $thumbnailPath = app(ImageService::class)->generateThumbnail($path);
         }
 
         unset($validated['image_url'], $validated['image_file']);
@@ -113,6 +116,7 @@ class ProductController extends Controller
         if ($imageUrl) {
             $product->images()->create([
                 'image_url' => $imageUrl,
+                'thumbnail_url' => $thumbnailPath,
                 'is_primary' => true,
                 'sort_order' => 0,
             ]);
@@ -151,10 +155,12 @@ class ProductController extends Controller
         $validated['slug'] = $validated['slug'] ?: Str::slug($validated['name']);
 
         $imageUrl = $validated['image_url'] ?? null;
+        $thumbnailPath = null;
 
         if ($request->hasFile('image_file')) {
             $path = $request->file('image_file')->store('products', 'public');
             $imageUrl = '/storage/' . $path;
+            $thumbnailPath = app(ImageService::class)->generateThumbnail($path);
         }
 
         unset($validated['image_url'], $validated['image_file']);
@@ -164,10 +170,11 @@ class ProductController extends Controller
         if ($imageUrl) {
             $primary = $product->primaryImage;
             if ($primary) {
-                $primary->update(['image_url' => $imageUrl]);
+                $primary->update(['image_url' => $imageUrl, 'thumbnail_url' => $thumbnailPath]);
             } else {
                 $product->images()->create([
                     'image_url' => $imageUrl,
+                    'thumbnail_url' => $thumbnailPath,
                     'is_primary' => true,
                     'sort_order' => 0,
                 ]);

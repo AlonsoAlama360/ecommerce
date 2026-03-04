@@ -145,7 +145,7 @@
                     <td class="px-5 py-3">
                         <div class="flex items-center gap-3">
                             @if($product->primaryImage)
-                            <img src="{{ $product->primaryImage->image_url }}" class="w-10 h-10 rounded-lg object-cover border border-gray-100 flex-shrink-0">
+                            <img src="{{ $product->primaryImage->thumbnail() }}" class="w-10 h-10 rounded-lg object-cover border border-gray-100 flex-shrink-0">
                             @else
                             <div class="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
                                 <i class="fas fa-image text-gray-300 text-xs"></i>
@@ -217,7 +217,7 @@
         <a href="{{ route('admin.wishlists.show', $product) }}" class="block p-4 hover:bg-gray-50 transition">
             <div class="flex items-center gap-3 mb-2">
                 @if($product->primaryImage)
-                <img src="{{ $product->primaryImage->image_url }}" class="w-10 h-10 rounded-lg object-cover border border-gray-100 flex-shrink-0">
+                <img src="{{ $product->primaryImage->thumbnail() }}" class="w-10 h-10 rounded-lg object-cover border border-gray-100 flex-shrink-0">
                 @else
                 <div class="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
                     <i class="fas fa-image text-gray-300 text-xs"></i>

@@ -53,7 +53,7 @@
                             <div class="flex gap-4">
                                 <!-- Image -->
                                 <a href="{{ route('product.show', $product->slug) }}" class="flex-shrink-0">
-                                    <img src="{{ $product->primaryImage?->image_url ?? 'https://via.placeholder.com/120x120?text=Sin+Imagen' }}"
+                                    <img src="{{ $product->primaryImage?->thumbnail() ?? 'https://via.placeholder.com/120x120?text=Sin+Imagen' }}"
                                          alt="{{ $product->name }}"
                                          class="w-24 h-24 sm:w-28 sm:h-28 object-cover rounded-xl border border-gray-100">
                                 </a>
@@ -213,7 +213,7 @@
                         <a href="{{ route('product.show', $suggested->slug) }}" class="group">
                             <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-lg hover:border-gray-200 transition-all duration-300">
                                 <div class="relative aspect-square overflow-hidden">
-                                    <img src="{{ $suggested->primaryImage?->image_url ?? 'https://via.placeholder.com/300x300' }}"
+                                    <img src="{{ $suggested->primaryImage?->thumbnail() ?? 'https://via.placeholder.com/300x300' }}"
                                          alt="{{ $suggested->name }}"
                                          class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                                          loading="lazy">

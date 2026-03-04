@@ -12,10 +12,18 @@ class ProductImage extends Model
     protected $fillable = [
         'product_id',
         'image_url',
+        'thumbnail_url',
         'alt_text',
         'is_primary',
         'sort_order',
     ];
+
+    public function thumbnail(): string
+    {
+        return $this->thumbnail_url
+            ? '/storage/' . $this->thumbnail_url
+            : $this->image_url;
+    }
 
     protected function casts(): array
     {

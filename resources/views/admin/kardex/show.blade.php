@@ -9,7 +9,7 @@
             <i class="fas fa-arrow-left text-gray-500 text-sm"></i>
         </a>
         @if($product->primaryImage)
-        <img src="{{ $product->primaryImage->image_url }}" class="w-14 h-14 rounded-xl object-cover border border-gray-100 flex-shrink-0">
+        <img src="{{ $product->primaryImage->thumbnail() }}" class="w-14 h-14 rounded-xl object-cover border border-gray-100 flex-shrink-0">
         @else
         <div class="w-14 h-14 rounded-xl bg-gray-100 flex items-center justify-center flex-shrink-0">
             <i class="fas fa-image text-gray-300"></i>
@@ -281,7 +281,7 @@
 
             <div class="flex items-center gap-4 p-4 bg-violet-50/50 rounded-xl mb-6">
                 @if($product->primaryImage)
-                <img src="{{ $product->primaryImage->image_url }}" class="w-14 h-14 rounded-xl object-cover border border-gray-100 flex-shrink-0">
+                <img src="{{ $product->primaryImage->thumbnail() }}" class="w-14 h-14 rounded-xl object-cover border border-gray-100 flex-shrink-0">
                 @else
                 <div class="w-14 h-14 rounded-xl bg-gray-100 flex items-center justify-center flex-shrink-0">
                     <i class="fas fa-image text-gray-300"></i>

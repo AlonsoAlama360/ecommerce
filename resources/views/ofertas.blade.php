@@ -465,7 +465,7 @@
                                 @foreach($products as $index => $product)
                                     <div class="product-card-offer bg-white rounded-2xl overflow-hidden border border-gray-100/80 group reveal-offer" style="transition-delay: {{ min($index * 50, 300) }}ms">
                                         <a href="{{ route('product.show', $product->slug) }}" class="block relative overflow-hidden">
-                                            <img src="{{ $product->primaryImage?->image_url ?? 'https://via.placeholder.com/400x300?text=Sin+Imagen' }}"
+                                            <img src="{{ $product->primaryImage?->thumbnail() ?? 'https://via.placeholder.com/400x300?text=Sin+Imagen' }}"
                                                  alt="{{ $product->primaryImage?->alt_text ?? $product->name }}"
                                                  class="product-img w-full h-52 sm:h-72 lg:h-80 object-cover"
                                                  loading="lazy">

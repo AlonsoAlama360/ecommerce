@@ -24,11 +24,6 @@ class UpdateUser
             'newsletter' => $dto->newsletter,
             'document_type' => $dto->documentType,
             'document_number' => $dto->documentNumber,
-            'department_id' => $dto->departmentId,
-            'province_id' => $dto->provinceId,
-            'district_id' => $dto->districtId,
-            'address' => $dto->address,
-            'address_reference' => $dto->addressReference,
         ];
 
         if ($dto->password) {

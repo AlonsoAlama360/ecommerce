@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Traits\HasPermissions;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -12,7 +13,7 @@ use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable, SoftDeletes;
+    use HasFactory, Notifiable, SoftDeletes, HasPermissions;
 
     protected $fillable = [
         'first_name',
@@ -72,7 +73,10 @@ class User extends Authenticatable
 
     public function hasAdminAccess(): bool
     {
-        return in_array($this->role, ['admin', 'vendedor']);
+        return \Illuminate\Support\Facades\Cache::remember("role_has_admin_access_{$this->role}", 300, function () {
+            $role = \Illuminate\Support\Facades\DB::table('roles')->where('name', $this->role)->first();
+            return $role && $role->is_admin;
+        });
     }
 
     public function department(): BelongsTo

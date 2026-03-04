@@ -153,6 +153,7 @@
             {{-- Menu --}}
             <p class="px-3 pt-2 pb-2 text-[10px] font-semibold text-slate-500/80 uppercase tracking-[0.15em]">Menú</p>
 
+            @if(Auth::user()->hasPermission('dashboard.view'))
             <a href="{{ route('admin.dashboard') }}"
                 class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium mb-0.5 {{ request()->routeIs('admin.dashboard') ? 'active' : 'text-slate-400' }}">
                 <div class="w-8 h-8 rounded-lg {{ request()->routeIs('admin.dashboard') ? 'bg-indigo-500/20' : 'bg-white/5' }} flex items-center justify-center transition">
@@ -160,10 +161,12 @@
                 </div>
                 <span>Dashboard</span>
             </a>
+            @endif
 
             {{-- Gestión --}}
             <p class="px-3 pt-5 pb-2 text-[10px] font-semibold text-slate-500/80 uppercase tracking-[0.15em]">Gestión</p>
 
+            @if(Auth::user()->hasPermission('users.view'))
             <a href="{{ route('admin.users.index') }}"
                 class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium mb-0.5 {{ request()->routeIs('admin.users.*') ? 'active' : 'text-slate-400' }}">
                 <div class="w-8 h-8 rounded-lg {{ request()->routeIs('admin.users.*') ? 'bg-indigo-500/20' : 'bg-white/5' }} flex items-center justify-center transition">
@@ -171,7 +174,9 @@
                 </div>
                 <span>Usuarios</span>
             </a>
+            @endif
 
+            @if(Auth::user()->hasPermission('categories.view'))
             <a href="{{ route('admin.categories.index') }}"
                 class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium mb-0.5 {{ request()->routeIs('admin.categories.*') ? 'active' : 'text-slate-400' }}">
                 <div class="w-8 h-8 rounded-lg {{ request()->routeIs('admin.categories.*') ? 'bg-indigo-500/20' : 'bg-white/5' }} flex items-center justify-center transition">
@@ -179,7 +184,9 @@
                 </div>
                 <span>Categorías</span>
             </a>
+            @endif
 
+            @if(Auth::user()->hasPermission('products.view'))
             <a href="{{ route('admin.products.index') }}"
                 class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium mb-0.5 {{ request()->routeIs('admin.products.*') ? 'active' : 'text-slate-400' }}">
                 <div class="w-8 h-8 rounded-lg {{ request()->routeIs('admin.products.*') ? 'bg-indigo-500/20' : 'bg-white/5' }} flex items-center justify-center transition">
@@ -187,7 +194,9 @@
                 </div>
                 <span>Productos</span>
             </a>
+            @endif
 
+            @if(Auth::user()->hasPermission('suppliers.view'))
             <a href="{{ route('admin.suppliers.index') }}"
                 class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium mb-0.5 {{ request()->routeIs('admin.suppliers.*') ? 'active' : 'text-slate-400' }}">
                 <div class="w-8 h-8 rounded-lg {{ request()->routeIs('admin.suppliers.*') ? 'bg-indigo-500/20' : 'bg-white/5' }} flex items-center justify-center transition">
@@ -195,7 +204,9 @@
                 </div>
                 <span>Proveedores</span>
             </a>
+            @endif
 
+            @if(Auth::user()->hasPermission('orders.view'))
             <a href="{{ route('admin.orders.index') }}"
                 class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium mb-0.5 {{ request()->routeIs('admin.orders.*') ? 'active' : 'text-slate-400' }}">
                 <div class="w-8 h-8 rounded-lg {{ request()->routeIs('admin.orders.*') ? 'bg-indigo-500/20' : 'bg-white/5' }} flex items-center justify-center transition">
@@ -203,7 +214,9 @@
                 </div>
                 <span>Ventas</span>
             </a>
+            @endif
 
+            @if(Auth::user()->hasPermission('purchases.view'))
             <a href="{{ route('admin.purchases.index') }}"
                 class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium mb-0.5 {{ request()->routeIs('admin.purchases.*') ? 'active' : 'text-slate-400' }}">
                 <div class="w-8 h-8 rounded-lg {{ request()->routeIs('admin.purchases.*') ? 'bg-indigo-500/20' : 'bg-white/5' }} flex items-center justify-center transition">
@@ -211,7 +224,9 @@
                 </div>
                 <span>Compras</span>
             </a>
+            @endif
 
+            @if(Auth::user()->hasPermission('kardex.view'))
             <a href="{{ route('admin.kardex.index') }}"
                 class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium mb-0.5 {{ request()->routeIs('admin.kardex.*') ? 'active' : 'text-slate-400' }}">
                 <div class="w-8 h-8 rounded-lg {{ request()->routeIs('admin.kardex.*') ? 'bg-indigo-500/20' : 'bg-white/5' }} flex items-center justify-center transition">
@@ -219,7 +234,9 @@
                 </div>
                 <span>Kardex</span>
             </a>
+            @endif
 
+            @if(Auth::user()->hasPermission('wishlists.view') || Auth::user()->hasPermission('reviews.view'))
             @php
                 $clientesActive = request()->routeIs('admin.wishlists.*') || request()->routeIs('admin.reviews.*');
             @endphp
@@ -232,19 +249,25 @@
                     <i class="fas fa-chevron-down text-[9px] text-slate-500 dropdown-arrow"></i>
                 </button>
                 <div class="sidebar-dropdown-items pl-[2.75rem]">
+                    @if(Auth::user()->hasPermission('wishlists.view'))
                     <a href="{{ route('admin.wishlists.index') }}"
                         class="sidebar-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-[12.5px] font-medium mb-0.5 {{ request()->routeIs('admin.wishlists.*') ? 'active' : 'text-slate-400' }}">
                         <i class="fas fa-heart text-[10px] {{ request()->routeIs('admin.wishlists.*') ? 'text-indigo-400' : 'text-slate-500' }}"></i>
                         <span>Lista de Deseos</span>
                     </a>
+                    @endif
+                    @if(Auth::user()->hasPermission('reviews.view'))
                     <a href="{{ route('admin.reviews.index') }}"
                         class="sidebar-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-[12.5px] font-medium mb-0.5 {{ request()->routeIs('admin.reviews.*') ? 'active' : 'text-slate-400' }}">
                         <i class="fas fa-star text-[10px] {{ request()->routeIs('admin.reviews.*') ? 'text-indigo-400' : 'text-slate-500' }}"></i>
                         <span>Reseñas</span>
                     </a>
+                    @endif
                 </div>
             </div>
+            @endif
 
+            @if(Auth::user()->hasPermission('contact_messages.view') || Auth::user()->hasPermission('complaints.view') || Auth::user()->hasPermission('subscribers.view'))
             @php
                 $atencionActive = request()->routeIs('admin.contact-messages.*') || request()->routeIs('admin.complaints.*') || request()->routeIs('admin.subscribers.*');
             @endphp
@@ -257,24 +280,32 @@
                     <i class="fas fa-chevron-down text-[9px] text-slate-500 dropdown-arrow"></i>
                 </button>
                 <div class="sidebar-dropdown-items pl-[2.75rem]">
+                    @if(Auth::user()->hasPermission('contact_messages.view'))
                     <a href="{{ route('admin.contact-messages.index') }}"
                         class="sidebar-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-[12.5px] font-medium mb-0.5 {{ request()->routeIs('admin.contact-messages.*') ? 'active' : 'text-slate-400' }}">
                         <i class="fas fa-envelope text-[10px] {{ request()->routeIs('admin.contact-messages.*') ? 'text-indigo-400' : 'text-slate-500' }}"></i>
                         <span>Contacto</span>
                     </a>
+                    @endif
+                    @if(Auth::user()->hasPermission('complaints.view'))
                     <a href="{{ route('admin.complaints.index') }}"
                         class="sidebar-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-[12.5px] font-medium mb-0.5 {{ request()->routeIs('admin.complaints.*') ? 'active' : 'text-slate-400' }}">
                         <i class="fas fa-book text-[10px] {{ request()->routeIs('admin.complaints.*') ? 'text-indigo-400' : 'text-slate-500' }}"></i>
                         <span>Reclamaciones</span>
                     </a>
+                    @endif
+                    @if(Auth::user()->hasPermission('subscribers.view'))
                     <a href="{{ route('admin.subscribers.index') }}"
                         class="sidebar-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-[12.5px] font-medium mb-0.5 {{ request()->routeIs('admin.subscribers.*') ? 'active' : 'text-slate-400' }}">
                         <i class="fas fa-bell text-[10px] {{ request()->routeIs('admin.subscribers.*') ? 'text-indigo-400' : 'text-slate-500' }}"></i>
                         <span>Suscriptores</span>
                     </a>
+                    @endif
                 </div>
             </div>
+            @endif
 
+            @if(Auth::user()->hasPermission('reports.view'))
             @php
                 $reportesActive = request()->routeIs('admin.reports.*');
             @endphp
@@ -335,10 +366,22 @@
                     </a>
                 </div>
             </div>
+            @endif
 
             {{-- Sistema --}}
             <p class="px-3 pt-5 pb-2 text-[10px] font-semibold text-slate-500/80 uppercase tracking-[0.15em]">Sistema</p>
 
+            @if(Auth::user()->hasPermission('roles.view'))
+            <a href="{{ route('admin.roles.index') }}"
+                class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium mb-0.5 {{ request()->routeIs('admin.roles.*') ? 'active' : 'text-slate-400' }}">
+                <div class="w-8 h-8 rounded-lg {{ request()->routeIs('admin.roles.*') ? 'bg-indigo-500/20' : 'bg-white/5' }} flex items-center justify-center transition">
+                    <i class="fas fa-user-shield text-xs {{ request()->routeIs('admin.roles.*') ? 'text-indigo-400' : 'text-slate-500' }}"></i>
+                </div>
+                <span>Roles y Permisos</span>
+            </a>
+            @endif
+
+            @if(Auth::user()->hasPermission('settings.view'))
             <a href="{{ route('admin.settings.index') }}"
                 class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium mb-0.5 {{ request()->routeIs('admin.settings.*') ? 'active' : 'text-slate-400' }}">
                 <div class="w-8 h-8 rounded-lg {{ request()->routeIs('admin.settings.*') ? 'bg-indigo-500/20' : 'bg-white/5' }} flex items-center justify-center transition">
@@ -346,6 +389,7 @@
                 </div>
                 <span>Configuración</span>
             </a>
+            @endif
 
             <a href="{{ route('home') }}" target="_blank"
                 class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium mb-0.5 text-slate-400">

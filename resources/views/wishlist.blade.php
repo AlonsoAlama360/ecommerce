@@ -44,7 +44,7 @@
                     @foreach($products as $product)
                         <div class="group bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300 border border-gray-100" id="wishlist-card-{{ $product->id }}">
                             <a href="{{ route('product.show', $product->slug) }}" class="block relative overflow-hidden">
-                                <img src="{{ $product->primaryImage?->image_url ?? 'https://via.placeholder.com/400x300?text=Sin+Imagen' }}"
+                                <img src="{{ $product->primaryImage?->thumbnail() ?? 'https://via.placeholder.com/400x300?text=Sin+Imagen' }}"
                                      alt="{{ $product->primaryImage?->alt_text ?? $product->name }}"
                                      class="w-full h-52 sm:h-72 lg:h-80 object-cover group-hover:scale-105 transition-transform duration-500"
                                      loading="lazy">

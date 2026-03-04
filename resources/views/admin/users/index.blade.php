@@ -2,16 +2,40 @@
 @section('title', 'Usuarios')
 
 @php
-    $roleBadges = [
-        'admin' => ['bg' => 'bg-indigo-50', 'text' => 'text-indigo-600', 'label' => 'Admin', 'icon' => 'fa-shield-halved'],
-        'vendedor' => ['bg' => 'bg-orange-50', 'text' => 'text-orange-600', 'label' => 'Vendedor', 'icon' => 'fa-store'],
-        'cliente' => ['bg' => 'bg-gray-100', 'text' => 'text-gray-600', 'label' => 'Cliente', 'icon' => 'fa-user'],
+    $defaultBadges = [
+        'admin' => ['bg' => 'bg-indigo-50', 'text' => 'text-indigo-600', 'icon' => 'fa-shield-halved'],
+        'vendedor' => ['bg' => 'bg-orange-50', 'text' => 'text-orange-600', 'icon' => 'fa-store'],
+        'cliente' => ['bg' => 'bg-gray-100', 'text' => 'text-gray-600', 'icon' => 'fa-user'],
     ];
-    $avatarColors = [
+    $defaultAvatarColors = [
         'admin' => 'from-indigo-400 to-indigo-600',
         'vendedor' => 'from-orange-400 to-orange-600',
         'cliente' => 'from-teal-400 to-cyan-600',
     ];
+    $roleDisplayNames = $roles->pluck('display_name', 'name')->toArray();
+
+    // Build dynamic badges for all roles
+    $roleBadges = [];
+    $avatarColors = [];
+    $extraColors = [
+        ['bg' => 'bg-violet-50', 'text' => 'text-violet-600', 'icon' => 'fa-user-tie', 'avatar' => 'from-violet-400 to-violet-600'],
+        ['bg' => 'bg-rose-50', 'text' => 'text-rose-600', 'icon' => 'fa-user-gear', 'avatar' => 'from-rose-400 to-rose-600'],
+        ['bg' => 'bg-cyan-50', 'text' => 'text-cyan-600', 'icon' => 'fa-id-badge', 'avatar' => 'from-cyan-400 to-cyan-600'],
+        ['bg' => 'bg-amber-50', 'text' => 'text-amber-600', 'icon' => 'fa-user-pen', 'avatar' => 'from-amber-400 to-amber-600'],
+        ['bg' => 'bg-emerald-50', 'text' => 'text-emerald-600', 'icon' => 'fa-user-lock', 'avatar' => 'from-emerald-400 to-emerald-600'],
+    ];
+    $extraIdx = 0;
+    foreach ($roles as $r) {
+        if (isset($defaultBadges[$r->name])) {
+            $roleBadges[$r->name] = array_merge($defaultBadges[$r->name], ['label' => $r->display_name]);
+            $avatarColors[$r->name] = $defaultAvatarColors[$r->name];
+        } else {
+            $ec = $extraColors[$extraIdx % count($extraColors)];
+            $roleBadges[$r->name] = ['bg' => $ec['bg'], 'text' => $ec['text'], 'icon' => $ec['icon'], 'label' => $r->display_name];
+            $avatarColors[$r->name] = $ec['avatar'];
+            $extraIdx++;
+        }
+    }
 @endphp
 
 @section('content')
@@ -94,9 +118,9 @@
                 <label class="block text-xs font-medium text-gray-500 mb-1.5">Rol</label>
                 <select name="role" onchange="this.form.submit()" class="{{ $selectClass }}" style="{{ $selectStyle }}">
                     <option value="">Seleccionar rol</option>
-                    <option value="admin" {{ request('role') === 'admin' ? 'selected' : '' }}>Admin</option>
-                    <option value="vendedor" {{ request('role') === 'vendedor' ? 'selected' : '' }}>Vendedor</option>
-                    <option value="cliente" {{ request('role') === 'cliente' ? 'selected' : '' }}>Cliente</option>
+                    @foreach($roles as $roleOption)
+                    <option value="{{ $roleOption->name }}" {{ request('role') === $roleOption->name ? 'selected' : '' }}>{{ $roleOption->display_name }}</option>
+                    @endforeach
                 </select>
             </div>
             <div>
@@ -259,6 +283,10 @@
                                class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-md transition" title="Editar">
                                 <i class="fas fa-pen-to-square text-sm"></i>
                             </button>
+                            <button data-user-address="{{ json_encode(['id' => $user->id, 'full_name' => $user->full_name, 'department_id' => $user->department_id, 'department_name' => $user->department?->name, 'province_id' => $user->province_id, 'province_name' => $user->province?->name, 'district_id' => $user->district_id, 'district_name' => $user->district?->name, 'address' => $user->address, 'address_reference' => $user->address_reference]) }}" onclick="openAddressDrawer(JSON.parse(this.dataset.userAddress))"
+                               class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-md transition" title="Dirección">
+                                <i class="fas fa-map-location-dot text-sm"></i>
+                            </button>
                             @if($user->id !== auth()->id())
                             <form action="{{ route('admin.users.destroy', $user) }}" method="POST">
                                 @csrf
@@ -308,6 +336,10 @@
                     <button data-user="{{ json_encode($user->only('id','first_name','last_name','email','phone','role','is_active','newsletter','document_type','document_number','department_id','province_id','district_id','address','address_reference','created_at','updated_at')) }}" onclick="openEditDrawer(JSON.parse(this.dataset.user))"
                        class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-indigo-600 rounded-md transition">
                         <i class="fas fa-pen-to-square text-sm"></i>
+                    </button>
+                    <button data-user-address="{{ json_encode(['id' => $user->id, 'full_name' => $user->full_name, 'department_id' => $user->department_id, 'department_name' => $user->department?->name, 'province_id' => $user->province_id, 'province_name' => $user->province?->name, 'district_id' => $user->district_id, 'district_name' => $user->district?->name, 'address' => $user->address, 'address_reference' => $user->address_reference]) }}" onclick="openAddressDrawer(JSON.parse(this.dataset.userAddress))"
+                       class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-emerald-600 rounded-md transition">
+                        <i class="fas fa-map-location-dot text-sm"></i>
                     </button>
                     @if($user->id !== auth()->id())
                     <form action="{{ route('admin.users.destroy', $user) }}" method="POST">
@@ -505,6 +537,150 @@
         </button>
     </div>
 </div>
+{{-- ==================== ADDRESS DRAWER ==================== --}}
+<div id="addressDrawer" class="fixed top-0 right-0 z-[70] h-full w-full sm:w-[420px] translate-x-full transition-transform duration-300 ease-out flex flex-col bg-white shadow-2xl">
+    <div class="flex items-center justify-between px-6 py-5 border-b border-gray-100">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center shadow-lg shadow-emerald-200/50">
+                <i class="fas fa-map-location-dot text-white text-sm"></i>
+            </div>
+            <div>
+                <h2 class="text-lg font-bold text-gray-900">Dirección</h2>
+                <p class="text-sm text-gray-400 mt-0.5" id="addressDrawerSubtitle">Usuario</p>
+            </div>
+        </div>
+        <button onclick="closeDrawer()" class="w-9 h-9 rounded-lg hover:bg-gray-100 flex items-center justify-center transition text-gray-400 hover:text-gray-600">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+
+    <div class="flex-1 overflow-y-auto">
+        {{-- Current address preview --}}
+        <div id="addressPreview" class="mx-6 mt-5 mb-4">
+            <div id="addressHasData" class="hidden">
+                <div class="bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-100 rounded-xl p-4">
+                    <div class="flex items-start gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <i class="fas fa-location-dot text-emerald-600 text-sm"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p id="addressPreviewText" class="text-sm font-medium text-emerald-800 leading-relaxed"></p>
+                            <p id="addressPreviewReference" class="text-xs text-emerald-600/70 mt-1 hidden">
+                                <i class="fas fa-signs-post mr-1 text-[10px]"></i>
+                                <span></span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="addressNoData">
+                <div class="bg-gray-50 border border-gray-100 border-dashed rounded-xl p-4 text-center">
+                    <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-2">
+                        <i class="fas fa-map-marker-alt text-gray-300 text-sm"></i>
+                    </div>
+                    <p class="text-sm text-gray-400">Sin dirección registrada</p>
+                </div>
+            </div>
+        </div>
+
+        {{-- Edit form --}}
+        <form method="POST" action="" id="addressForm" class="px-6 pb-6">
+            @csrf
+            @method('PUT')
+
+            <div class="space-y-4">
+                {{-- Ubigeo --}}
+                <div class="relative py-1">
+                    <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-gray-100"></div></div>
+                    <div class="relative flex justify-center">
+                        <span class="bg-white px-3 text-xs text-gray-400 uppercase tracking-wider">Ubicación</span>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1.5">Departamento</label>
+                    <select name="department_id" id="addr_department_id"
+                        onchange="loadUbigeoProvinces('addr', this.value)"
+                        class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent focus:bg-white outline-none text-sm transition appearance-none"
+                        style="background-image: url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%236b7280'%3E%3Cpath fill-rule='evenodd' d='M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z' clip-rule='evenodd'/%3E%3C/svg%3E&quot;); background-position: right 0.75rem center; background-repeat: no-repeat; background-size: 1rem;">
+                        <option value="">Seleccionar</option>
+                        @foreach($departments as $dept)
+                            <option value="{{ $dept->id }}">{{ $dept->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1.5">Provincia</label>
+                        <select name="province_id" id="addr_province_id"
+                            onchange="loadUbigeoDistricts('addr', this.value)"
+                            class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent focus:bg-white outline-none text-sm transition appearance-none"
+                            style="background-image: url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%236b7280'%3E%3Cpath fill-rule='evenodd' d='M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z' clip-rule='evenodd'/%3E%3C/svg%3E&quot;); background-position: right 0.75rem center; background-repeat: no-repeat; background-size: 1rem;">
+                            <option value="">Seleccionar</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1.5">Distrito</label>
+                        <select name="district_id" id="addr_district_id"
+                            class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent focus:bg-white outline-none text-sm transition appearance-none"
+                            style="background-image: url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%236b7280'%3E%3Cpath fill-rule='evenodd' d='M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z' clip-rule='evenodd'/%3E%3C/svg%3E&quot;); background-position: right 0.75rem center; background-repeat: no-repeat; background-size: 1rem;">
+                            <option value="">Seleccionar</option>
+                        </select>
+                    </div>
+                </div>
+
+                {{-- Address --}}
+                <div class="relative py-1">
+                    <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-gray-100"></div></div>
+                    <div class="relative flex justify-center">
+                        <span class="bg-white px-3 text-xs text-gray-400 uppercase tracking-wider">Detalle</span>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1.5">Dirección</label>
+                    <div class="relative">
+                        <i class="fas fa-map-marker-alt absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                        <input type="text" name="address" id="addr_address"
+                            class="w-full pl-10 pr-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent focus:bg-white outline-none text-sm transition"
+                            placeholder="Av. Principal 123, Dpto. 4B">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1.5">Referencia</label>
+                    <div class="relative">
+                        <i class="fas fa-signs-post absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                        <input type="text" name="address_reference" id="addr_address_reference"
+                            class="w-full pl-10 pr-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent focus:bg-white outline-none text-sm transition"
+                            placeholder="Cerca al parque, frente a la bodega">
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="px-6 py-4 border-t border-gray-100 bg-gray-50/80">
+        <div class="flex gap-3">
+            <button onclick="closeDrawer()" type="button" class="flex-1 px-4 py-2.5 text-sm text-gray-600 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition font-medium">
+                Cancelar
+            </button>
+            <button id="addressDeleteBtn" onclick="deleteAddress()" type="button" class="px-4 py-2.5 text-sm text-red-600 bg-white border border-red-200 rounded-xl hover:bg-red-50 transition font-medium hidden">
+                <i class="fas fa-trash-can text-xs"></i>
+            </button>
+            <button onclick="document.getElementById('addressForm').submit()" type="button" class="flex-1 px-4 py-2.5 text-sm bg-emerald-500 text-white rounded-xl hover:bg-emerald-600 transition font-medium shadow-sm shadow-emerald-200">
+                <i class="fas fa-check mr-1.5 text-xs"></i> Guardar
+            </button>
+        </div>
+    </div>
+</div>
+
+{{-- Delete Address Form (hidden) --}}
+<form id="deleteAddressForm" method="POST" action="" class="hidden">
+    @csrf
+    @method('DELETE')
+</form>
 @endsection
 
 @section('scripts')
@@ -512,7 +688,9 @@
     const drawerOverlay = document.getElementById('drawerOverlay');
     const createDrawer = document.getElementById('createDrawer');
     const editDrawer = document.getElementById('editDrawer');
+    const addressDrawer = document.getElementById('addressDrawer');
     let activeDrawer = null;
+    let currentAddressUserId = null;
 
     function showDrawer(drawer) {
         activeDrawer = drawer;
@@ -546,21 +724,9 @@
         document.getElementById('edit_phone').value = user.phone || '';
         document.getElementById('edit_password').value = '';
 
-        // Address fields
+        // Document fields
         document.getElementById('edit_document_type').value = user.document_type || '';
         document.getElementById('edit_document_number').value = user.document_number || '';
-        document.getElementById('edit_address').value = user.address || '';
-        document.getElementById('edit_address_reference').value = user.address_reference || '';
-
-        // Ubigeo - set department and load cascading
-        const deptSelect = document.getElementById('edit_department_id');
-        deptSelect.value = user.department_id || '';
-        if (user.department_id) {
-            loadUbigeoProvinces('edit', user.department_id, user.province_id, user.district_id);
-        } else {
-            document.getElementById('edit_province_id').innerHTML = '<option value="">Seleccionar</option>';
-            document.getElementById('edit_district_id').innerHTML = '<option value="">Seleccionar</option>';
-        }
 
         document.getElementById('editUserForm').action = '/admin/users/' + user.id;
         document.getElementById('editDrawerSubtitle').textContent = user.first_name + ' ' + user.last_name;
@@ -569,9 +735,8 @@
         const l = (user.last_name || '')[0]?.toUpperCase() || '';
         document.getElementById('editAvatarPreview').textContent = f + l;
 
-        document.querySelectorAll('#editDrawer input[name="role"]').forEach(r => {
-            r.checked = r.value === user.role;
-        });
+        // Set role via custom select
+        initRoleSelect('edit', user.role);
 
         const activeCheck = document.querySelector('#editDrawer input[name="is_active"][type="checkbox"]');
         if (activeCheck) activeCheck.checked = user.is_active;
@@ -692,6 +857,171 @@
             });
     }
 
+    // ==================== ADDRESS DRAWER ====================
+    function openAddressDrawer(data) {
+        currentAddressUserId = data.id;
+        document.getElementById('addressDrawerSubtitle').textContent = data.full_name;
+        document.getElementById('addressForm').action = '/admin/users/' + data.id + '/address';
+        document.getElementById('deleteAddressForm').action = '/admin/users/' + data.id + '/address';
+
+        // Set form values
+        document.getElementById('addr_department_id').value = data.department_id || '';
+        document.getElementById('addr_address').value = data.address || '';
+        document.getElementById('addr_address_reference').value = data.address_reference || '';
+
+        // Load cascading ubigeo
+        const provSelect = document.getElementById('addr_province_id');
+        const distSelect = document.getElementById('addr_district_id');
+        provSelect.innerHTML = '<option value="">Seleccionar</option>';
+        distSelect.innerHTML = '<option value="">Seleccionar</option>';
+
+        if (data.department_id) {
+            loadUbigeoProvinces('addr', data.department_id, data.province_id, data.district_id);
+        }
+
+        // Check if has address data
+        const hasData = data.address || data.department_id;
+        const hasDataEl = document.getElementById('addressHasData');
+        const noDataEl = document.getElementById('addressNoData');
+        const deleteBtn = document.getElementById('addressDeleteBtn');
+
+        if (hasData) {
+            hasDataEl.classList.remove('hidden');
+            noDataEl.classList.add('hidden');
+            deleteBtn.classList.remove('hidden');
+
+            // Build preview text
+            let parts = [];
+            if (data.address) parts.push(data.address);
+            let ubicacion = [];
+            if (data.district_name) ubicacion.push(data.district_name);
+            if (data.province_name) ubicacion.push(data.province_name);
+            if (data.department_name) ubicacion.push(data.department_name);
+            if (ubicacion.length) parts.push(ubicacion.join(', '));
+            document.getElementById('addressPreviewText').textContent = parts.join(' — ') || 'Dirección registrada';
+
+            const refEl = document.getElementById('addressPreviewReference');
+            if (data.address_reference) {
+                refEl.classList.remove('hidden');
+                refEl.querySelector('span').textContent = data.address_reference;
+            } else {
+                refEl.classList.add('hidden');
+            }
+        } else {
+            hasDataEl.classList.add('hidden');
+            noDataEl.classList.remove('hidden');
+            deleteBtn.classList.add('hidden');
+        }
+
+        showDrawer(addressDrawer);
+    }
+
+    function deleteAddress() {
+        if (confirm('¿Eliminar la dirección de este usuario?')) {
+            document.getElementById('deleteAddressForm').submit();
+        }
+    }
+
+    // ==================== ROLE CUSTOM SELECT ====================
+    function toggleRoleDropdown(trigger) {
+        const wrapper = trigger.closest('.role-select-wrapper');
+        const dropdown = wrapper.querySelector('.role-select-dropdown');
+        const chevron = trigger.querySelector('.fa-chevron-down');
+        const isOpen = !dropdown.classList.contains('hidden');
+
+        // Close all other dropdowns first
+        document.querySelectorAll('.role-select-dropdown').forEach(d => {
+            d.classList.add('hidden');
+            const ch = d.closest('.role-select-wrapper').querySelector('.fa-chevron-down');
+            if (ch) ch.style.transform = '';
+        });
+
+        if (!isOpen) {
+            dropdown.classList.remove('hidden');
+            chevron.style.transform = 'rotate(180deg)';
+        }
+    }
+
+    function selectRole(optionBtn) {
+        const wrapper = optionBtn.closest('.role-select-wrapper');
+        const prefix = wrapper.dataset.prefix;
+        const value = optionBtn.dataset.value;
+        const display = optionBtn.dataset.display;
+        const isAdmin = optionBtn.dataset.admin === '1';
+        const color = optionBtn.dataset.color;
+        const icon = optionBtn.dataset.icon;
+
+        // Set hidden input
+        document.getElementById(prefix + '_role').value = value;
+
+        // Update trigger display
+        const trigger = wrapper.querySelector('.role-select-trigger');
+        const iconEl = trigger.querySelector('.role-select-icon');
+        const label = trigger.querySelector('.role-select-label');
+        const badge = trigger.querySelector('.role-select-badge');
+
+        iconEl.style.background = 'var(--role-bg-' + color + ')';
+        iconEl.innerHTML = '<i class="fas ' + icon + ' text-xs text-white"></i>';
+        label.textContent = display;
+        label.style.color = 'var(--role-text-' + color + ')';
+        trigger.style.borderColor = 'var(--role-text-' + color + ')';
+        trigger.style.backgroundColor = 'var(--role-light-' + color + ')';
+
+        if (isAdmin) {
+            badge.classList.remove('hidden');
+            badge.classList.add('flex');
+        } else {
+            badge.classList.add('hidden');
+            badge.classList.remove('flex');
+        }
+
+        // Update check marks on options
+        wrapper.querySelectorAll('.role-option').forEach(opt => {
+            const check = opt.querySelector('.role-opt-check');
+            if (opt.dataset.value === value) {
+                check.classList.remove('hidden');
+                check.style.background = 'var(--role-bg-' + color + ')';
+                opt.style.backgroundColor = 'var(--role-light-' + color + ')';
+            } else {
+                check.classList.add('hidden');
+                check.style.background = '';
+                opt.style.backgroundColor = '';
+            }
+        });
+
+        // Close dropdown
+        const dropdown = wrapper.querySelector('.role-select-dropdown');
+        dropdown.classList.add('hidden');
+        const chevron = trigger.querySelector('.fa-chevron-down');
+        chevron.style.transform = '';
+    }
+
+    // Set initial selected role on all selectors
+    function initRoleSelect(prefix, roleName) {
+        const wrapper = document.querySelector('.role-select-wrapper[data-prefix="' + prefix + '"]');
+        if (!wrapper) return;
+        const option = wrapper.querySelector('.role-option[data-value="' + roleName + '"]');
+        if (option) {
+            selectRole(option);
+        }
+    }
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.role-select-wrapper')) {
+            document.querySelectorAll('.role-select-dropdown').forEach(d => {
+                d.classList.add('hidden');
+            });
+            document.querySelectorAll('.fa-chevron-down').forEach(ch => {
+                if (ch.closest('.role-select-wrapper')) ch.style.transform = '';
+            });
+        }
+    });
+
+    // Init role selects with current values
+    initRoleSelect('create', '{{ old("role", "cliente") }}');
+    initRoleSelect('edit', '{{ old("role", "cliente") }}');
+
     // Auto-open if validation errors
     @if($errors->any() && old('_method') === 'PUT')
         openEditDrawer({
@@ -705,11 +1035,6 @@
             newsletter: {{ old('newsletter', 0) }},
             document_type: '{{ old("document_type") }}',
             document_number: '{{ old("document_number") }}',
-            department_id: '{{ old("department_id") }}',
-            province_id: '{{ old("province_id") }}',
-            district_id: '{{ old("district_id") }}',
-            address: '{{ old("address") }}',
-            address_reference: '{{ old("address_reference") }}',
             created_at: null,
             updated_at: null
         });
