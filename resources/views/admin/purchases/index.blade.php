@@ -431,8 +431,8 @@
         <button onclick="closeDrawer()" type="button" class="flex-1 px-4 py-2.5 text-sm text-gray-600 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition font-medium">
             Cancelar
         </button>
-        <button onclick="submitPurchase()" type="button" class="flex-1 px-4 py-2.5 text-sm bg-indigo-500 text-white rounded-xl hover:bg-indigo-600 transition font-medium shadow-sm shadow-indigo-200">
-            <i class="fas fa-check mr-1.5 text-xs"></i> Crear Compra
+        <button onclick="submitPurchase()" id="btnCreatePurchase" type="button" class="flex-1 px-4 py-2.5 text-sm bg-indigo-500 text-white rounded-xl hover:bg-indigo-600 transition font-medium shadow-sm shadow-indigo-200">
+            <i class="fas fa-check mr-1.5 text-xs"></i> <span>Crear Compra</span>
         </button>
     </div>
 </div>
@@ -906,6 +906,12 @@
             showToast('Selecciona un proveedor', 'warning');
             return;
         }
+
+        const btn = document.getElementById('btnCreatePurchase');
+        btn.disabled = true;
+        btn.classList.add('opacity-50', 'cursor-not-allowed');
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1.5 text-xs"></i> <span>Creando...</span>';
+
         document.getElementById('createPurchaseForm').submit();
     }
 

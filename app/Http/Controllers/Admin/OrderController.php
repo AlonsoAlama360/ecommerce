@@ -57,13 +57,19 @@ class OrderController extends Controller
         $perPage = $request->get('per_page', 10);
         $orders = $query->latest()->paginate($perPage)->withQueryString();
 
-        $totalOrders = Order::count();
-        $ordersToday = Order::whereDate('created_at', today())->count();
-        $monthlyRevenue = Order::whereMonth('created_at', now()->month)
-            ->whereYear('created_at', now()->year)
-            ->where('status', '!=', 'cancelado')
-            ->sum('total');
-        $pendingOrders = Order::where('status', 'pendiente')->count();
+        $s = DB::selectOne("
+            SELECT
+                COUNT(*) as total,
+                SUM(created_at >= ?) as today,
+                SUM(CASE WHEN created_at >= ? AND status != 'cancelado' THEN total ELSE 0 END) as monthly_revenue,
+                SUM(status = 'pendiente') as pending
+            FROM orders WHERE deleted_at IS NULL
+        ", [today()->toDateTimeString(), now()->startOfMonth()->toDateTimeString()]);
+
+        $totalOrders = (int) $s->total;
+        $ordersToday = (int) ($s->today ?? 0);
+        $monthlyRevenue = (float) ($s->monthly_revenue ?? 0);
+        $pendingOrders = (int) ($s->pending ?? 0);
 
         return view('admin.orders.index', compact(
             'orders', 'totalOrders', 'ordersToday', 'monthlyRevenue', 'pendingOrders'
@@ -309,61 +315,47 @@ class OrderController extends Controller
             });
         }
 
-        $orders = $query->latest()->get();
         $filename = 'ventas_' . now()->format('Ymd_His') . '.csv';
 
-        return response()->streamDownload(function () use ($orders) {
+        return response()->streamDownload(function () use ($query) {
             $handle = fopen('php://output', 'w');
 
-            // BOM for Excel UTF-8
             fprintf($handle, chr(0xEF) . chr(0xBB) . chr(0xBF));
 
-            // Header
             fputcsv($handle, [
-                'N° Orden',
-                'Fecha',
-                'Cliente',
-                'Email',
-                'Teléfono',
-                'Dirección de Envío',
-                'Origen',
-                'Estado',
-                'Método de Pago',
-                'Estado de Pago',
-                'Productos',
-                'Cant. Items',
-                'Subtotal',
-                'Descuento',
-                'Envío',
-                'Total',
-                'Notas',
+                'N° Orden', 'Fecha', 'Cliente', 'Email', 'Teléfono',
+                'Dirección de Envío', 'Origen', 'Estado', 'Método de Pago',
+                'Estado de Pago', 'Productos', 'Cant. Items', 'Subtotal',
+                'Descuento', 'Envío', 'Total', 'Notas',
             ], ';');
 
-            foreach ($orders as $order) {
-                $products = $order->items->map(function ($item) {
-                    return $item->product_name . ' (x' . $item->quantity . ' - S/' . number_format($item->unit_price, 2) . ')';
-                })->implode(' | ');
+            $query->with(['items'])->latest()->chunk(500, function ($orders) use ($handle) {
+                foreach ($orders as $order) {
+                    $products = $order->items->map(function ($item) {
+                        return $item->product_name . ' (x' . $item->quantity . ' - S/' . number_format($item->unit_price, 2) . ')';
+                    })->implode(' | ');
 
-                fputcsv($handle, [
-                    $order->order_number,
-                    $order->created_at->format('d/m/Y H:i'),
-                    $order->customer_name,
-                    $order->customer_email ?? '',
-                    $order->customer_phone ?? '',
-                    $order->shipping_address ?? '',
-                    $order->source === 'web' ? 'Web' : 'Admin',
-                    Order::STATUS_LABELS[$order->status] ?? $order->status,
-                    Order::PAYMENT_METHODS[$order->payment_method] ?? $order->payment_method,
-                    Order::PAYMENT_STATUS_LABELS[$order->payment_status] ?? $order->payment_status,
-                    $products,
-                    $order->items->sum('quantity'),
-                    number_format($order->subtotal, 2),
-                    number_format($order->discount_amount, 2),
-                    number_format($order->shipping_cost, 2),
-                    number_format($order->total, 2),
-                    $order->admin_notes ?? '',
-                ], ';');
-            }
+                    fputcsv($handle, [
+                        $order->order_number,
+                        $order->created_at->format('d/m/Y H:i'),
+                        $order->customer_name,
+                        $order->customer_email ?? '',
+                        $order->customer_phone ?? '',
+                        $order->shipping_address ?? '',
+                        $order->source === 'web' ? 'Web' : 'Admin',
+                        Order::STATUS_LABELS[$order->status] ?? $order->status,
+                        Order::PAYMENT_METHODS[$order->payment_method] ?? $order->payment_method,
+                        Order::PAYMENT_STATUS_LABELS[$order->payment_status] ?? $order->payment_status,
+                        $products,
+                        $order->items->sum('quantity'),
+                        number_format($order->subtotal, 2),
+                        number_format($order->discount_amount, 2),
+                        number_format($order->shipping_cost, 2),
+                        number_format($order->total, 2),
+                        $order->admin_notes ?? '',
+                    ], ';');
+                }
+            });
 
             fclose($handle);
         }, $filename, [

@@ -34,12 +34,19 @@ class SupplierController extends Controller
         $perPage = $request->get('per_page', 10);
         $suppliers = $query->latest()->paginate($perPage)->withQueryString();
 
-        $totalSuppliers = Supplier::count();
-        $activeSuppliers = Supplier::where('is_active', true)->count();
-        $inactiveSuppliers = Supplier::where('is_active', false)->count();
-        $newSuppliersWeek = Supplier::where('created_at', '>=', now()->subWeek())->count();
+        $ss = \DB::selectOne("
+            SELECT COUNT(*) as total,
+                SUM(is_active = 1) as active,
+                SUM(is_active = 0) as inactive,
+                SUM(created_at >= ?) as new_week
+            FROM suppliers WHERE deleted_at IS NULL
+        ", [now()->subWeek()->toDateTimeString()]);
+        $totalSuppliers = (int) $ss->total;
+        $activeSuppliers = (int) ($ss->active ?? 0);
+        $inactiveSuppliers = (int) ($ss->inactive ?? 0);
+        $newSuppliersWeek = (int) ($ss->new_week ?? 0);
 
-        $cities = Supplier::whereNotNull('city')->where('city', '!=', '')->distinct()->orderBy('city')->pluck('city');
+        $cities = Supplier::whereNotNull('city')->where('city', '!=', '')->distinct()->orderBy('city')->limit(100)->pluck('city');
 
         return view('admin.suppliers.index', compact(
             'suppliers', 'totalSuppliers', 'activeSuppliers', 'inactiveSuppliers', 'newSuppliersWeek', 'cities'

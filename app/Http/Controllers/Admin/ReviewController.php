@@ -46,11 +46,19 @@ class ReviewController extends Controller
             $query->where('is_featured', true);
         }
 
-        $totalReviews = Review::count();
-        $approvedReviews = Review::where('is_approved', true)->count();
-        $pendingReviews = Review::where('is_approved', false)->count();
-        $averageRating = round(Review::where('is_approved', true)->avg('rating'), 1) ?: 0;
-        $featuredCount = Review::where('is_featured', true)->count();
+        $rs = \DB::selectOne("
+            SELECT COUNT(*) as total,
+                SUM(is_approved = 1) as approved,
+                SUM(is_approved = 0) as pending,
+                AVG(CASE WHEN is_approved = 1 THEN rating ELSE NULL END) as avg_rating,
+                SUM(is_featured = 1) as featured
+            FROM reviews
+        ");
+        $totalReviews = (int) $rs->total;
+        $approvedReviews = (int) ($rs->approved ?? 0);
+        $pendingReviews = (int) ($rs->pending ?? 0);
+        $averageRating = round((float) ($rs->avg_rating ?? 0), 1);
+        $featuredCount = (int) ($rs->featured ?? 0);
 
         return view('admin.reviews.index', compact(
             'reviews', 'totalReviews', 'approvedReviews', 'pendingReviews', 'averageRating', 'featuredCount'

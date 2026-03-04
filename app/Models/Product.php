@@ -108,11 +108,31 @@ class Product extends Model
 
     public function getAverageRatingAttribute(): ?float
     {
+        // Use eager-loaded value from withAvg() if available
+        if (array_key_exists('reviews_avg_rating', $this->attributes)) {
+            return $this->attributes['reviews_avg_rating'] ? (float) $this->attributes['reviews_avg_rating'] : null;
+        }
+
+        // Use loaded relation if already eager-loaded
+        if ($this->relationLoaded('approvedReviews')) {
+            return $this->approvedReviews->avg('rating');
+        }
+
         return $this->approvedReviews()->avg('rating');
     }
 
     public function getReviewsCountAttribute(): int
     {
+        // Use eager-loaded value from withCount() if available
+        if (array_key_exists('approved_reviews_count', $this->attributes)) {
+            return (int) $this->attributes['approved_reviews_count'];
+        }
+
+        // Use loaded relation if already eager-loaded
+        if ($this->relationLoaded('approvedReviews')) {
+            return $this->approvedReviews->count();
+        }
+
         return $this->approvedReviews()->count();
     }
 }

@@ -58,7 +58,7 @@
             <!-- Logo -->
             <div class="text-center mb-8">
                 <a href="{{ route('home') }}" class="inline-flex items-center justify-center space-x-2 mb-6 group">
-                    <img src="{{ asset('images/logo_arixna.png') }}"
+                    <img src="{{ !empty($settings['site_logo']) ? asset('storage/' . $settings['site_logo']) : asset('images/logo_arixna.png') }}"
                         alt="Logo" class="h-10">
                 </a>
             </div>

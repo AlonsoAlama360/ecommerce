@@ -47,7 +47,8 @@ class InventoryReportService
             ->where('orders.created_at', '>=', now()->subDays(60))
             ->where('orders.status', '!=', 'cancelado')
             ->whereNotNull('order_items.product_id')
-            ->pluck('order_items.product_id')->unique();
+            ->distinct()
+            ->pluck('order_items.product_id');
 
         return Product::where('is_active', true)
             ->where('stock', '>', 0)

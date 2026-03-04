@@ -25,13 +25,21 @@ class ContactMessageController extends Controller
             $query->where('status', $status);
         }
 
-        $messages = $query->latest()->paginate(15)->withQueryString();
+        $perPage = $request->get('per_page', 15);
+        $messages = $query->latest()->paginate($perPage)->withQueryString();
 
+        $ms = \DB::selectOne("
+            SELECT COUNT(*) as total,
+                SUM(status = 'nuevo') as nuevo,
+                SUM(status = 'leido') as leido,
+                SUM(status = 'respondido') as respondido
+            FROM contact_messages
+        ");
         $stats = [
-            'total' => ContactMessage::count(),
-            'nuevo' => ContactMessage::where('status', 'nuevo')->count(),
-            'leido' => ContactMessage::where('status', 'leido')->count(),
-            'respondido' => ContactMessage::where('status', 'respondido')->count(),
+            'total' => (int) $ms->total,
+            'nuevo' => (int) ($ms->nuevo ?? 0),
+            'leido' => (int) ($ms->leido ?? 0),
+            'respondido' => (int) ($ms->respondido ?? 0),
         ];
 
         return view('admin.contact-messages.index', compact('messages', 'stats'));

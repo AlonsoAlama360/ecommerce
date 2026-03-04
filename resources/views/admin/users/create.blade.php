@@ -114,7 +114,7 @@
                class="px-4 py-2.5 text-sm text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-50 transition text-center">
                 Cancelar
             </a>
-            <button type="submit"
+            <button type="submit" onclick="lockBtn(this, 'Creando...')"
                     class="px-6 py-2.5 text-sm bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition font-medium">
                 Crear Usuario
             </button>

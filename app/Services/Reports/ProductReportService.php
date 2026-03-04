@@ -68,7 +68,8 @@ class ProductReportService
             ->whereBetween('orders.created_at', $dateRange)
             ->where('orders.status', '!=', 'cancelado')
             ->whereNotNull('order_items.product_id')
-            ->pluck('order_items.product_id')->unique();
+            ->distinct()
+            ->pluck('order_items.product_id');
 
         return Product::where('is_active', true)
             ->whereNotIn('id', $soldIds)

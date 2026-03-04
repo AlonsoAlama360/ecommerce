@@ -39,7 +39,7 @@
         <!-- Header -->
         <div class="mb-10 text-center">
             <div class="flex items-center justify-center gap-3 mb-4">
-                <img src="{{ asset('images/logo_arixna.png') }}" alt="Arixna" class="h-12">
+                <img src="{{ !empty($settings['site_logo']) ? asset('storage/' . $settings['site_logo']) : asset('images/logo_arixna.png') }}" alt="Arixna" class="h-12">
             </div>
             <h1 class="font-serif text-3xl md:text-4xl font-bold text-gray-900 mb-3">Libro de Reclamaciones</h1>
             <p class="text-gray-500 max-w-2xl mx-auto">Conforme a lo establecido en el Código de Protección y Defensa del Consumidor (Ley N° 29571) y el Decreto Supremo N° 011-2011-PCM.</p>

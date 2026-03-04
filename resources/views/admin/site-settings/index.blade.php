@@ -9,7 +9,7 @@
             <h1 class="text-2xl font-bold text-gray-900">Configuración</h1>
             <p class="text-sm text-gray-500 mt-1">Administra la información de tu negocio que se muestra en la tienda.</p>
         </div>
-        <button type="submit" form="settingsForm" class="bg-indigo-500 text-white px-6 py-2.5 rounded-xl text-sm font-semibold hover:bg-indigo-600 transition shadow-sm shadow-indigo-200 flex items-center gap-2 self-start">
+        <button type="submit" form="settingsForm" onclick="lockBtn(this, 'Guardando...')" class="bg-indigo-500 text-white px-6 py-2.5 rounded-xl text-sm font-semibold hover:bg-indigo-600 transition shadow-sm shadow-indigo-200 flex items-center gap-2 self-start">
             <i class="fas fa-save text-xs"></i> Guardar cambios
         </button>
     </div>
@@ -156,7 +156,7 @@
 
                     <!-- Save button mobile -->
                     <div class="mt-6 sm:hidden">
-                        <button type="submit" class="w-full bg-indigo-500 text-white py-3 rounded-xl text-sm font-semibold hover:bg-indigo-600 transition shadow-sm shadow-indigo-200">
+                        <button type="submit" onclick="lockBtn(this, 'Guardando...')" class="w-full bg-indigo-500 text-white py-3 rounded-xl text-sm font-semibold hover:bg-indigo-600 transition shadow-sm shadow-indigo-200">
                             <i class="fas fa-save mr-2"></i> Guardar cambios
                         </button>
                     </div>
@@ -225,7 +225,7 @@
 
                     <!-- Save button mobile -->
                     <div class="mt-6 sm:hidden">
-                        <button type="submit" class="w-full bg-indigo-500 text-white py-3 rounded-xl text-sm font-semibold hover:bg-indigo-600 transition shadow-sm shadow-indigo-200">
+                        <button type="submit" onclick="lockBtn(this, 'Guardando...')" class="w-full bg-indigo-500 text-white py-3 rounded-xl text-sm font-semibold hover:bg-indigo-600 transition shadow-sm shadow-indigo-200">
                             <i class="fas fa-save mr-2"></i> Guardar cambios
                         </button>
                     </div>

@@ -571,6 +571,22 @@
         });
     </script>
 
+    <script>
+    function submitCreate(btn, formId, loadingText) {
+        btn.disabled = true;
+        btn.classList.add('opacity-50', 'cursor-not-allowed');
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1.5 text-xs"></i> ' + loadingText;
+        document.getElementById(formId).submit();
+    }
+    function lockBtn(btn, loadingText) {
+        setTimeout(() => {
+            btn.disabled = true;
+            btn.classList.add('opacity-50', 'cursor-not-allowed');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1.5 text-xs"></i> ' + loadingText;
+        }, 0);
+    }
+    </script>
+
     @yield('scripts')
 </body>
 

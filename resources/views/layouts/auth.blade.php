@@ -6,8 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title') - Arixna</title>
-    <link rel="icon" type="image/webp" href="{{ asset('images/logo_arixna1024512_min.webp') }}">
-    <link rel="apple-touch-icon" href="{{ asset('images/logo_arixna1024512_min.webp') }}">
+    @php $faviconUrl = !empty($settings['site_favicon']) ? asset('storage/' . $settings['site_favicon']) : asset('images/logo_arixna1024512_min.webp'); @endphp
+    <link rel="icon" href="{{ $faviconUrl }}">
+    <link rel="apple-touch-icon" href="{{ $faviconUrl }}">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

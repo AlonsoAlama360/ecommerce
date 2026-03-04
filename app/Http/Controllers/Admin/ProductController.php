@@ -50,10 +50,17 @@ class ProductController extends Controller
         $perPage = $request->get('per_page', 10);
         $products = $query->latest()->paginate($perPage)->withQueryString();
 
-        $totalProducts = Product::count();
-        $activeProducts = Product::where('is_active', true)->count();
-        $featuredProducts = Product::where('is_featured', true)->count();
-        $outOfStock = Product::where('stock', 0)->count();
+        $ps = \DB::selectOne("
+            SELECT COUNT(*) as total,
+                SUM(is_active = 1) as active,
+                SUM(is_featured = 1) as featured,
+                SUM(stock = 0) as out_of_stock
+            FROM products WHERE deleted_at IS NULL
+        ");
+        $totalProducts = (int) $ps->total;
+        $activeProducts = (int) ($ps->active ?? 0);
+        $featuredProducts = (int) ($ps->featured ?? 0);
+        $outOfStock = (int) ($ps->out_of_stock ?? 0);
 
         $categories = Category::ordered()->get();
 

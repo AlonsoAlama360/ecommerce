@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Models\Category;
 use App\Models\SiteSetting;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\View;
 
@@ -22,12 +23,14 @@ class ViewServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Compartir categorías con el layout
+        // Compartir categorías con el layout (cached 1 hour)
         View::composer('layouts.app', function ($view) {
-            $navCategories = Category::active()
-                ->ordered()
-                ->select('id', 'name', 'slug', 'icon')
-                ->get();
+            $navCategories = Cache::remember('nav_categories', 3600, function () {
+                return Category::active()
+                    ->ordered()
+                    ->select('id', 'name', 'slug', 'icon')
+                    ->get();
+            });
 
             $view->with('navCategories', $navCategories);
         });

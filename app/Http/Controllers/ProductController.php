@@ -32,15 +32,19 @@ class ProductController extends Controller
             ->latest()
             ->paginate(5);
 
+        // Single query for avg, total, and distribution (instead of 7 queries)
+        $ratingData = $product->reviews()->approved()
+            ->selectRaw('COUNT(*) as total, AVG(rating) as avg_rating, rating')
+            ->groupBy('rating')
+            ->pluck('total', 'rating');
+
         $reviewStats = [
-            'average' => round($product->reviews()->approved()->avg('rating'), 1) ?: 0,
-            'total' => $product->reviews()->approved()->count(),
+            'average' => round((float) $product->reviews()->approved()->avg('rating'), 1) ?: 0,
+            'total' => $ratingData->sum(),
             'distribution' => [],
         ];
-
         for ($i = 5; $i >= 1; $i--) {
-            $count = $product->reviews()->approved()->where('rating', $i)->count();
-            $reviewStats['distribution'][$i] = $count;
+            $reviewStats['distribution'][$i] = (int) ($ratingData[$i] ?? 0);
         }
 
         $userReview = null;

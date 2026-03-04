@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class CatalogController extends Controller
 {
@@ -80,10 +81,12 @@ class CatalogController extends Controller
             }])
             ->get();
 
-        // Rango de precios para el slider
-        $priceRange = Product::active()
-            ->selectRaw('MIN(COALESCE(sale_price, price)) as min_price, MAX(COALESCE(sale_price, price)) as max_price')
-            ->first();
+        // Rango de precios para el slider (cached 30 min)
+        $priceRange = Cache::remember('catalog_price_range', 1800, function () {
+            return Product::active()
+                ->selectRaw('MIN(COALESCE(sale_price, price)) as min_price, MAX(COALESCE(sale_price, price)) as max_price')
+                ->first();
+        });
 
         return view('catalog', compact('products', 'categories', 'priceRange'));
     }

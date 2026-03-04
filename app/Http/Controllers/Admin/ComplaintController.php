@@ -29,13 +29,21 @@ class ComplaintController extends Controller
             $query->where('complaint_type', $type);
         }
 
-        $complaints = $query->latest()->paginate(15)->withQueryString();
+        $perPage = $request->get('per_page', 15);
+        $complaints = $query->latest()->paginate($perPage)->withQueryString();
 
+        $cs = \DB::selectOne("
+            SELECT COUNT(*) as total,
+                SUM(status = 'pendiente') as pendiente,
+                SUM(status = 'en_proceso') as en_proceso,
+                SUM(status = 'resuelto') as resuelto
+            FROM complaints
+        ");
         $stats = [
-            'total' => Complaint::count(),
-            'pendiente' => Complaint::where('status', 'pendiente')->count(),
-            'en_proceso' => Complaint::where('status', 'en_proceso')->count(),
-            'resuelto' => Complaint::where('status', 'resuelto')->count(),
+            'total' => (int) $cs->total,
+            'pendiente' => (int) ($cs->pendiente ?? 0),
+            'en_proceso' => (int) ($cs->en_proceso ?? 0),
+            'resuelto' => (int) ($cs->resuelto ?? 0),
         ];
 
         return view('admin.complaints.index', compact('complaints', 'stats'));

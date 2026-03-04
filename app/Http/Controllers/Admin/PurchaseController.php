@@ -44,13 +44,17 @@ class PurchaseController extends Controller
         $perPage = $request->get('per_page', 10);
         $purchases = $query->latest()->paginate($perPage)->withQueryString();
 
-        $totalPurchases = Purchase::count();
-        $purchasesToday = Purchase::whereDate('created_at', today())->count();
-        $monthlySpending = Purchase::whereMonth('created_at', now()->month)
-            ->whereYear('created_at', now()->year)
-            ->where('status', '!=', 'cancelado')
-            ->sum('total');
-        $pendingPurchases = Purchase::where('status', 'pendiente')->count();
+        $ps = DB::selectOne("
+            SELECT COUNT(*) as total,
+                SUM(created_at >= ?) as today,
+                SUM(CASE WHEN created_at >= ? AND status != 'cancelado' THEN total ELSE 0 END) as monthly_spending,
+                SUM(status = 'pendiente') as pending
+            FROM purchases WHERE deleted_at IS NULL
+        ", [today()->toDateTimeString(), now()->startOfMonth()->toDateTimeString()]);
+        $totalPurchases = (int) $ps->total;
+        $purchasesToday = (int) ($ps->today ?? 0);
+        $monthlySpending = (float) ($ps->monthly_spending ?? 0);
+        $pendingPurchases = (int) ($ps->pending ?? 0);
 
         $suppliers = Supplier::where('is_active', true)->orderBy('business_name')->get(['id', 'business_name']);
 

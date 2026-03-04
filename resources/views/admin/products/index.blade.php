@@ -610,7 +610,7 @@ if ($stock <= 5) return ['bg'=> 'bg-amber-50', 'text' => 'text-amber-600', 'labe
             <button onclick="closeDrawer()" type="button" class="flex-1 px-4 py-2.5 text-sm text-gray-600 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition font-medium">
                 Cancelar
             </button>
-            <button onclick="document.getElementById('createProductForm').submit()" type="button" class="flex-1 px-4 py-2.5 text-sm bg-indigo-500 text-white rounded-xl hover:bg-indigo-600 transition font-medium shadow-sm shadow-indigo-200">
+            <button onclick="submitCreate(this, 'createProductForm', 'Creando...')" type="button" class="flex-1 px-4 py-2.5 text-sm bg-indigo-500 text-white rounded-xl hover:bg-indigo-600 transition font-medium shadow-sm shadow-indigo-200">
                 <i class="fas fa-plus mr-1.5 text-xs"></i> Crear Producto
             </button>
         </div>

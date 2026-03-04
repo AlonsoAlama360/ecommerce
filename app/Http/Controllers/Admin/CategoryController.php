@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
 class CategoryController extends Controller
@@ -25,12 +26,21 @@ class CategoryController extends Controller
             $query->where('is_active', $request->get('status'));
         }
 
-        $categories = $query->ordered()->get();
+        $perPage = $request->get('per_page', 20);
+        $categories = $query->ordered()->paginate($perPage)->withQueryString();
 
-        $totalCategories = Category::count();
-        $activeCategories = Category::where('is_active', true)->count();
-        $inactiveCategories = Category::where('is_active', false)->count();
-        $totalProducts = \DB::table('products')->count();
+        $stats = \DB::selectOne("
+            SELECT
+                (SELECT COUNT(*) FROM categories) as total,
+                (SELECT SUM(is_active = 1) FROM categories) as active,
+                (SELECT SUM(is_active = 0) FROM categories) as inactive,
+                (SELECT COUNT(*) FROM products WHERE deleted_at IS NULL) as total_products
+        ");
+
+        $totalCategories = (int) $stats->total;
+        $activeCategories = (int) ($stats->active ?? 0);
+        $inactiveCategories = (int) ($stats->inactive ?? 0);
+        $totalProducts = (int) $stats->total_products;
 
         return view('admin.categories.index', compact(
             'categories', 'totalCategories', 'activeCategories', 'inactiveCategories', 'totalProducts'
@@ -59,6 +69,7 @@ class CategoryController extends Controller
         $validated['sort_order'] = $validated['sort_order'] ?? 0;
 
         Category::create($validated);
+        Cache::forget('nav_categories');
 
         return redirect()->route('admin.categories.index')
             ->with('success', 'Categoría creada exitosamente.');
@@ -85,6 +96,7 @@ class CategoryController extends Controller
         $validated['slug'] = $validated['slug'] ?: Str::slug($validated['name']);
 
         $category->update($validated);
+        Cache::forget('nav_categories');
 
         return redirect()->route('admin.categories.index')
             ->with('success', 'Categoría actualizada exitosamente.');
@@ -93,6 +105,7 @@ class CategoryController extends Controller
     public function destroy(Category $category)
     {
         $category->delete();
+        Cache::forget('nav_categories');
 
         return redirect()->route('admin.categories.index')
             ->with('success', 'Categoría eliminada exitosamente.');

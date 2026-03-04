@@ -105,26 +105,27 @@ class WishlistController extends Controller
             $query->where('products.category_id', $categoryId);
         }
 
-        $products = $query->orderByDesc('wishlists_count')->get();
         $filename = 'lista_deseos_' . now()->format('Ymd_His') . '.csv';
 
-        return response()->streamDownload(function () use ($products) {
+        return response()->streamDownload(function () use ($query) {
             $handle = fopen('php://output', 'w');
             fprintf($handle, chr(0xEF) . chr(0xBB) . chr(0xBF));
 
             fputcsv($handle, ['Producto', 'SKU', 'Categoría', 'Precio', 'Precio Oferta', 'Veces Deseado', 'Stock'], ';');
 
-            foreach ($products as $p) {
-                fputcsv($handle, [
-                    $p->name,
-                    $p->sku ?? '—',
-                    $p->category?->name ?? '—',
-                    number_format($p->price, 2),
-                    $p->sale_price ? number_format($p->sale_price, 2) : '—',
-                    $p->wishlists_count,
-                    $p->stock,
-                ], ';');
-            }
+            $query->orderByDesc('wishlists_count')->chunk(500, function ($products) use ($handle) {
+                foreach ($products as $p) {
+                    fputcsv($handle, [
+                        $p->name,
+                        $p->sku ?? '—',
+                        $p->category?->name ?? '—',
+                        number_format($p->price, 2),
+                        $p->sale_price ? number_format($p->sale_price, 2) : '—',
+                        $p->wishlists_count,
+                        $p->stock,
+                    ], ';');
+                }
+            });
 
             fclose($handle);
         }, $filename, ['Content-Type' => 'text/csv; charset=UTF-8']);
@@ -142,11 +143,10 @@ class WishlistController extends Controller
             });
         }
 
-        $wishlists = $query->latest('created_at')->get();
         $slug = str_replace(' ', '_', strtolower($product->sku ?: $product->id));
         $filename = "clientes_interesados_{$slug}_" . now()->format('Ymd_His') . '.csv';
 
-        return response()->streamDownload(function () use ($wishlists, $product) {
+        return response()->streamDownload(function () use ($query, $product) {
             $handle = fopen('php://output', 'w');
             fprintf($handle, chr(0xEF) . chr(0xBB) . chr(0xBF));
 
@@ -157,14 +157,16 @@ class WishlistController extends Controller
 
             fputcsv($handle, ['Nombre', 'Email', 'Teléfono', 'Fecha Agregado'], ';');
 
-            foreach ($wishlists as $w) {
-                fputcsv($handle, [
-                    $w->user ? $w->user->first_name . ' ' . $w->user->last_name : 'Usuario eliminado',
-                    $w->user?->email ?? '—',
-                    $w->user?->phone ?? '—',
-                    $w->created_at ? \Carbon\Carbon::parse($w->created_at)->format('d/m/Y H:i') : '—',
-                ], ';');
-            }
+            $query->with('user')->latest('created_at')->chunk(500, function ($wishlists) use ($handle) {
+                foreach ($wishlists as $w) {
+                    fputcsv($handle, [
+                        $w->user ? $w->user->first_name . ' ' . $w->user->last_name : 'Usuario eliminado',
+                        $w->user?->email ?? '—',
+                        $w->user?->phone ?? '—',
+                        $w->created_at ? $w->created_at->format('d/m/Y H:i') : '—',
+                    ], ';');
+                }
+            });
 
             fclose($handle);
         }, $filename, ['Content-Type' => 'text/csv; charset=UTF-8']);

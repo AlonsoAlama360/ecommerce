@@ -161,6 +161,12 @@
             <p class="text-sm text-gray-400 max-w-xs mx-auto">No se encontraron categorías que coincidan con los filtros</p>
         </div>
         @endif
+
+        @if($categories->hasPages())
+        <div class="px-6 py-4 border-t border-gray-100">
+            {{ $categories->links() }}
+        </div>
+        @endif
     </div>
 </div>
 
@@ -263,7 +269,7 @@
         <button onclick="closeDrawer()" type="button" class="flex-1 px-4 py-2.5 text-sm text-gray-600 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition font-medium">
             Cancelar
         </button>
-        <button onclick="document.getElementById('createCategoryForm').submit()" type="button" class="flex-1 px-4 py-2.5 text-sm bg-indigo-500 text-white rounded-xl hover:bg-indigo-600 transition font-medium shadow-sm shadow-indigo-200">
+        <button onclick="submitCreate(this, 'createCategoryForm', 'Creando...')" type="button" class="flex-1 px-4 py-2.5 text-sm bg-indigo-500 text-white rounded-xl hover:bg-indigo-600 transition font-medium shadow-sm shadow-indigo-200">
             <i class="fas fa-plus mr-1.5 text-xs"></i> Crear Categoría
         </button>
     </div>

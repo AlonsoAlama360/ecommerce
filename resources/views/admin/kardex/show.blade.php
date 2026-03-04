@@ -316,7 +316,7 @@
         <button onclick="closeDrawer()" type="button" class="flex-1 px-4 py-2.5 text-sm text-gray-600 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition font-medium">
             Cancelar
         </button>
-        <button onclick="document.getElementById('adjustForm').submit()" type="button" class="flex-1 px-4 py-2.5 text-sm bg-indigo-500 text-white rounded-xl hover:bg-indigo-600 transition font-medium shadow-sm shadow-indigo-200">
+        <button onclick="submitCreate(this, 'adjustForm', 'Aplicando...')" type="button" class="flex-1 px-4 py-2.5 text-sm bg-indigo-500 text-white rounded-xl hover:bg-indigo-600 transition font-medium shadow-sm shadow-indigo-200">
             <i class="fas fa-check mr-1.5 text-xs"></i> Aplicar Ajuste
         </button>
     </div>

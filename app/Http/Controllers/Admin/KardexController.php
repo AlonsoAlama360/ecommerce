@@ -30,21 +30,22 @@ class KardexController extends Controller
         $perPage = $request->get('per_page', 15);
         $movements = $query->latest('created_at')->paginate($perPage)->withQueryString();
 
-        $movementsToday = StockMovement::whereDate('created_at', today())->count();
-        $entriesMonth = StockMovement::where('type', 'entrada')
-            ->whereMonth('created_at', now()->month)
-            ->whereYear('created_at', now()->year)
-            ->count();
-        $exitsMonth = StockMovement::where('type', 'salida')
-            ->whereMonth('created_at', now()->month)
-            ->whereYear('created_at', now()->year)
-            ->count();
-        $adjustmentsMonth = StockMovement::where('type', 'ajuste')
-            ->whereMonth('created_at', now()->month)
-            ->whereYear('created_at', now()->year)
-            ->count();
+        $todayStr = today()->toDateTimeString();
+        $monthStr = now()->startOfMonth()->toDateTimeString();
+        $ks = \DB::selectOne("
+            SELECT
+                SUM(created_at >= ?) as today,
+                SUM(type = 'entrada' AND created_at >= ?) as entries_month,
+                SUM(type = 'salida' AND created_at >= ?) as exits_month,
+                SUM(type = 'ajuste' AND created_at >= ?) as adjustments_month
+            FROM stock_movements
+        ", [$todayStr, $monthStr, $monthStr, $monthStr]);
+        $movementsToday = (int) ($ks->today ?? 0);
+        $entriesMonth = (int) ($ks->entries_month ?? 0);
+        $exitsMonth = (int) ($ks->exits_month ?? 0);
+        $adjustmentsMonth = (int) ($ks->adjustments_month ?? 0);
 
-        $products = Product::where('is_active', true)->orderBy('name')->get(['id', 'name', 'sku']);
+        $products = Product::where('is_active', true)->orderBy('name')->limit(200)->get(['id', 'name', 'sku']);
 
         return view('admin.kardex.index', compact(
             'movements', 'movementsToday', 'entriesMonth', 'exitsMonth', 'adjustmentsMonth', 'products'
@@ -69,10 +70,17 @@ class KardexController extends Controller
         $perPage = $request->get('per_page', 15);
         $movements = $query->latest('created_at')->paginate($perPage)->withQueryString();
 
-        $totalEntries = StockMovement::where('product_id', $product->id)->where('type', 'entrada')->sum('quantity');
-        $totalExits = StockMovement::where('product_id', $product->id)->where('type', 'salida')->sum('quantity');
-        $totalAdjustments = StockMovement::where('product_id', $product->id)->where('type', 'ajuste')->count();
-        $totalMovements = StockMovement::where('product_id', $product->id)->count();
+        $ms = \DB::selectOne("
+            SELECT COUNT(*) as total,
+                SUM(CASE WHEN type = 'entrada' THEN quantity ELSE 0 END) as entries,
+                SUM(CASE WHEN type = 'salida' THEN quantity ELSE 0 END) as exits,
+                SUM(type = 'ajuste') as adjustments
+            FROM stock_movements WHERE product_id = ?
+        ", [$product->id]);
+        $totalEntries = (int) ($ms->entries ?? 0);
+        $totalExits = (int) ($ms->exits ?? 0);
+        $totalAdjustments = (int) ($ms->adjustments ?? 0);
+        $totalMovements = (int) $ms->total;
 
         return view('admin.kardex.show', compact(
             'product', 'movements', 'totalEntries', 'totalExits', 'totalAdjustments', 'totalMovements'
@@ -108,10 +116,9 @@ class KardexController extends Controller
             $query->byDateRange($request->get('date_from'), $request->get('date_to'));
         }
 
-        $movements = $query->latest('created_at')->get();
         $filename = 'kardex_general_' . now()->format('Ymd_His') . '.csv';
 
-        return $this->streamCsv($movements, $filename, true);
+        return $this->streamCsv($query->latest('created_at'), $filename, true);
     }
 
     public function exportProduct(Request $request, Product $product): StreamedResponse
@@ -125,22 +132,19 @@ class KardexController extends Controller
             $query->byDateRange($request->get('date_from'), $request->get('date_to'));
         }
 
-        $movements = $query->latest('created_at')->get();
         $slug = str_replace(' ', '_', strtolower($product->sku ?: $product->id));
         $filename = "kardex_{$slug}_" . now()->format('Ymd_His') . '.csv';
 
-        return $this->streamCsv($movements, $filename, false, $product);
+        return $this->streamCsv($query->latest('created_at'), $filename, false, $product);
     }
 
-    private function streamCsv($movements, string $filename, bool $includeProduct, ?Product $product = null): StreamedResponse
+    private function streamCsv($query, string $filename, bool $includeProduct, ?Product $product = null): StreamedResponse
     {
-        return response()->streamDownload(function () use ($movements, $includeProduct, $product) {
+        return response()->streamDownload(function () use ($query, $includeProduct, $product) {
             $handle = fopen('php://output', 'w');
 
-            // BOM for Excel UTF-8
             fprintf($handle, chr(0xEF) . chr(0xBB) . chr(0xBF));
 
-            // Product info header (for per-product export)
             if ($product) {
                 fputcsv($handle, ['Producto', $product->name], ';');
                 fputcsv($handle, ['SKU', $product->sku ?? '—'], ';');
@@ -148,7 +152,6 @@ class KardexController extends Controller
                 fputcsv($handle, [], ';');
             }
 
-            // Header
             $headers = ['Fecha', 'Hora'];
             if ($includeProduct) {
                 $headers[] = 'Producto';
@@ -157,25 +160,26 @@ class KardexController extends Controller
             $headers = array_merge($headers, ['Tipo', 'Cantidad', 'Stock Antes', 'Stock Después', 'Referencia', 'Notas', 'Usuario']);
             fputcsv($handle, $headers, ';');
 
-            // Rows
-            foreach ($movements as $m) {
-                $row = [
-                    $m->created_at->format('d/m/Y'),
-                    $m->created_at->format('H:i:s'),
-                ];
-                if ($includeProduct) {
-                    $row[] = $m->product?->name ?? 'Eliminado';
-                    $row[] = $m->product?->sku ?? '—';
+            $query->with(['product', 'creator'])->chunk(500, function ($movements) use ($handle, $includeProduct) {
+                foreach ($movements as $m) {
+                    $row = [
+                        $m->created_at->format('d/m/Y'),
+                        $m->created_at->format('H:i:s'),
+                    ];
+                    if ($includeProduct) {
+                        $row[] = $m->product?->name ?? 'Eliminado';
+                        $row[] = $m->product?->sku ?? '—';
+                    }
+                    $row[] = $m->type_label;
+                    $row[] = $m->quantity;
+                    $row[] = $m->stock_before;
+                    $row[] = $m->stock_after;
+                    $row[] = $m->reference_label ?? '—';
+                    $row[] = $m->notes ?? '';
+                    $row[] = $m->creator ? $m->creator->first_name . ' ' . $m->creator->last_name : 'Sistema';
+                    fputcsv($handle, $row, ';');
                 }
-                $row[] = $m->type_label;
-                $row[] = $m->quantity;
-                $row[] = $m->stock_before;
-                $row[] = $m->stock_after;
-                $row[] = $m->reference_label ?? '—';
-                $row[] = $m->notes ?? '';
-                $row[] = $m->creator ? $m->creator->first_name . ' ' . $m->creator->last_name : 'Sistema';
-                fputcsv($handle, $row, ';');
-            }
+            });
 
             fclose($handle);
         }, $filename, [
