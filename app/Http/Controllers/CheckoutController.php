@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Application\Cart\UseCases\GetCart;
 use App\Application\Order\DTOs\CreateOrderDTO;
 use App\Application\Order\UseCases\CreateOrder;
+use App\Models\Order;
+use App\Models\Product;
 use Culqi\Culqi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -40,6 +42,12 @@ class CheckoutController extends Controller
             return response()->json(['error' => 'Carrito vacío'], 422);
         }
 
+        // Validate stock before initiating payment
+        $stockErrors = $this->validateStock($cart['cartItems']);
+        if (!empty($stockErrors)) {
+            return response()->json(['error' => implode(' ', $stockErrors)], 422);
+        }
+
         $totalInCents = (int) round($cart['total'] * 100);
 
         if ($totalInCents < 600) {
@@ -63,7 +71,6 @@ class CheckoutController extends Controller
                 'expiration_date' => now()->addHours(1)->timestamp,
             ]);
 
-            // Culqi puede devolver string JSON en caso de error sin lanzar excepción
             if (is_string($order)) {
                 $decoded = json_decode($order, true);
                 $errorMsg = $decoded['merchant_message'] ?? $decoded['user_message'] ?? 'Error desconocido';
@@ -96,10 +103,24 @@ class CheckoutController extends Controller
             'customer_notes' => 'nullable|string|max:2000',
         ]);
 
+        // Idempotency: check if this token was already processed
+        $existingOrder = Order::where('payment_reference', $validated['token'])->first();
+        if ($existingOrder) {
+            session()->forget('cart');
+            return redirect()->route('orders.show', $existingOrder)
+                ->with('success', "Tu pedido {$existingOrder->order_number} ya fue procesado.");
+        }
+
         $cart = app(GetCart::class)->execute();
 
         if (empty($cart['cartItems'])) {
             return back()->with('error', 'Tu carrito está vacío.');
+        }
+
+        // Validate stock before charging
+        $stockErrors = $this->validateStock($cart['cartItems']);
+        if (!empty($stockErrors)) {
+            return back()->withInput()->with('error', implode(' ', $stockErrors));
         }
 
         $totalInCents = (int) round($cart['total'] * 100);
@@ -154,10 +175,26 @@ class CheckoutController extends Controller
             'customer_notes' => 'nullable|string|max:2000',
         ]);
 
+        // Idempotency: check if this Culqi order was already processed
+        $existingOrder = Order::where('payment_reference', $validated['culqi_order_id'])->first();
+        if ($existingOrder) {
+            session()->forget('cart');
+            return response()->json([
+                'success' => true,
+                'redirect' => route('orders.show', $existingOrder),
+            ]);
+        }
+
         $cart = app(GetCart::class)->execute();
 
         if (empty($cart['cartItems'])) {
             return response()->json(['error' => 'Carrito vacío'], 422);
+        }
+
+        // Validate stock before confirming
+        $stockErrors = $this->validateStock($cart['cartItems']);
+        if (!empty($stockErrors)) {
+            return response()->json(['error' => implode(' ', $stockErrors)], 422);
         }
 
         try {
@@ -217,5 +254,33 @@ class CheckoutController extends Controller
         session()->forget('cart');
 
         return $order;
+    }
+
+    /**
+     * Check that all cart items have sufficient stock.
+     * Returns an array of error messages (empty if all OK).
+     */
+    private function validateStock(array $cartItems): array
+    {
+        $errors = [];
+
+        foreach ($cartItems as $item) {
+            $product = Product::find($item['product']->id);
+
+            if (!$product || !$product->is_active) {
+                $errors[] = "\"{$item['product']->name}\" ya no está disponible.";
+                continue;
+            }
+
+            if ($product->stock < $item['quantity']) {
+                if ($product->stock === 0) {
+                    $errors[] = "\"{$product->name}\" se agotó.";
+                } else {
+                    $errors[] = "\"{$product->name}\" solo tiene {$product->stock} unidades disponibles.";
+                }
+            }
+        }
+
+        return $errors;
     }
 }
