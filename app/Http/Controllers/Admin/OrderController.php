@@ -39,7 +39,7 @@ class OrderController extends Controller
             'customer_email' => 'nullable|email|max:255',
             'customer_phone' => 'nullable|string|max:20',
             'shipping_address' => 'nullable|string|max:1000',
-            'payment_method' => 'required|in:efectivo,transferencia,yape_plin,tarjeta',
+            'payment_method' => 'required|in:efectivo,transferencia,yape_plin,tarjeta,culqi',
             'payment_status' => 'required|in:pendiente,pagado,fallido',
             'admin_notes' => 'nullable|string|max:2000',
             'items' => 'required|array|min:1',
@@ -65,7 +65,7 @@ class OrderController extends Controller
         $request->validate([
             'status' => 'sometimes|in:pendiente,confirmado,en_preparacion,enviado,entregado,cancelado',
             'payment_status' => 'sometimes|in:pendiente,pagado,fallido',
-            'payment_method' => 'sometimes|in:efectivo,transferencia,yape_plin,tarjeta',
+            'payment_method' => 'sometimes|in:efectivo,transferencia,yape_plin,tarjeta,culqi',
             'admin_notes' => 'nullable|string|max:2000',
             'shipping_address' => 'nullable|string|max:1000',
             'customer_name' => 'sometimes|string|max:255',

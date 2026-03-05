@@ -20,6 +20,7 @@ use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\OfertasController;
@@ -120,6 +121,11 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/mis-pedidos', [CustomerOrderController::class, 'index'])->name('orders.index');
     Route::get('/mis-pedidos/{order}', [CustomerOrderController::class, 'show'])->name('orders.show');
+
+    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
+    Route::post('/checkout/culqi-order', [CheckoutController::class, 'createCulqiOrder'])->name('checkout.culqi-order');
+    Route::post('/checkout/process', [CheckoutController::class, 'process'])->name('checkout.process');
+    Route::post('/checkout/process-yape', [CheckoutController::class, 'processYape'])->name('checkout.process-yape');
 
     Route::post('/producto/{product}/review', [ReviewController::class, 'store'])->middleware('throttle:reviews')->name('reviews.store');
 });

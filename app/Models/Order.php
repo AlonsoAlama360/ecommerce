@@ -32,6 +32,7 @@ class Order extends Model
         'created_by',
         'tracking_number',
         'review_requested_at',
+        'payment_reference',
     ];
 
     protected function casts(): array
@@ -68,6 +69,7 @@ class Order extends Model
         'transferencia' => 'Transferencia',
         'yape_plin' => 'Yape / Plin',
         'tarjeta' => 'Tarjeta',
+        'culqi' => 'Culqi',
     ];
 
     public const PAYMENT_STATUS_LABELS = [
@@ -88,17 +90,30 @@ class Order extends Model
     public static function generateOrderNumber(): string
     {
         $date = now()->format('Ymd');
-        $lastOrder = static::withTrashed()
-            ->where('order_number', 'like', "ORD-{$date}-%")
-            ->orderByDesc('order_number')
-            ->first();
+        $maxAttempts = 5;
 
-        $seq = 1;
-        if ($lastOrder) {
-            $seq = (int) substr($lastOrder->order_number, -4) + 1;
+        for ($attempt = 0; $attempt < $maxAttempts; $attempt++) {
+            $lastOrder = static::withTrashed()
+                ->where('order_number', 'like', "ORD-{$date}-%")
+                ->lockForUpdate()
+                ->orderByDesc('order_number')
+                ->first();
+
+            $seq = 1;
+            if ($lastOrder) {
+                $seq = (int) substr($lastOrder->order_number, -4) + 1;
+            }
+
+            $orderNumber = "ORD-{$date}-" . str_pad($seq, 4, '0', STR_PAD_LEFT);
+
+            $exists = static::withTrashed()->where('order_number', $orderNumber)->exists();
+            if (!$exists) {
+                return $orderNumber;
+            }
         }
 
-        return "ORD-{$date}-" . str_pad($seq, 4, '0', STR_PAD_LEFT);
+        // Fallback: append random suffix to guarantee uniqueness
+        return "ORD-{$date}-" . str_pad($seq + random_int(1, 99), 4, '0', STR_PAD_LEFT);
     }
 
     public function getStatusLabelAttribute(): string

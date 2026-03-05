@@ -48,11 +48,30 @@ class StockService
         $stockBefore = $product->stock;
 
         if ($type === 'entrada') {
-            $stockAfter = $stockBefore + $quantity;
             $signedQty = $quantity;
+            // Atomic increment
+            Product::where('id', $product->id)
+                ->update(['stock' => \DB::raw("stock + {$quantity}")]);
+            $product->refresh();
+            $stockAfter = $product->stock;
         } else {
-            $stockAfter = max(0, $stockBefore - $quantity);
             $signedQty = -$quantity;
+            // Atomic decrement with floor at 0 to prevent overselling
+            $affected = Product::where('id', $product->id)
+                ->where('stock', '>=', $quantity)
+                ->update(['stock' => \DB::raw("stock - {$quantity}")]);
+
+            if ($affected === 0) {
+                // Not enough stock — decrement to 0 as fallback
+                Product::where('id', $product->id)
+                    ->where('stock', '>', 0)
+                    ->update(['stock' => 0]);
+                $product->refresh();
+                $stockAfter = $product->stock;
+            } else {
+                $product->refresh();
+                $stockAfter = $product->stock;
+            }
         }
 
         $data = [
@@ -72,8 +91,6 @@ class StockService
         }
 
         $movement = StockMovement::create($data);
-
-        $product->update(['stock' => $stockAfter]);
 
         if ($type === 'salida') {
             static::checkLowStock($product, $stockBefore, $stockAfter);

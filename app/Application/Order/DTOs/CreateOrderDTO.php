@@ -16,6 +16,9 @@ class CreateOrderDTO
         public readonly ?string $shippingAddress = null,
         public readonly ?string $adminNotes = null,
         public readonly int $createdBy = 0,
+        public readonly string $source = 'admin',
+        public readonly ?string $paymentReference = null,
+        public readonly ?string $customerNotes = null,
     ) {}
 
     public static function fromRequest(Request $request): self

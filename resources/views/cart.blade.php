@@ -160,10 +160,17 @@
 
                         <!-- Checkout Buttons -->
                         <div class="mt-6 space-y-3">
-                            <button type="button" class="w-full bg-gray-900 text-white py-3.5 rounded-xl font-semibold hover:bg-gray-800 transition shadow-lg shadow-gray-900/10 flex items-center justify-center gap-2">
-                                <i class="fas fa-lock text-xs"></i>
-                                Proceder al Pago
-                            </button>
+                            @auth
+                                <a href="{{ route('checkout') }}" class="w-full bg-gray-900 text-white py-3.5 rounded-xl font-semibold hover:bg-gray-800 transition shadow-lg shadow-gray-900/10 flex items-center justify-center gap-2">
+                                    <i class="fas fa-lock text-xs"></i>
+                                    Proceder al Pago
+                                </a>
+                            @else
+                                <a href="{{ route('login') }}?redirect={{ urlencode(route('checkout')) }}" class="w-full bg-gray-900 text-white py-3.5 rounded-xl font-semibold hover:bg-gray-800 transition shadow-lg shadow-gray-900/10 flex items-center justify-center gap-2">
+                                    <i class="fas fa-lock text-xs"></i>
+                                    Iniciar sesión para pagar
+                                </a>
+                            @endauth
 
                             <button type="button"
                                     id="whatsappCartBtn"

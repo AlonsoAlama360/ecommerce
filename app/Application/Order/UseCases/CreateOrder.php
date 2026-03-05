@@ -72,10 +72,11 @@ class CreateOrder
 
             $order = $this->orderRepository->create([
                 'user_id' => $user?->id,
-                'source' => 'admin',
+                'source' => $dto->source,
                 'status' => 'confirmado',
                 'payment_method' => $dto->paymentMethod,
                 'payment_status' => $dto->paymentStatus,
+                'payment_reference' => $dto->paymentReference,
                 'subtotal' => $subtotal,
                 'discount_amount' => 0,
                 'shipping_cost' => 0,
@@ -84,6 +85,7 @@ class CreateOrder
                 'customer_phone' => $dto->customerPhone,
                 'customer_email' => $dto->customerEmail,
                 'shipping_address' => $dto->shippingAddress,
+                'customer_notes' => $dto->customerNotes,
                 'admin_notes' => $dto->adminNotes,
                 'created_by' => $dto->createdBy,
             ]);
