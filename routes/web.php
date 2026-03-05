@@ -50,7 +50,6 @@ Route::middleware('throttle:global')->group(function () {
     Route::get('/buscar', [CatalogController::class, 'search'])->name('search');
     Route::get('/producto/{slug}', [ProductController::class, 'show'])->name('product.show');
     Route::get('/ofertas', [OfertasController::class, 'index'])->name('ofertas');
-
     // Páginas legales
     Route::get('/terminos-y-condiciones', [LegalController::class, 'terms'])->name('legal.terms');
     Route::get('/politica-cambios-devoluciones', [LegalController::class, 'returns'])->name('legal.returns');

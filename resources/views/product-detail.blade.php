@@ -165,12 +165,10 @@
                 </a>
 
                 <!-- Title -->
-                <div class="flex items-start justify-between gap-3">
-                    <h1 class="text-3xl lg:text-4xl font-serif font-semibold text-gray-900">{{ $product->name }}</h1>
-                    <button type="button" class="wishlist-btn flex-shrink-0 w-11 h-11 border-2 border-gray-200 rounded-full flex items-center justify-center hover:bg-rose-500 hover:text-white hover:border-rose-500 transition-all duration-200" data-product-id="{{ $product->id }}">
-                        <i class="far fa-heart text-lg"></i>
-                    </button>
-                </div>
+                <h1 class="text-3xl lg:text-4xl font-serif font-semibold text-gray-900">{{ $product->name }}</h1>
+                <button type="button" class="wishlist-btn flex-shrink-0 w-11 h-11 border-2 border-gray-200 rounded-full flex items-center justify-center hover:bg-rose-500 hover:text-white hover:border-rose-500 transition-all duration-200" data-product-id="{{ $product->id }}">
+                    <i class="far fa-heart text-lg"></i>
+                </button>
 
                 <!-- Rating & SKU -->
                 <div class="flex items-center gap-4">

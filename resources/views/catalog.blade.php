@@ -458,8 +458,8 @@
                                                 </div>
                                             @endif
 
-                                            {{-- Quick Add (desktop hover) --}}
-                                            <div class="quick-actions absolute bottom-3 right-3 hidden sm:block">
+                                            {{-- Quick Actions (desktop hover) --}}
+                                            <div class="quick-actions absolute bottom-3 right-3 hidden sm:flex gap-1.5">
                                                 <button type="button"
                                                         class="add-to-cart-btn bg-white/95 backdrop-blur-sm text-gray-900 hover:bg-[#D4A574] hover:text-white w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition-all duration-300"
                                                         data-product-id="{{ $product->id }}"
