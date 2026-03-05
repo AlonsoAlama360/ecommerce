@@ -49,11 +49,26 @@
                                         <p style="margin: 0 0 16px; color: #AAA; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px;">Detalle del pedido</p>
 
                                         @foreach($order->items as $item)
+                                        @php
+                                            $imgUrl = null;
+                                            if ($item->product && $item->product->primaryImage) {
+                                                $imgUrl = $item->product->primaryImage->image_url;
+                                                if ($imgUrl && !str_starts_with($imgUrl, 'http')) {
+                                                    $imgUrl = url(ltrim($imgUrl, '/'));
+                                                }
+                                            }
+                                        @endphp
                                         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 14px;">
                                             <tr>
+                                                @if($imgUrl)
+                                                <td style="vertical-align: top; padding-right: 14px; width: 52px;">
+                                                    <img src="{{ $imgUrl }}" alt="{{ $item->product_name }}" width="48" height="48" style="width: 48px; height: 48px; object-fit: cover; border-radius: 8px; display: block;">
+                                                </td>
+                                                @else
                                                 <td style="vertical-align: top; padding-right: 12px;">
                                                     <div style="width: 8px; height: 8px; background-color: #D4A574; border-radius: 50%; margin-top: 6px;"></div>
                                                 </td>
+                                                @endif
                                                 <td style="vertical-align: top; width: 100%;">
                                                     <p style="margin: 0; color: #333; font-size: 14px; font-weight: 600;">{{ $item->product_name }}</p>
                                                     <p style="margin: 2px 0 0; color: #AAA; font-size: 12px;">Cant: {{ $item->quantity }} &times; S/ {{ number_format($item->unit_price, 2) }}</p>

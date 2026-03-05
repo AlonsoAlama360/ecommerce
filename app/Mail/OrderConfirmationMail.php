@@ -27,6 +27,8 @@ class OrderConfirmationMail extends Mailable implements ShouldQueue
 
     public function content(): Content
     {
+        $this->order->load('items.product.primaryImage');
+
         return new Content(
             view: 'emails.order-confirmation',
         );
