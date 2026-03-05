@@ -161,13 +161,24 @@
             opacity: 0;
             visibility: hidden;
             pointer-events: none;
-            transition: opacity 0.3s ease, visibility 0.3s ease;
+            transition: opacity 0.3s cubic-bezier(.4,0,.2,1), visibility 0.3s;
         }
 
         .search-modal.active {
             opacity: 1;
             visibility: visible;
             pointer-events: auto;
+        }
+
+        .search-modal.active .search-modal-card {
+            transform: translateY(0) scale(1);
+            opacity: 1;
+        }
+
+        .search-modal-card {
+            transform: translateY(-20px) scale(0.98);
+            opacity: 0;
+            transition: transform 0.35s cubic-bezier(.4,0,.2,1), opacity 0.3s ease;
         }
 
         .search-result-item {
@@ -177,6 +188,126 @@
         .search-result-item:hover {
             background: #fdf2f4;
             transform: translateX(4px);
+        }
+
+        /* Popular searches slider */
+        .popular-slider-wrapper {
+            position: relative;
+        }
+
+        .popular-slider-track {
+            display: flex;
+            gap: 0.5rem;
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            padding: 4px 2px;
+        }
+
+        .popular-slider-track::-webkit-scrollbar {
+            display: none;
+        }
+
+        .popular-slider-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 10;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: white;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #9ca3af;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .popular-slider-arrow:hover {
+            color: #D4A574;
+            border-color: #D4A574;
+            box-shadow: 0 2px 12px rgba(212,165,116,0.2);
+        }
+
+        .popular-slider-arrow.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .popular-slider-arrow.left { left: -6px; }
+        .popular-slider-arrow.right { right: -6px; }
+
+        .popular-chip {
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.45rem 0.9rem;
+            border-radius: 9999px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            white-space: nowrap;
+            cursor: pointer;
+            border: 1px solid #f3f4f6;
+            background: #f9fafb;
+            color: #6b7280;
+            transition: all 0.2s;
+        }
+
+        .popular-chip:hover {
+            background: linear-gradient(135deg, #E8B4B8/15, #D4A574/10);
+            border-color: #E8B4B8;
+            color: #D4A574;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(212,165,116,0.15);
+        }
+
+        .popular-chip i {
+            font-size: 0.65rem;
+            opacity: 0.6;
+        }
+
+        .search-input-wrap {
+            position: relative;
+            background: linear-gradient(135deg, #f9fafb, #fff);
+            border: 2px solid #e5e7eb;
+            border-radius: 1rem;
+            transition: all 0.3s cubic-bezier(.4,0,.2,1);
+        }
+
+        .search-input-wrap:focus-within {
+            border-color: #D4A574;
+            box-shadow: 0 0 0 4px rgba(212,165,116,0.1), 0 4px 16px rgba(212,165,116,0.08);
+            background: #fff;
+        }
+
+        .search-input-wrap input {
+            background: transparent;
+        }
+
+        .search-kbd {
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.65rem;
+            font-family: inherit;
+            background: #f3f4f6;
+            color: #9ca3af;
+            border: 1px solid #e5e7eb;
+        }
+
+        @media (max-width: 640px) {
+            .search-kbd { display: none; }
+            .popular-slider-arrow { display: none; }
         }
 
         .mobile-menu {
@@ -541,32 +672,84 @@
     </header>
 
     <!-- Modal de Búsqueda -->
-    <div class="search-modal fixed inset-0 bg-black/50 backdrop-blur-sm z-50 items-center justify-center" id="searchModal">
-        <div class="bg-white rounded-2xl p-6 sm:p-8 max-w-2xl w-full mx-4 relative shadow-2xl" style="max-height: 80vh; display: flex; flex-direction: column;">
-            <button class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl" id="closeSearchBtn" aria-label="Cerrar búsqueda">
-                <i class="fas fa-times"></i>
-            </button>
-            <div class="mb-4 relative">
-                <i class="fas fa-search absolute left-5 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                <input type="text" placeholder="Buscar productos, categorías..."
-                    class="w-full pl-12 pr-6 py-4 text-lg border-2 border-gray-200 rounded-full focus:outline-none focus:border-[#E8B4B8] transition"
-                    id="searchInput" autocomplete="off">
-                <div class="absolute right-5 top-1/2 -translate-y-1/2 hidden" id="searchSpinner">
-                    <i class="fas fa-spinner fa-spin text-gray-400"></i>
+    <div class="search-modal fixed inset-0 bg-black/40 backdrop-blur-md z-50 items-center justify-start pt-[12vh] sm:pt-[15vh]" id="searchModal">
+        <div class="search-modal-card bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-7 max-w-2xl w-full mx-3 sm:mx-auto relative shadow-2xl" style="max-height: 75vh; display: flex; flex-direction: column;">
+
+            {{-- Header con título y cerrar --}}
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-[#E8B4B8]/20 to-[#D4A574]/10 flex items-center justify-center">
+                        <i class="fas fa-search text-[#D4A574] text-xs"></i>
+                    </div>
+                    <h3 class="text-sm font-semibold text-gray-800 tracking-wide">Buscar</h3>
+                </div>
+                <button class="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-400 hover:text-gray-600 transition-all" id="closeSearchBtn" aria-label="Cerrar búsqueda">
+                    <i class="fas fa-times text-xs"></i>
+                </button>
+            </div>
+
+            {{-- Input de búsqueda --}}
+            <div class="search-input-wrap mb-4">
+                <div class="flex items-center px-4 sm:px-5">
+                    <i class="fas fa-search text-gray-300 text-sm mr-3"></i>
+                    <input type="text" placeholder="¿Qué estás buscando hoy?"
+                        class="w-full py-3.5 sm:py-4 text-[15px] sm:text-base text-gray-800 placeholder-gray-400 focus:outline-none"
+                        id="searchInput" autocomplete="off">
+                    <div class="hidden" id="searchSpinner">
+                        <i class="fas fa-spinner fa-spin text-[#D4A574]"></i>
+                    </div>
+                    <span class="search-kbd ml-2">ESC</span>
                 </div>
             </div>
 
+            {{-- Contenido --}}
             <div class="overflow-y-auto overflow-x-hidden flex-1" id="searchResults">
-                <!-- Estado inicial: sugerencias rápidas -->
+                <!-- Estado inicial: búsquedas populares con slider -->
                 <div id="searchDefault">
-                    <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 px-1">Búsquedas populares</p>
-                    <div class="flex flex-wrap gap-2">
-                        <button class="search-suggestion px-4 py-2 bg-gray-100 hover:bg-[#E8B4B8]/20 hover:text-[#D4A574] rounded-full text-sm text-gray-600 transition-colors duration-200">Rosas</button>
-                        <button class="search-suggestion px-4 py-2 bg-gray-100 hover:bg-[#E8B4B8]/20 hover:text-[#D4A574] rounded-full text-sm text-gray-600 transition-colors duration-200">Collar</button>
-                        <button class="search-suggestion px-4 py-2 bg-gray-100 hover:bg-[#E8B4B8]/20 hover:text-[#D4A574] rounded-full text-sm text-gray-600 transition-colors duration-200">Peluche</button>
-                        <button class="search-suggestion px-4 py-2 bg-gray-100 hover:bg-[#E8B4B8]/20 hover:text-[#D4A574] rounded-full text-sm text-gray-600 transition-colors duration-200">Aniversario</button>
-                        <button class="search-suggestion px-4 py-2 bg-gray-100 hover:bg-[#E8B4B8]/20 hover:text-[#D4A574] rounded-full text-sm text-gray-600 transition-colors duration-200">Chocolate</button>
-                        <button class="search-suggestion px-4 py-2 bg-gray-100 hover:bg-[#E8B4B8]/20 hover:text-[#D4A574] rounded-full text-sm text-gray-600 transition-colors duration-200">Pulsera</button>
+                    <div class="flex items-center gap-2 mb-3 px-1">
+                        <i class="fas fa-fire text-[10px] text-[#D4A574]"></i>
+                        <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Búsquedas populares</p>
+                    </div>
+
+                    <div class="popular-slider-wrapper">
+                        <button type="button" class="popular-slider-arrow left" id="popularArrowLeft">
+                            <i class="fas fa-chevron-left text-[9px]"></i>
+                        </button>
+                        <button type="button" class="popular-slider-arrow right" id="popularArrowRight">
+                            <i class="fas fa-chevron-right text-[9px]"></i>
+                        </button>
+
+                        <div class="popular-slider-track" id="popularSliderTrack">
+                            <button class="search-suggestion popular-chip"><i class="fas fa-seedling text-rose-400"></i> Rosas</button>
+                            <button class="search-suggestion popular-chip"><i class="fas fa-gem text-purple-400"></i> Collar</button>
+                            <button class="search-suggestion popular-chip"><i class="fas fa-heart text-pink-400"></i> Peluche</button>
+                            <button class="search-suggestion popular-chip"><i class="fas fa-glass-cheers text-amber-400"></i> Aniversario</button>
+                            <button class="search-suggestion popular-chip"><i class="fas fa-cookie-bite text-yellow-700"></i> Chocolate</button>
+                            <button class="search-suggestion popular-chip"><i class="fas fa-ring text-indigo-400"></i> Pulsera</button>
+                            <button class="search-suggestion popular-chip"><i class="fas fa-gift text-red-400"></i> Regalo</button>
+                            <button class="search-suggestion popular-chip"><i class="fas fa-spa text-emerald-400"></i> Arreglo floral</button>
+                            <button class="search-suggestion popular-chip"><i class="fas fa-crown text-amber-500"></i> Premium</button>
+                            <button class="search-suggestion popular-chip"><i class="fas fa-star text-yellow-400"></i> Más vendidos</button>
+                        </div>
+                    </div>
+
+                    {{-- Accesos rápidos --}}
+                    <div class="mt-5 pt-4 border-t border-gray-100">
+                        <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 px-1">Acceso rápido</p>
+                        <div class="grid grid-cols-2 gap-2">
+                            <a href="/catalogo" class="flex items-center gap-3 px-3.5 py-3 rounded-xl bg-gray-50 hover:bg-[#E8B4B8]/10 transition-all group">
+                                <div class="w-9 h-9 rounded-lg bg-white border border-gray-100 flex items-center justify-center group-hover:border-[#E8B4B8]/30 transition">
+                                    <i class="fas fa-th-large text-[11px] text-gray-400 group-hover:text-[#D4A574] transition"></i>
+                                </div>
+                                <span class="text-sm font-medium text-gray-600 group-hover:text-gray-800 transition">Catálogo</span>
+                            </a>
+                            <a href="/catalogo?sort=newest" class="flex items-center gap-3 px-3.5 py-3 rounded-xl bg-gray-50 hover:bg-[#E8B4B8]/10 transition-all group">
+                                <div class="w-9 h-9 rounded-lg bg-white border border-gray-100 flex items-center justify-center group-hover:border-[#E8B4B8]/30 transition">
+                                    <i class="fas fa-bolt text-[11px] text-gray-400 group-hover:text-[#D4A574] transition"></i>
+                                </div>
+                                <span class="text-sm font-medium text-gray-600 group-hover:text-gray-800 transition">Novedades</span>
+                            </a>
+                        </div>
                     </div>
                 </div>
 
@@ -943,10 +1126,48 @@
         // Sugerencias rápidas
         document.querySelectorAll('.search-suggestion').forEach(function(btn) {
             btn.addEventListener('click', function() {
-                searchInput.value = this.textContent;
+                searchInput.value = this.textContent.trim();
                 searchInput.dispatchEvent(new Event('input'));
             });
         });
+
+        // Popular searches slider
+        (function() {
+            var track = document.getElementById('popularSliderTrack');
+            var btnL = document.getElementById('popularArrowLeft');
+            var btnR = document.getElementById('popularArrowRight');
+            if (!track || !btnL || !btnR) return;
+
+            var SCROLL_STEP = 200;
+
+            function refreshArrows() {
+                var canLeft = track.scrollLeft > 4;
+                var canRight = track.scrollLeft < track.scrollWidth - track.clientWidth - 4;
+                btnL.classList.toggle('visible', canLeft);
+                btnR.classList.toggle('visible', canRight);
+            }
+
+            btnL.addEventListener('click', function() { track.scrollBy({ left: -SCROLL_STEP, behavior: 'smooth' }); });
+            btnR.addEventListener('click', function() { track.scrollBy({ left: SCROLL_STEP, behavior: 'smooth' }); });
+            track.addEventListener('scroll', refreshArrows, { passive: true });
+
+            // Touch drag support
+            var isDown = false, startX, scrollStart;
+            track.addEventListener('mousedown', function(e) { isDown = true; startX = e.pageX - track.offsetLeft; scrollStart = track.scrollLeft; track.style.cursor = 'grabbing'; });
+            track.addEventListener('mouseleave', function() { isDown = false; track.style.cursor = ''; });
+            track.addEventListener('mouseup', function() { isDown = false; track.style.cursor = ''; });
+            track.addEventListener('mousemove', function(e) { if (!isDown) return; e.preventDefault(); var x = e.pageX - track.offsetLeft; track.scrollLeft = scrollStart - (x - startX); });
+
+            // Refresh on modal open
+            var observer = new MutationObserver(function() {
+                if (searchModal.classList.contains('active')) {
+                    setTimeout(refreshArrows, 50);
+                }
+            });
+            observer.observe(searchModal, { attributes: true, attributeFilter: ['class'] });
+
+            refreshArrows();
+        })();
 
         // Búsqueda en tiempo real con debounce
         searchInput.addEventListener('input', function() {
