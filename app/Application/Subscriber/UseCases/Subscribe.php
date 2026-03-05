@@ -36,7 +36,7 @@ class Subscribe
 
         // Send confirmation email
         try {
-            Mail::to($email)->send(new NewsletterSubscribedMail($email));
+            Mail::to($email)->queue(new NewsletterSubscribedMail($email));
         } catch (\Exception $e) {
             Log::error('Error enviando email newsletter: ' . $e->getMessage());
         }

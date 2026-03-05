@@ -40,7 +40,7 @@ class AdminNotificationService
         try {
             Mail::to($emails[0])
                 ->cc(array_slice($emails, 1))
-                ->send($mailable);
+                ->queue($mailable);
         } catch (\Exception $e) {
             \Log::warning("AdminNotification [{$toggleKey}] failed: " . $e->getMessage());
         }

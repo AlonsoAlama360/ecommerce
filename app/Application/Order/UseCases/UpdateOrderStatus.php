@@ -26,7 +26,7 @@ class UpdateOrderStatus
 
         if ($status === 'enviado') {
             $order->load('items');
-            Mail::to($order->customer_email)->send(new ShippingConfirmationMail($order));
+            Mail::to($order->customer_email)->queue(new ShippingConfirmationMail($order));
         }
 
         if ($status === 'entregado') {

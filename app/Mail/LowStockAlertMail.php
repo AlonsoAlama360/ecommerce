@@ -6,10 +6,11 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Collection;
 
-class LowStockAlertMail extends Mailable
+class LowStockAlertMail extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 

@@ -12,11 +12,11 @@ class LaravelMailService implements MailServiceInterface
 {
     public function sendWelcomeEmail(User $user): void
     {
-        Mail::to($user)->send(new WelcomeMail($user));
+        Mail::to($user)->queue(new WelcomeMail($user));
     }
 
     public function sendPasswordResetEmail(User $user, string $resetUrl): void
     {
-        Mail::to($user->email)->send(new ResetPasswordMail($user, $resetUrl));
+        Mail::to($user->email)->queue(new ResetPasswordMail($user, $resetUrl));
     }
 }

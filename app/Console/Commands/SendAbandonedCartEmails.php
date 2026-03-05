@@ -35,7 +35,7 @@ class SendAbandonedCartEmails extends Command
                 continue;
             }
 
-            Mail::to($abandonedCart->user->email)->send(new AbandonedCartMail($abandonedCart, $products));
+            Mail::to($abandonedCart->user->email)->queue(new AbandonedCartMail($abandonedCart, $products));
             $abandonedCart->update(['email_sent_at' => now()]);
             $sent++;
         }

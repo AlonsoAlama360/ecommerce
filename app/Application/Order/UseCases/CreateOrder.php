@@ -44,7 +44,7 @@ class CreateOrder
                     'auth_provider' => 'form',
                 ]);
 
-                Mail::to($user)->send(new WelcomeMail($user));
+                Mail::to($user)->queue(new WelcomeMail($user));
             }
 
             $subtotal = 0;
@@ -106,7 +106,7 @@ class CreateOrder
 
             if ($order->customer_email) {
                 try {
-                    Mail::to($order->customer_email)->send(new OrderConfirmationMail($order->load('items')));
+                    Mail::to($order->customer_email)->queue(new OrderConfirmationMail($order->load('items')));
                 } catch (\Exception $e) {
                     \Log::warning("No se pudo enviar email de confirmación para {$order->order_number}: " . $e->getMessage());
                 }
