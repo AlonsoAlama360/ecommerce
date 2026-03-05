@@ -2,147 +2,25 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Category;
-use App\Models\Product;
+use App\Application\Catalog\DTOs\CatalogFiltersDTO;
+use App\Application\Catalog\UseCases\ListCatalog;
+use App\Application\Catalog\UseCases\SearchCatalog;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 
 class CatalogController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request, ListCatalog $listCatalog)
     {
-        $query = Product::active()
-            ->with('primaryImage:id,product_id,image_url,alt_text')
-            ->with('category:id,name,slug');
+        $dto = CatalogFiltersDTO::fromRequest($request);
+        $data = $listCatalog->execute($dto);
 
-        // Filtro por categoría(s)
-        if ($request->filled('categories')) {
-            $slugs = is_array($request->categories)
-                ? $request->categories
-                : explode(',', $request->categories);
-
-            $query->whereHas('category', function ($q) use ($slugs) {
-                $q->whereIn('slug', $slugs);
-            });
-        }
-
-        // Filtro por rango de precio (usa current_price = sale_price ?? price)
-        if ($request->filled('price_min')) {
-            $min = (float) $request->price_min;
-            $query->where(function ($q) use ($min) {
-                $q->whereNotNull('sale_price')->where('sale_price', '>=', $min)
-                  ->orWhereNull('sale_price')->where('price', '>=', $min);
-            });
-        }
-
-        if ($request->filled('price_max')) {
-            $max = (float) $request->price_max;
-            $query->where(function ($q) use ($max) {
-                $q->whereNotNull('sale_price')->where('sale_price', '<=', $max)
-                  ->orWhereNull('sale_price')->where('price', '<=', $max);
-            });
-        }
-
-        // Filtro de disponibilidad
-        if ($request->boolean('in_stock')) {
-            $query->inStock();
-        }
-
-        if ($request->boolean('on_sale')) {
-            $query->whereNotNull('sale_price')
-                  ->whereColumn('sale_price', '<', 'price');
-        }
-
-        // Ordenamiento
-        switch ($request->get('sort', 'relevant')) {
-            case 'price_asc':
-                $query->orderByRaw('COALESCE(sale_price, price) ASC');
-                break;
-            case 'price_desc':
-                $query->orderByRaw('COALESCE(sale_price, price) DESC');
-                break;
-            case 'newest':
-                $query->latest();
-                break;
-            default: // relevant - featured primero, luego más nuevos
-                $query->orderByDesc('is_featured')->latest();
-                break;
-        }
-
-        $products = $query->select([
-            'id', 'category_id', 'name', 'slug', 'price', 'sale_price', 'stock', 'is_featured',
-        ])->paginate(12)->withQueryString();
-
-        $categories = Category::active()
-            ->ordered()
-            ->select('id', 'name', 'slug', 'icon')
-            ->withCount(['products' => function ($q) {
-                $q->where('is_active', true);
-            }])
-            ->get();
-
-        // Rango de precios para el slider (cached 30 min)
-        $priceRange = Cache::remember('catalog_price_range', 1800, function () {
-            return Product::active()
-                ->selectRaw('MIN(COALESCE(sale_price, price)) as min_price, MAX(COALESCE(sale_price, price)) as max_price')
-                ->first();
-        });
-
-        return view('catalog', compact('products', 'categories', 'priceRange'));
+        return view('catalog', $data);
     }
 
-    public function search(Request $request)
+    public function search(Request $request, SearchCatalog $searchCatalog)
     {
-        $q = trim($request->get('q', ''));
+        $result = $searchCatalog->execute($request->get('q', ''));
 
-        if (strlen($q) < 2) {
-            return response()->json(['products' => [], 'categories' => []]);
-        }
-
-        $products = Product::active()
-            ->with('primaryImage:id,product_id,image_url,alt_text')
-            ->with('category:id,name,slug')
-            ->where(function ($query) use ($q) {
-                $query->where('name', 'like', "%{$q}%")
-                      ->orWhere('short_description', 'like', "%{$q}%")
-                      ->orWhere('material', 'like', "%{$q}%")
-                      ->orWhereHas('category', function ($cq) use ($q) {
-                          $cq->where('name', 'like', "%{$q}%");
-                      });
-            })
-            ->select('id', 'category_id', 'name', 'slug', 'price', 'sale_price', 'stock')
-            ->limit(6)
-            ->get()
-            ->map(function ($product) {
-                return [
-                    'id' => $product->id,
-                    'name' => $product->name,
-                    'slug' => $product->slug,
-                    'price' => $product->current_price,
-                    'original_price' => $product->sale_price ? $product->price : null,
-                    'category' => $product->category?->name,
-                    'image' => $product->primaryImage?->image_url,
-                    'url' => route('product.show', $product->slug),
-                ];
-            });
-
-        $categories = Category::active()
-            ->where('name', 'like', "%{$q}%")
-            ->select('id', 'name', 'slug', 'icon')
-            ->limit(3)
-            ->get()
-            ->map(function ($cat) {
-                return [
-                    'name' => $cat->name,
-                    'slug' => $cat->slug,
-                    'icon' => $cat->icon,
-                    'url' => route('catalog', ['categories' => [$cat->slug]]),
-                ];
-            });
-
-        return response()->json([
-            'products' => $products,
-            'categories' => $categories,
-        ]);
+        return response()->json($result);
     }
 }

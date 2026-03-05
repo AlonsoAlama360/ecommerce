@@ -2,13 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Application\Review\DTOs\CreateReviewDTO;
+use App\Application\Review\UseCases\CreateReview;
 use App\Models\Product;
 use App\Models\Review;
 use Illuminate\Http\Request;
 
 class ReviewController extends Controller
 {
-    public function store(Request $request, Product $product)
+    public function store(Request $request, Product $product, CreateReview $createReview)
     {
         $validated = $request->validate([
             'rating' => 'required|integer|min:1|max:5',
@@ -23,22 +25,19 @@ class ReviewController extends Controller
             'comment.max' => 'El comentario no puede exceder 1000 caracteres.',
         ]);
 
-        $existing = Review::where('user_id', auth()->id())
-            ->where('product_id', $product->id)
-            ->first();
+        $dto = new CreateReviewDTO(
+            userId: auth()->id(),
+            productId: $product->id,
+            rating: $validated['rating'],
+            comment: $validated['comment'],
+            title: $validated['title'] ?? null,
+        );
 
-        if ($existing) {
-            return back()->with('review_error', 'Ya has dejado una reseña para este producto.');
+        $result = $createReview->execute($dto);
+
+        if (is_string($result)) {
+            return back()->with('review_error', $result);
         }
-
-        Review::create([
-            'user_id' => auth()->id(),
-            'product_id' => $product->id,
-            'rating' => $validated['rating'],
-            'title' => $validated['title'],
-            'comment' => $validated['comment'],
-            'is_approved' => true,
-        ]);
 
         return back()->with('review_success', '¡Gracias por tu reseña!');
     }

@@ -2,72 +2,29 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Application\Product\DTOs\CreateProductDTO;
+use App\Application\Product\DTOs\ProductFiltersDTO;
+use App\Application\Product\DTOs\UpdateProductDTO;
+use App\Application\Product\DTOs\UpdateSpecificationsDTO;
+use App\Application\Product\UseCases\CreateProduct;
+use App\Application\Product\UseCases\DeleteProduct;
+use App\Application\Product\UseCases\GetProductSpecifications;
+use App\Application\Product\UseCases\ListProducts;
+use App\Application\Product\UseCases\UpdateProduct;
+use App\Application\Product\UseCases\UpdateProductSpecifications;
 use App\Http\Controllers\Controller;
-use App\Models\Category;
 use App\Models\Product;
-use App\Models\ProductImage;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
-use App\Services\ImageService;
-use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 class ProductController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request, ListProducts $listProducts)
     {
-        $query = Product::with(['category', 'primaryImage']);
+        $dto = ProductFiltersDTO::fromRequest($request);
+        $data = $listProducts->execute($dto);
 
-        if ($search = $request->get('search')) {
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('sku', 'like', "%{$search}%")
-                  ->orWhere('short_description', 'like', "%{$search}%");
-            });
-        }
-
-        if ($categoryId = $request->get('category')) {
-            $query->where('category_id', $categoryId);
-        }
-
-        if ($request->has('status') && $request->get('status') !== '') {
-            $query->where('is_active', $request->get('status'));
-        }
-
-        if ($request->has('featured') && $request->get('featured') !== '') {
-            $query->where('is_featured', $request->get('featured'));
-        }
-
-        if ($request->has('stock') && $request->get('stock') !== '') {
-            if ($request->get('stock') === 'out') {
-                $query->where('stock', 0);
-            } elseif ($request->get('stock') === 'low') {
-                $query->whereBetween('stock', [1, 5]);
-            } elseif ($request->get('stock') === 'in') {
-                $query->where('stock', '>', 5);
-            }
-        }
-
-        $perPage = $request->get('per_page', 10);
-        $products = $query->latest()->paginate($perPage)->withQueryString();
-
-        $ps = \DB::selectOne("
-            SELECT COUNT(*) as total,
-                SUM(is_active = 1) as active,
-                SUM(is_featured = 1) as featured,
-                SUM(stock = 0) as out_of_stock
-            FROM products WHERE deleted_at IS NULL
-        ");
-        $totalProducts = (int) $ps->total;
-        $activeProducts = (int) ($ps->active ?? 0);
-        $featuredProducts = (int) ($ps->featured ?? 0);
-        $outOfStock = (int) ($ps->out_of_stock ?? 0);
-
-        $categories = Category::ordered()->get();
-
-        return view('admin.products.index', compact(
-            'products', 'totalProducts', 'activeProducts', 'featuredProducts', 'outOfStock', 'categories'
-        ));
+        return view('admin.products.index', $data);
     }
 
     public function create()
@@ -75,9 +32,9 @@ class ProductController extends Controller
         return redirect()->route('admin.products.index');
     }
 
-    public function store(Request $request)
+    public function store(Request $request, CreateProduct $createProduct)
     {
-        $rules = [
+        $request->validate([
             'name' => 'required|string|max:255',
             'slug' => 'nullable|string|max:255|unique:products,slug',
             'category_id' => 'required|exists:categories,id',
@@ -92,35 +49,10 @@ class ProductController extends Controller
             'is_active' => 'boolean',
             'image_url' => 'nullable|url|max:500',
             'image_file' => 'nullable|image|mimes:jpg,jpeg,png,webp,gif|max:2048',
-        ];
+        ]);
 
-        $validated = $request->validate($rules);
-
-        $validated['is_featured'] = $request->boolean('is_featured');
-        $validated['is_active'] = $request->boolean('is_active');
-        $validated['slug'] = $validated['slug'] ?: Str::slug($validated['name']);
-
-        $imageUrl = $validated['image_url'] ?? null;
-        $thumbnailPath = null;
-
-        if ($request->hasFile('image_file')) {
-            $path = $request->file('image_file')->store('products', 'public');
-            $imageUrl = '/storage/' . $path;
-            $thumbnailPath = app(ImageService::class)->generateThumbnail($path);
-        }
-
-        unset($validated['image_url'], $validated['image_file']);
-
-        $product = Product::create($validated);
-
-        if ($imageUrl) {
-            $product->images()->create([
-                'image_url' => $imageUrl,
-                'thumbnail_url' => $thumbnailPath,
-                'is_primary' => true,
-                'sort_order' => 0,
-            ]);
-        }
+        $dto = CreateProductDTO::fromRequest($request);
+        $createProduct->execute($dto);
 
         return redirect()->route('admin.products.index')
             ->with('success', 'Producto creado exitosamente.');
@@ -131,9 +63,9 @@ class ProductController extends Controller
         return redirect()->route('admin.products.index');
     }
 
-    public function update(Request $request, Product $product)
+    public function update(Request $request, Product $product, UpdateProduct $updateProduct)
     {
-        $validated = $request->validate([
+        $request->validate([
             'name' => 'required|string|max:255',
             'slug' => ['nullable', 'string', 'max:255', Rule::unique('products')->ignore($product->id)],
             'category_id' => 'required|exists:categories,id',
@@ -150,63 +82,36 @@ class ProductController extends Controller
             'image_file' => 'nullable|image|mimes:jpg,jpeg,png,webp,gif|max:2048',
         ]);
 
-        $validated['is_featured'] = $request->boolean('is_featured');
-        $validated['is_active'] = $request->boolean('is_active');
-        $validated['slug'] = $validated['slug'] ?: Str::slug($validated['name']);
-
-        $imageUrl = $validated['image_url'] ?? null;
-        $thumbnailPath = null;
-
-        if ($request->hasFile('image_file')) {
-            $path = $request->file('image_file')->store('products', 'public');
-            $imageUrl = '/storage/' . $path;
-            $thumbnailPath = app(ImageService::class)->generateThumbnail($path);
-        }
-
-        unset($validated['image_url'], $validated['image_file']);
-
-        $product->update($validated);
-
-        if ($imageUrl) {
-            $primary = $product->primaryImage;
-            if ($primary) {
-                $primary->update(['image_url' => $imageUrl, 'thumbnail_url' => $thumbnailPath]);
-            } else {
-                $product->images()->create([
-                    'image_url' => $imageUrl,
-                    'thumbnail_url' => $thumbnailPath,
-                    'is_primary' => true,
-                    'sort_order' => 0,
-                ]);
-            }
-        }
+        $dto = UpdateProductDTO::fromRequest($request);
+        $updateProduct->execute($dto, $product);
 
         return redirect()->route('admin.products.index')
             ->with('success', 'Producto actualizado exitosamente.');
     }
 
-    public function destroy(Product $product)
+    public function destroy(Product $product, DeleteProduct $deleteProduct)
     {
-        $product->delete();
+        $deleteProduct->execute($product);
 
         return redirect()->route('admin.products.index')
             ->with('success', 'Producto eliminado exitosamente.');
     }
 
-    public function specifications(Product $product)
+    public function specifications(Product $product, GetProductSpecifications $getSpecifications)
     {
-        return response()->json($product->specifications ?? []);
+        return response()->json($getSpecifications->execute($product));
     }
 
-    public function updateSpecifications(Request $request, Product $product)
+    public function updateSpecifications(Request $request, Product $product, UpdateProductSpecifications $updateSpecifications)
     {
         $validated = $request->validate([
             'specifications' => 'present|array',
             'specifications.*' => 'string|max:500',
         ]);
 
-        $product->update(['specifications' => $validated['specifications']]);
+        $dto = new UpdateSpecificationsDTO(specifications: $validated['specifications']);
+        $result = $updateSpecifications->execute($dto, $product);
 
-        return response()->json($product->specifications);
+        return response()->json($result);
     }
 }

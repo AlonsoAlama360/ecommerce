@@ -2,7 +2,9 @@
 
 namespace App\Services;
 
+use App\Mail\Admin\LowStockImmediateAlertMail;
 use App\Models\Product;
+use App\Models\SiteSetting;
 use App\Models\StockMovement;
 use Illuminate\Database\Eloquent\Model;
 
@@ -35,6 +37,8 @@ class StockService
         ]);
 
         $product->update(['stock' => $newStock]);
+
+        static::checkLowStock($product, $currentStock, $newStock);
 
         return $movement;
     }
@@ -71,6 +75,24 @@ class StockService
 
         $product->update(['stock' => $stockAfter]);
 
+        if ($type === 'salida') {
+            static::checkLowStock($product, $stockBefore, $stockAfter);
+        }
+
         return $movement;
+    }
+
+    private static function checkLowStock(Product $product, int $stockBefore, int $stockAfter): void
+    {
+        $threshold = (int) SiteSetting::get('low_stock_threshold', 5);
+
+        // Only alert when crossing the threshold (was above, now at or below)
+        if ($stockBefore > $threshold && $stockAfter <= $threshold) {
+            $product->load('category');
+            AdminNotificationService::send(
+                'notify_low_stock',
+                new LowStockImmediateAlertMail($product, $threshold)
+            );
+        }
     }
 }

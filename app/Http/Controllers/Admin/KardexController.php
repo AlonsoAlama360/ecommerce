@@ -2,89 +2,41 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Application\Kardex\DTOs\AdjustStockDTO;
+use App\Application\Kardex\DTOs\KardexFiltersDTO;
+use App\Application\Kardex\UseCases\AdjustStock;
+use App\Application\Kardex\UseCases\ListKardex;
+use App\Application\Kardex\UseCases\ShowProductKardex;
+use App\Domain\Kardex\Repositories\KardexRepositoryInterface;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\StockMovement;
-use App\Services\StockService;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class KardexController extends Controller
 {
+    public function __construct(
+        private ListKardex $listKardex,
+        private ShowProductKardex $showProductKardex,
+        private AdjustStock $adjustStock,
+        private KardexRepositoryInterface $kardexRepository,
+    ) {}
+
     public function index(Request $request)
     {
-        $query = StockMovement::with(['product.primaryImage', 'creator']);
+        $filters = KardexFiltersDTO::fromRequest($request);
+        $data = $this->listKardex->execute($filters);
 
-        if ($productId = $request->get('product_id')) {
-            $query->byProduct($productId);
-        }
-
-        if ($type = $request->get('type')) {
-            $query->byType($type);
-        }
-
-        if ($request->get('date_from') || $request->get('date_to')) {
-            $query->byDateRange($request->get('date_from'), $request->get('date_to'));
-        }
-
-        $perPage = $request->get('per_page', 15);
-        $movements = $query->latest('created_at')->paginate($perPage)->withQueryString();
-
-        $todayStr = today()->toDateTimeString();
-        $monthStr = now()->startOfMonth()->toDateTimeString();
-        $ks = \DB::selectOne("
-            SELECT
-                SUM(created_at >= ?) as today,
-                SUM(type = 'entrada' AND created_at >= ?) as entries_month,
-                SUM(type = 'salida' AND created_at >= ?) as exits_month,
-                SUM(type = 'ajuste' AND created_at >= ?) as adjustments_month
-            FROM stock_movements
-        ", [$todayStr, $monthStr, $monthStr, $monthStr]);
-        $movementsToday = (int) ($ks->today ?? 0);
-        $entriesMonth = (int) ($ks->entries_month ?? 0);
-        $exitsMonth = (int) ($ks->exits_month ?? 0);
-        $adjustmentsMonth = (int) ($ks->adjustments_month ?? 0);
-
-        $products = Product::where('is_active', true)->orderBy('name')->limit(200)->get(['id', 'name', 'sku']);
-
-        return view('admin.kardex.index', compact(
-            'movements', 'movementsToday', 'entriesMonth', 'exitsMonth', 'adjustmentsMonth', 'products'
-        ));
+        return view('admin.kardex.index', $data);
     }
 
     public function show(Request $request, Product $product)
     {
-        $product->load('primaryImage', 'category');
+        $filters = KardexFiltersDTO::fromRequest($request);
+        $data = $this->showProductKardex->execute($product, $filters);
 
-        $query = StockMovement::with('creator')
-            ->byProduct($product->id);
-
-        if ($type = $request->get('type')) {
-            $query->byType($type);
-        }
-
-        if ($request->get('date_from') || $request->get('date_to')) {
-            $query->byDateRange($request->get('date_from'), $request->get('date_to'));
-        }
-
-        $perPage = $request->get('per_page', 15);
-        $movements = $query->latest('created_at')->paginate($perPage)->withQueryString();
-
-        $ms = \DB::selectOne("
-            SELECT COUNT(*) as total,
-                SUM(CASE WHEN type = 'entrada' THEN quantity ELSE 0 END) as entries,
-                SUM(CASE WHEN type = 'salida' THEN quantity ELSE 0 END) as exits,
-                SUM(type = 'ajuste') as adjustments
-            FROM stock_movements WHERE product_id = ?
-        ", [$product->id]);
-        $totalEntries = (int) ($ms->entries ?? 0);
-        $totalExits = (int) ($ms->exits ?? 0);
-        $totalAdjustments = (int) ($ms->adjustments ?? 0);
-        $totalMovements = (int) $ms->total;
-
-        return view('admin.kardex.show', compact(
-            'product', 'movements', 'totalEntries', 'totalExits', 'totalAdjustments', 'totalMovements'
-        ));
+        return view('admin.kardex.show', $data);
     }
 
     public function adjust(Request $request)
@@ -95,11 +47,11 @@ class KardexController extends Controller
             'notes' => 'nullable|string|max:500',
         ]);
 
-        $product = Product::findOrFail($validated['product_id']);
-        StockService::adjust($product, $validated['new_stock'], $validated['notes'] ?? 'Ajuste manual de stock');
+        $dto = AdjustStockDTO::fromRequest($request);
+        $result = $this->adjustStock->execute($dto);
 
         return redirect()->back()
-            ->with('success', "Stock de {$product->name} ajustado a {$validated['new_stock']} unidades.");
+            ->with('success', "Stock de {$result['product']->name} ajustado a {$result['newStock']} unidades.");
     }
 
     public function export(Request $request): StreamedResponse
@@ -190,22 +142,16 @@ class KardexController extends Controller
     public function searchProducts(Request $request)
     {
         $search = $request->get('q', '');
-        $products = Product::where('is_active', true)
-            ->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('sku', 'like', "%{$search}%");
-            })
-            ->with('primaryImage')
-            ->take(10)
-            ->get()
-            ->map(fn($p) => [
-                'id' => $p->id,
-                'name' => $p->name,
-                'sku' => $p->sku,
-                'stock' => $p->stock,
-                'image' => $p->primaryImage?->image_url,
-            ]);
+        $products = $this->kardexRepository->searchProducts($search, 10);
 
-        return response()->json($products);
+        $results = $products->map(fn($p) => [
+            'id' => $p->id,
+            'name' => $p->name,
+            'sku' => $p->sku,
+            'stock' => $p->stock,
+            'image' => $p->primaryImage?->image_url ?? null,
+        ]);
+
+        return response()->json($results);
     }
 }

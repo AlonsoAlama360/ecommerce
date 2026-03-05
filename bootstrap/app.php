@@ -15,6 +15,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
             'permission' => \App\Http\Middleware\CheckPermission::class,
         ]);
+
+        $middleware->appendToGroup('web', \App\Http\Middleware\TrackCartActivity::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

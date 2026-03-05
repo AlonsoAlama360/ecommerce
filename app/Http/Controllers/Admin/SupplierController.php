@@ -2,6 +2,13 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Application\Supplier\DTOs\CreateSupplierDTO;
+use App\Application\Supplier\DTOs\SupplierFiltersDTO;
+use App\Application\Supplier\DTOs\UpdateSupplierDTO;
+use App\Application\Supplier\UseCases\CreateSupplier;
+use App\Application\Supplier\UseCases\DeleteSupplier;
+use App\Application\Supplier\UseCases\ListSuppliers;
+use App\Application\Supplier\UseCases\UpdateSupplier;
 use App\Http\Controllers\Controller;
 use App\Models\Supplier;
 use Illuminate\Http\Request;
@@ -9,48 +16,12 @@ use Illuminate\Validation\Rule;
 
 class SupplierController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request, ListSuppliers $listSuppliers)
     {
-        $query = Supplier::query();
+        $dto = SupplierFiltersDTO::fromRequest($request);
+        $data = $listSuppliers->execute($dto);
 
-        if ($search = $request->get('search')) {
-            $query->where(function ($q) use ($search) {
-                $q->where('business_name', 'like', "%{$search}%")
-                  ->orWhere('contact_name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%")
-                  ->orWhere('ruc', 'like', "%{$search}%")
-                  ->orWhere('phone', 'like', "%{$search}%");
-            });
-        }
-
-        if ($request->has('status') && $request->get('status') !== '') {
-            $query->where('is_active', $request->get('status'));
-        }
-
-        if ($city = $request->get('city')) {
-            $query->where('city', $city);
-        }
-
-        $perPage = $request->get('per_page', 10);
-        $suppliers = $query->latest()->paginate($perPage)->withQueryString();
-
-        $ss = \DB::selectOne("
-            SELECT COUNT(*) as total,
-                SUM(is_active = 1) as active,
-                SUM(is_active = 0) as inactive,
-                SUM(created_at >= ?) as new_week
-            FROM suppliers WHERE deleted_at IS NULL
-        ", [now()->subWeek()->toDateTimeString()]);
-        $totalSuppliers = (int) $ss->total;
-        $activeSuppliers = (int) ($ss->active ?? 0);
-        $inactiveSuppliers = (int) ($ss->inactive ?? 0);
-        $newSuppliersWeek = (int) ($ss->new_week ?? 0);
-
-        $cities = Supplier::whereNotNull('city')->where('city', '!=', '')->distinct()->orderBy('city')->limit(100)->pluck('city');
-
-        return view('admin.suppliers.index', compact(
-            'suppliers', 'totalSuppliers', 'activeSuppliers', 'inactiveSuppliers', 'newSuppliersWeek', 'cities'
-        ));
+        return view('admin.suppliers.index', $data);
     }
 
     public function create()
@@ -58,9 +29,9 @@ class SupplierController extends Controller
         return redirect()->route('admin.suppliers.index');
     }
 
-    public function store(Request $request)
+    public function store(Request $request, CreateSupplier $createSupplier)
     {
-        $validated = $request->validate([
+        $request->validate([
             'business_name' => 'required|string|max:255',
             'contact_name' => 'required|string|max:255',
             'email' => 'nullable|email|max:255|unique:suppliers,email',
@@ -72,9 +43,8 @@ class SupplierController extends Controller
             'is_active' => 'boolean',
         ]);
 
-        $validated['is_active'] = $request->boolean('is_active');
-
-        Supplier::create($validated);
+        $dto = CreateSupplierDTO::fromRequest($request);
+        $createSupplier->execute($dto);
 
         return redirect()->route('admin.suppliers.index')
             ->with('success', 'Proveedor creado exitosamente.');
@@ -85,9 +55,9 @@ class SupplierController extends Controller
         return redirect()->route('admin.suppliers.index');
     }
 
-    public function update(Request $request, Supplier $supplier)
+    public function update(Request $request, Supplier $supplier, UpdateSupplier $updateSupplier)
     {
-        $validated = $request->validate([
+        $request->validate([
             'business_name' => 'required|string|max:255',
             'contact_name' => 'required|string|max:255',
             'email' => ['nullable', 'email', 'max:255', Rule::unique('suppliers')->ignore($supplier->id)],
@@ -99,17 +69,16 @@ class SupplierController extends Controller
             'is_active' => 'boolean',
         ]);
 
-        $validated['is_active'] = $request->boolean('is_active');
-
-        $supplier->update($validated);
+        $dto = UpdateSupplierDTO::fromRequest($request);
+        $updateSupplier->execute($dto, $supplier);
 
         return redirect()->route('admin.suppliers.index')
             ->with('success', 'Proveedor actualizado exitosamente.');
     }
 
-    public function destroy(Supplier $supplier)
+    public function destroy(Supplier $supplier, DeleteSupplier $deleteSupplier)
     {
-        $supplier->delete();
+        $deleteSupplier->execute($supplier);
 
         return redirect()->route('admin.suppliers.index')
             ->with('success', 'Proveedor eliminado exitosamente.');

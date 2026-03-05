@@ -2,11 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Application\Complaint\DTOs\CreateComplaintDTO;
+use App\Application\Complaint\UseCases\CreateComplaint;
 use App\Models\Complaint;
 use Illuminate\Http\Request;
 
 class ComplaintController extends Controller
 {
+    public function __construct(
+        private CreateComplaint $createComplaint,
+    ) {}
+
     public function create()
     {
         return view('legal.complaint');
@@ -43,9 +49,8 @@ class ComplaintController extends Controller
             'consumer_request.required' => 'Indica qué solución solicitas.',
         ]);
 
-        $validated['complaint_number'] = Complaint::generateNumber();
-
-        $complaint = Complaint::create($validated);
+        $dto = CreateComplaintDTO::fromRequest($request);
+        $complaint = $this->createComplaint->execute($dto);
 
         if ($request->expectsJson()) {
             return response()->json([

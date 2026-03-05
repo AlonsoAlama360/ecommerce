@@ -2,22 +2,23 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Product;
+use App\Application\Wishlist\UseCases\GetWishlistCount;
+use App\Application\Wishlist\UseCases\ListUserWishlist;
+use App\Application\Wishlist\UseCases\ToggleWishlist;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class WishlistController extends Controller
 {
+    public function __construct(
+        private readonly ListUserWishlist $listUserWishlist,
+        private readonly ToggleWishlist $toggleWishlist,
+        private readonly GetWishlistCount $getWishlistCount,
+    ) {}
+
     public function index()
     {
-        $products = Auth::user()
-            ->wishlistProducts()
-            ->active()
-            ->with('primaryImage:id,product_id,image_url,alt_text')
-            ->with('category:id,name,slug')
-            ->select('products.id', 'category_id', 'name', 'slug', 'price', 'sale_price', 'stock', 'is_featured')
-            ->orderByDesc('wishlists.created_at')
-            ->paginate(12);
+        $products = $this->listUserWishlist->execute(Auth::user());
 
         return view('wishlist', compact('products'));
     }
@@ -28,36 +29,18 @@ class WishlistController extends Controller
             'product_id' => 'required|exists:products,id',
         ]);
 
-        $user = Auth::user();
-        $productId = $request->product_id;
+        $result = $this->toggleWishlist->execute(
+            user: Auth::user(),
+            productId: $request->product_id
+        );
 
-        $exists = $user->wishlistProducts()->where('product_id', $productId)->exists();
-
-        if ($exists) {
-            $user->wishlistProducts()->detach($productId);
-            $status = 'removed';
-        } else {
-            $user->wishlistProducts()->attach($productId);
-            $status = 'added';
-        }
-
-        return response()->json([
-            'status' => $status,
-            'count' => $user->wishlistProducts()->count(),
-        ]);
+        return response()->json($result);
     }
 
     public function count()
     {
-        if (!Auth::check()) {
-            return response()->json(['count' => 0, 'ids' => []]);
-        }
+        $result = $this->getWishlistCount->execute(Auth::user());
 
-        $user = Auth::user();
-
-        return response()->json([
-            'count' => $user->wishlistProducts()->count(),
-            'ids' => $user->wishlistProducts()->pluck('product_id')->toArray(),
-        ]);
+        return response()->json($result);
     }
 }

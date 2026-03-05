@@ -2,23 +2,26 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Application\Product\DTOs\CreateProductImageDTO;
+use App\Application\Product\UseCases\CreateProductImage;
+use App\Application\Product\UseCases\DeleteProductImage;
+use App\Application\Product\UseCases\ListProductImages;
+use App\Application\Product\UseCases\ReorderProductImages;
+use App\Application\Product\UseCases\UpdateProductImage;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\ProductImage;
 use App\Services\ImageService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 class ProductImageController extends Controller
 {
-    public function index(Product $product)
+    public function index(Product $product, ListProductImages $listImages)
     {
-        $images = $product->images()->orderBy('sort_order')->get();
-
-        return response()->json($images);
+        return response()->json($listImages->execute($product));
     }
 
-    public function store(Request $request, Product $product)
+    public function store(Request $request, Product $product, CreateProductImage $createImage, ImageService $imageService)
     {
         $rules = [
             'alt_text' => 'nullable|string|max:255',
@@ -33,71 +36,54 @@ class ProductImageController extends Controller
 
         $validated = $request->validate($rules);
 
+        $imageUrl = $validated['image_url'] ?? null;
+        $thumbnailUrl = null;
+
         if ($request->hasFile('image_file')) {
             $path = $request->file('image_file')->store('products', 'public');
-            $validated['image_url'] = '/storage/' . $path;
-            $validated['thumbnail_url'] = app(ImageService::class)->generateThumbnail($path);
-            unset($validated['image_file']);
+            $imageUrl = '/storage/' . $path;
+            $thumbnailUrl = $imageService->generateThumbnail($path);
         }
 
-        $validated['is_primary'] = $request->boolean('is_primary');
-        $validated['sort_order'] = ($product->images()->max('sort_order') ?? -1) + 1;
+        $dto = new CreateProductImageDTO(
+            imageUrl: $imageUrl,
+            isPrimary: $request->boolean('is_primary'),
+            thumbnailUrl: $thumbnailUrl,
+            altText: $validated['alt_text'] ?? null,
+        );
 
-        if ($validated['is_primary']) {
-            $product->images()->update(['is_primary' => false]);
-        }
-
-        if ($product->images()->count() === 0) {
-            $validated['is_primary'] = true;
-        }
-
-        $image = $product->images()->create($validated);
+        $image = $createImage->execute($dto, $product);
 
         return response()->json($image, 201);
     }
 
-    public function update(Request $request, Product $product, ProductImage $image)
+    public function update(Request $request, Product $product, ProductImage $image, UpdateProductImage $updateImage)
     {
         $validated = $request->validate([
             'alt_text' => 'nullable|string|max:255',
             'is_primary' => 'boolean',
         ]);
 
-        if ($request->has('is_primary') && $request->boolean('is_primary')) {
-            $product->images()->where('id', '!=', $image->id)->update(['is_primary' => false]);
-            $validated['is_primary'] = true;
-        }
+        $result = $updateImage->execute($product, $image, $validated);
 
-        $image->update($validated);
-
-        return response()->json($image);
+        return response()->json($result);
     }
 
-    public function destroy(Product $product, ProductImage $image)
+    public function destroy(Product $product, ProductImage $image, DeleteProductImage $deleteImage)
     {
-        $wasPrimary = $image->is_primary;
-        $image->delete();
-
-        if ($wasPrimary) {
-            $first = $product->images()->orderBy('sort_order')->first();
-            if ($first) {
-                $first->update(['is_primary' => true]);
-            }
-        }
+        $deleteImage->execute($image);
 
         return response()->json(['message' => 'Imagen eliminada']);
     }
 
-    public function reorder(Request $request, Product $product)
+    public function reorder(Request $request, Product $product, ReorderProductImages $reorderImages)
     {
         $validated = $request->validate([
             'order' => 'required|array',
             'order.*' => 'integer|exists:product_images,id',
         ]);
 
-        foreach ($validated['order'] as $index => $id) {
-            ProductImage::where('id', $id)->where('product_id', $product->id)->update(['sort_order' => $index]);
-        }
+        $reorderImages->execute($product, $validated['order']);
 
         return response()->json(['message' => 'Orden actualizado']);
     }

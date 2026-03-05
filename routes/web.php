@@ -23,6 +23,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\OfertasController;
+use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CustomerOrderController;
 use App\Http\Controllers\ProfileController;
@@ -39,52 +40,61 @@ use App\Http\Controllers\Admin\SiteSettingController as AdminSiteSettingControll
 use App\Http\Controllers\Admin\RolePermissionController;
 use Illuminate\Support\Facades\Route;
 
-// Rutas públicas - cualquier usuario puede navegar
-Route::get('/', [HomeController::class, 'index'])->name('home');
-Route::get('/catalogo', [CatalogController::class, 'index'])->name('catalog');
-Route::get('/buscar', [CatalogController::class, 'search'])->name('search');
-Route::get('/producto/{slug}', [ProductController::class, 'show'])->name('product.show');
-Route::get('/ofertas', [OfertasController::class, 'index'])->name('ofertas');
+// Sitemap SEO
+Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 
-// Newsletter
-Route::post('/newsletter', [NewsletterController::class, 'subscribe'])->name('newsletter.subscribe');
+// Rutas públicas - rate limit global
+Route::middleware('throttle:global')->group(function () {
+    Route::get('/', [HomeController::class, 'index'])->name('home');
+    Route::get('/catalogo', [CatalogController::class, 'index'])->name('catalog');
+    Route::get('/buscar', [CatalogController::class, 'search'])->name('search');
+    Route::get('/producto/{slug}', [ProductController::class, 'show'])->name('product.show');
+    Route::get('/ofertas', [OfertasController::class, 'index'])->name('ofertas');
 
-// Páginas legales
-Route::get('/terminos-y-condiciones', [LegalController::class, 'terms'])->name('legal.terms');
-Route::get('/politica-cambios-devoluciones', [LegalController::class, 'returns'])->name('legal.returns');
-Route::get('/preguntas-frecuentes', [LegalController::class, 'faq'])->name('legal.faq');
-Route::get('/contacto', [ContactController::class, 'show'])->name('contact.show');
-Route::post('/contacto', [ContactController::class, 'store'])->name('contact.store');
-Route::get('/libro-de-reclamaciones', [ComplaintController::class, 'create'])->name('complaint.create');
-Route::post('/libro-de-reclamaciones', [ComplaintController::class, 'store'])->name('complaint.store');
-Route::get('/libro-de-reclamaciones/{complaint}/confirmacion', [ComplaintController::class, 'confirmation'])->name('complaint.confirmation');
+    // Páginas legales
+    Route::get('/terminos-y-condiciones', [LegalController::class, 'terms'])->name('legal.terms');
+    Route::get('/politica-cambios-devoluciones', [LegalController::class, 'returns'])->name('legal.returns');
+    Route::get('/preguntas-frecuentes', [LegalController::class, 'faq'])->name('legal.faq');
+    Route::get('/contacto', [ContactController::class, 'show'])->name('contact.show');
+    Route::get('/libro-de-reclamaciones', [ComplaintController::class, 'create'])->name('complaint.create');
+    Route::get('/libro-de-reclamaciones/{complaint}/confirmacion', [ComplaintController::class, 'confirmation'])->name('complaint.confirmation');
+});
 
-// Carrito de compras (sesión, sin auth requerido)
-Route::get('/carrito', [CartController::class, 'index'])->name('cart');
-Route::post('/carrito/agregar', [CartController::class, 'add'])->name('cart.add');
-Route::patch('/carrito/actualizar', [CartController::class, 'update'])->name('cart.update');
-Route::delete('/carrito/eliminar', [CartController::class, 'remove'])->name('cart.remove');
-Route::get('/carrito/count', [CartController::class, 'count'])->name('cart.count');
-Route::get('/carrito/items', [CartController::class, 'items'])->name('cart.items');
+// Formularios públicos - rate limit estricto
+Route::middleware('throttle:forms')->group(function () {
+    Route::post('/newsletter', [NewsletterController::class, 'subscribe'])->name('newsletter.subscribe');
+    Route::post('/contacto', [ContactController::class, 'store'])->name('contact.store');
+    Route::post('/libro-de-reclamaciones', [ComplaintController::class, 'store'])->name('complaint.store');
+});
 
-// Lista de deseos
-Route::get('/wishlist/count', [WishlistController::class, 'count'])->name('wishlist.count');
+// Carrito de compras - rate limit por IP
+Route::middleware('throttle:cart')->group(function () {
+    Route::get('/carrito', [CartController::class, 'index'])->name('cart');
+    Route::post('/carrito/agregar', [CartController::class, 'add'])->name('cart.add');
+    Route::patch('/carrito/actualizar', [CartController::class, 'update'])->name('cart.update');
+    Route::delete('/carrito/eliminar', [CartController::class, 'remove'])->name('cart.remove');
+    Route::get('/carrito/count', [CartController::class, 'count'])->name('cart.count');
+    Route::get('/carrito/items', [CartController::class, 'items'])->name('cart.items');
+});
 
-// API interna (sin autenticación, para el mega menu)
-Route::get('/api/categories/{slug}/products', [CategoryProductController::class, 'index']);
+// Lista de deseos (count público)
+Route::get('/wishlist/count', [WishlistController::class, 'count'])->middleware('throttle:api')->name('wishlist.count');
 
-// API Ubigeo (departamentos, provincias, distritos)
-Route::get('/api/departments', [UbigeoController::class, 'departments']);
-Route::get('/api/departments/{id}/provinces', [UbigeoController::class, 'provinces']);
-Route::get('/api/provinces/{id}/districts', [UbigeoController::class, 'districts']);
+// API interna - rate limit
+Route::middleware('throttle:api')->group(function () {
+    Route::get('/api/categories/{slug}/products', [CategoryProductController::class, 'index']);
+    Route::get('/api/departments', [UbigeoController::class, 'departments']);
+    Route::get('/api/departments/{id}/provinces', [UbigeoController::class, 'provinces']);
+    Route::get('/api/provinces/{id}/districts', [UbigeoController::class, 'districts']);
+});
 
-// Rutas de autenticación - solo para usuarios NO autenticados
+// Rutas de autenticación - rate limit estricto
 Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
-    Route::post('/login', [LoginController::class, 'login']);
+    Route::post('/login', [LoginController::class, 'login'])->middleware('throttle:login');
 
     Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
-    Route::post('/register', [RegisterController::class, 'register']);
+    Route::post('/register', [RegisterController::class, 'register'])->middleware('throttle:register');
 
     Route::get('/auth/google', [GoogleController::class, 'redirect'])->name('auth.google');
     Route::get('/auth/google/callback', [GoogleController::class, 'callback']);
@@ -94,15 +104,15 @@ Route::middleware('guest')->group(function () {
 
     // Password Reset
     Route::get('/forgot-password', [ForgotPasswordController::class, 'showForgotForm'])->name('password.request');
-    Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLink'])->name('password.email');
+    Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLink'])->middleware('throttle:password-reset')->name('password.email');
     Route::get('/reset-password/{token}', [ForgotPasswordController::class, 'showResetForm'])->name('password.reset');
-    Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword'])->name('password.update');
+    Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword'])->middleware('throttle:password-reset')->name('password.update');
 });
 
 // Rutas que requieren autenticación
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
-    Route::post('/wishlist/toggle', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
+    Route::post('/wishlist/toggle', [WishlistController::class, 'toggle'])->middleware('throttle:wishlist')->name('wishlist.toggle');
     Route::get('/lista-de-deseos', [WishlistController::class, 'index'])->name('wishlist.index');
 
     Route::get('/mi-perfil', [ProfileController::class, 'show'])->name('profile.show');
@@ -112,7 +122,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/mis-pedidos', [CustomerOrderController::class, 'index'])->name('orders.index');
     Route::get('/mis-pedidos/{order}', [CustomerOrderController::class, 'show'])->name('orders.show');
 
-    Route::post('/producto/{product}/review', [ReviewController::class, 'store'])->name('reviews.store');
+    Route::post('/producto/{product}/review', [ReviewController::class, 'store'])->middleware('throttle:reviews')->name('reviews.store');
 });
 
 // Panel de administración

@@ -1,2 +1,13 @@
 User-agent: *
-Disallow:
+Disallow: /admin/
+Disallow: /api/
+Disallow: /login
+Disallow: /register
+Disallow: /forgot-password
+Disallow: /reset-password/
+Disallow: /carrito
+Disallow: /mi-perfil
+Disallow: /mis-pedidos
+Disallow: /lista-de-deseos
+
+Sitemap: /sitemap.xml

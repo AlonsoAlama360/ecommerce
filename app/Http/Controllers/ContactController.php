@@ -2,11 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ContactMessage;
+use App\Application\Contact\DTOs\CreateContactDTO;
+use App\Application\Contact\UseCases\CreateContactMessage;
 use Illuminate\Http\Request;
 
 class ContactController extends Controller
 {
+    public function __construct(
+        private CreateContactMessage $createContactMessage,
+    ) {}
+
     public function show()
     {
         return view('contact');
@@ -28,7 +33,8 @@ class ContactController extends Controller
             'message.required' => 'El mensaje es obligatorio.',
         ]);
 
-        ContactMessage::create($validated);
+        $dto = CreateContactDTO::fromRequest($request);
+        $this->createContactMessage->execute($dto);
 
         if ($request->expectsJson()) {
             return response()->json(['message' => 'Tu mensaje ha sido enviado exitosamente. Te responderemos a la brevedad.']);

@@ -30,6 +30,8 @@ class Order extends Model
         'customer_notes',
         'admin_notes',
         'created_by',
+        'tracking_number',
+        'review_requested_at',
     ];
 
     protected function casts(): array
@@ -39,6 +41,7 @@ class Order extends Model
             'discount_amount' => 'decimal:2',
             'shipping_cost' => 'decimal:2',
             'total' => 'decimal:2',
+            'review_requested_at' => 'datetime',
         ];
     }
 

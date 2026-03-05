@@ -2,90 +2,39 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Application\Wishlist\DTOs\WishlistFiltersDTO;
+use App\Application\Wishlist\UseCases\ListAdminWishlists;
+use App\Application\Wishlist\UseCases\ShowProductWishlists;
 use App\Http\Controllers\Controller;
-use App\Models\Category;
 use App\Models\Product;
 use App\Models\Wishlist;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class WishlistController extends Controller
 {
+    public function __construct(
+        private readonly ListAdminWishlists $listAdminWishlists,
+        private readonly ShowProductWishlists $showProductWishlists,
+    ) {}
+
     public function index(Request $request)
     {
-        $query = Product::withCount('wishlists')
-            ->addSelect([
-                'last_wishlisted_at' => Wishlist::select(DB::raw('MAX(created_at)'))
-                    ->whereColumn('product_id', 'products.id'),
-            ])
-            ->whereHas('wishlists');
+        $filters = WishlistFiltersDTO::fromRequest($request);
 
-        if ($search = $request->get('search')) {
-            $query->where(function ($q) use ($search) {
-                $q->where('products.name', 'like', "%{$search}%")
-                  ->orWhere('products.sku', 'like', "%{$search}%");
-            });
-        }
+        $data = $this->listAdminWishlists->execute($filters);
 
-        if ($categoryId = $request->get('category_id')) {
-            $query->where('products.category_id', $categoryId);
-        }
-
-        $orderBy = $request->get('order', 'most_wished');
-        if ($orderBy === 'recent') {
-            $query->orderByDesc('last_wishlisted_at');
-        } else {
-            $query->orderByDesc('wishlists_count');
-        }
-
-        $perPage = $request->get('per_page', 15);
-        $products = $query->with(['primaryImage', 'category'])
-            ->paginate($perPage)
-            ->withQueryString();
-
-        // Stats
-        $totalItems = Wishlist::count();
-        $uniqueProducts = Wishlist::distinct('product_id')->count('product_id');
-        $uniqueClients = Wishlist::distinct('user_id')->count('user_id');
-
-        $topProduct = Product::select('products.id', 'products.name')
-            ->join('wishlists', 'products.id', '=', 'wishlists.product_id')
-            ->selectRaw('COUNT(wishlists.id) as total')
-            ->groupBy('products.id', 'products.name')
-            ->orderByDesc('total')
-            ->first();
-
-        $categories = Category::where('is_active', true)->orderBy('name')->get(['id', 'name']);
-
-        return view('admin.wishlists.index', compact(
-            'products', 'totalItems', 'uniqueProducts', 'uniqueClients', 'topProduct', 'categories'
-        ));
+        return view('admin.wishlists.index', $data);
     }
 
     public function show(Request $request, Product $product)
     {
-        $product->load('primaryImage', 'category');
+        $search = $request->get('search');
+        $perPage = (int) $request->get('per_page', 15);
 
-        $query = Wishlist::with('user')
-            ->where('product_id', $product->id);
+        $data = $this->showProductWishlists->execute($product, $search, $perPage);
 
-        if ($search = $request->get('search')) {
-            $query->whereHas('user', function ($q) use ($search) {
-                $q->where('first_name', 'like', "%{$search}%")
-                  ->orWhere('last_name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
-            });
-        }
-
-        $perPage = $request->get('per_page', 15);
-        $wishlists = $query->latest('created_at')
-            ->paginate($perPage)
-            ->withQueryString();
-
-        $totalInterested = Wishlist::where('product_id', $product->id)->count();
-
-        return view('admin.wishlists.show', compact('product', 'wishlists', 'totalInterested'));
+        return view('admin.wishlists.show', $data);
     }
 
     public function export(Request $request): StreamedResponse

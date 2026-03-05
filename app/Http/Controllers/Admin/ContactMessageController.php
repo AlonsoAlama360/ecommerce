@@ -2,54 +2,38 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Application\Contact\DTOs\ContactFiltersDTO;
+use App\Application\Contact\UseCases\DeleteContactMessage;
+use App\Application\Contact\UseCases\ListContactMessages;
+use App\Application\Contact\UseCases\ShowContactMessage;
+use App\Application\Contact\UseCases\UpdateContactMessage;
 use App\Http\Controllers\Controller;
 use App\Models\ContactMessage;
 use Illuminate\Http\Request;
 
 class ContactMessageController extends Controller
 {
+    public function __construct(
+        private ListContactMessages $listContactMessages,
+        private ShowContactMessage $showContactMessage,
+        private UpdateContactMessage $updateContactMessage,
+        private DeleteContactMessage $deleteContactMessage,
+    ) {}
+
     public function index(Request $request)
     {
-        $query = ContactMessage::query();
+        $dto = ContactFiltersDTO::fromRequest($request);
+        $result = $this->listContactMessages->execute($dto);
 
-        if ($search = $request->get('search')) {
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%")
-                  ->orWhere('subject', 'like', "%{$search}%")
-                  ->orWhere('order_number', 'like', "%{$search}%");
-            });
-        }
-
-        if ($status = $request->get('status')) {
-            $query->where('status', $status);
-        }
-
-        $perPage = $request->get('per_page', 15);
-        $messages = $query->latest()->paginate($perPage)->withQueryString();
-
-        $ms = \DB::selectOne("
-            SELECT COUNT(*) as total,
-                SUM(status = 'nuevo') as nuevo,
-                SUM(status = 'leido') as leido,
-                SUM(status = 'respondido') as respondido
-            FROM contact_messages
-        ");
-        $stats = [
-            'total' => (int) $ms->total,
-            'nuevo' => (int) ($ms->nuevo ?? 0),
-            'leido' => (int) ($ms->leido ?? 0),
-            'respondido' => (int) ($ms->respondido ?? 0),
-        ];
-
-        return view('admin.contact-messages.index', compact('messages', 'stats'));
+        return view('admin.contact-messages.index', [
+            'messages' => $result['messages'],
+            'stats' => $result['stats'],
+        ]);
     }
 
     public function show(ContactMessage $contactMessage)
     {
-        if ($contactMessage->status === 'nuevo') {
-            $contactMessage->update(['status' => 'leido']);
-        }
+        $contactMessage = $this->showContactMessage->execute($contactMessage);
 
         return view('admin.contact-messages.show', compact('contactMessage'));
     }
@@ -61,14 +45,14 @@ class ContactMessageController extends Controller
             'admin_notes' => 'nullable|string|max:3000',
         ]);
 
-        $contactMessage->update($validated);
+        $this->updateContactMessage->execute($contactMessage, $validated);
 
         return back()->with('success', 'Mensaje actualizado exitosamente.');
     }
 
     public function destroy(ContactMessage $contactMessage)
     {
-        $contactMessage->delete();
+        $this->deleteContactMessage->execute($contactMessage);
 
         return redirect()->route('admin.contact-messages.index')
             ->with('success', 'Mensaje eliminado exitosamente.');

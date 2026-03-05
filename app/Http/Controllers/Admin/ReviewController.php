@@ -2,95 +2,52 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Application\Review\DTOs\ReviewFiltersDTO;
+use App\Application\Review\UseCases\ApproveReview;
+use App\Application\Review\UseCases\DeleteReview;
+use App\Application\Review\UseCases\ListReviews;
+use App\Application\Review\UseCases\RejectReview;
+use App\Application\Review\UseCases\ToggleFeaturedReview;
 use App\Http\Controllers\Controller;
 use App\Models\Review;
 use Illuminate\Http\Request;
 
 class ReviewController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request, ListReviews $listReviews)
     {
-        $query = Review::with(['user:id,first_name,last_name', 'product:id,name,slug'])
-            ->latest();
+        $dto = ReviewFiltersDTO::fromRequest($request);
+        $data = $listReviews->execute($dto);
 
-        if ($request->filled('status')) {
-            if ($request->status === 'approved') {
-                $query->where('is_approved', true);
-            } elseif ($request->status === 'pending') {
-                $query->where('is_approved', false);
-            }
-        }
-
-        if ($request->filled('rating')) {
-            $query->where('rating', $request->rating);
-        }
-
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('comment', 'like', "%{$search}%")
-                  ->orWhere('title', 'like', "%{$search}%")
-                  ->orWhereHas('user', function ($q2) use ($search) {
-                      $q2->where('first_name', 'like', "%{$search}%")
-                         ->orWhere('last_name', 'like', "%{$search}%");
-                  })
-                  ->orWhereHas('product', function ($q2) use ($search) {
-                      $q2->where('name', 'like', "%{$search}%");
-                  });
-            });
-        }
-
-        $reviews = $query->paginate(15)->withQueryString();
-
-        if ($request->filled('featured')) {
-            $query->where('is_featured', true);
-        }
-
-        $rs = \DB::selectOne("
-            SELECT COUNT(*) as total,
-                SUM(is_approved = 1) as approved,
-                SUM(is_approved = 0) as pending,
-                AVG(CASE WHEN is_approved = 1 THEN rating ELSE NULL END) as avg_rating,
-                SUM(is_featured = 1) as featured
-            FROM reviews
-        ");
-        $totalReviews = (int) $rs->total;
-        $approvedReviews = (int) ($rs->approved ?? 0);
-        $pendingReviews = (int) ($rs->pending ?? 0);
-        $averageRating = round((float) ($rs->avg_rating ?? 0), 1);
-        $featuredCount = (int) ($rs->featured ?? 0);
-
-        return view('admin.reviews.index', compact(
-            'reviews', 'totalReviews', 'approvedReviews', 'pendingReviews', 'averageRating', 'featuredCount'
-        ));
+        return view('admin.reviews.index', $data);
     }
 
-    public function approve(Review $review)
+    public function approve(Review $review, ApproveReview $approveReview)
     {
-        $review->update(['is_approved' => true]);
+        $approveReview->execute($review);
         return back()->with('success', 'Reseña aprobada correctamente.');
     }
 
-    public function reject(Review $review)
+    public function reject(Review $review, RejectReview $rejectReview)
     {
-        $review->update(['is_approved' => false]);
+        $rejectReview->execute($review);
         return back()->with('success', 'Reseña rechazada.');
     }
 
-    public function toggleFeatured(Review $review)
+    public function toggleFeatured(Review $review, ToggleFeaturedReview $toggleFeatured)
     {
-        $review->update(['is_featured' => !$review->is_featured]);
+        $toggleFeatured->execute($review);
 
-        $message = $review->is_featured
+        $message = $review->fresh()->is_featured
             ? 'Reseña marcada para mostrar en el inicio.'
             : 'Reseña removida del inicio.';
 
         return back()->with('success', $message);
     }
 
-    public function destroy(Review $review)
+    public function destroy(Review $review, DeleteReview $deleteReview)
     {
-        $review->delete();
+        $deleteReview->execute($review);
         return back()->with('success', 'Reseña eliminada correctamente.');
     }
 }

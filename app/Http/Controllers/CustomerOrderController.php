@@ -2,28 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Application\Order\UseCases\ListCustomerOrders;
 use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class CustomerOrderController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request, ListCustomerOrders $listOrders)
     {
-        $query = Auth::user()->orders()->with('items.product.primaryImage')->latest();
+        $status = $request->filled('status') ? $request->status : null;
+        $data = $listOrders->execute(Auth::id(), $status);
 
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
-        }
-
-        $orders = $query->paginate(10);
-
-        $statusCounts = Auth::user()->orders()
-            ->selectRaw('status, count(*) as total')
-            ->groupBy('status')
-            ->pluck('total', 'status');
-
-        return view('orders.index', compact('orders', 'statusCounts'));
+        return view('orders.index', $data);
     }
 
     public function show(Order $order)

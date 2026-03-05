@@ -2,78 +2,29 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Application\Order\DTOs\CreateOrderDTO;
+use App\Application\Order\DTOs\OrderFiltersDTO;
+use App\Application\Order\DTOs\UpdateOrderDTO;
+use App\Application\Order\UseCases\CreateOrder;
+use App\Application\Order\UseCases\DeleteOrder;
+use App\Application\Order\UseCases\ExportOrders;
+use App\Application\Order\UseCases\ListOrders;
+use App\Application\Order\UseCases\ShowOrder;
+use App\Application\Order\UseCases\UpdateOrder;
+use App\Application\Order\UseCases\UpdateOrderStatus;
+use App\Domain\Order\Repositories\OrderRepositoryInterface;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
-use App\Models\Product;
-use App\Models\User;
-use App\Services\StockService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Str;
-use Symfony\Component\HttpFoundation\StreamedResponse;
-use App\Mail\OrderConfirmationMail;
-use App\Mail\WelcomeMail;
 
 class OrderController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request, ListOrders $listOrders)
     {
-        $query = Order::with(['user', 'items']);
+        $dto = OrderFiltersDTO::fromRequest($request);
+        $data = $listOrders->execute($dto);
 
-        if ($search = $request->get('search')) {
-            $query->where(function ($q) use ($search) {
-                $q->where('order_number', 'like', "%{$search}%")
-                  ->orWhere('customer_name', 'like', "%{$search}%")
-                  ->orWhere('customer_email', 'like', "%{$search}%")
-                  ->orWhere('customer_phone', 'like', "%{$search}%");
-            });
-        }
-
-        if ($status = $request->get('status')) {
-            $query->where('status', $status);
-        }
-
-        if ($source = $request->get('source')) {
-            $query->where('source', $source);
-        }
-
-        if ($paymentMethod = $request->get('payment_method')) {
-            $query->where('payment_method', $paymentMethod);
-        }
-
-        if ($paymentStatus = $request->get('payment_status')) {
-            $query->where('payment_status', $paymentStatus);
-        }
-
-        if ($dateFrom = $request->get('date_from')) {
-            $query->whereDate('created_at', '>=', $dateFrom);
-        }
-
-        if ($dateTo = $request->get('date_to')) {
-            $query->whereDate('created_at', '<=', $dateTo);
-        }
-
-        $perPage = $request->get('per_page', 10);
-        $orders = $query->latest()->paginate($perPage)->withQueryString();
-
-        $s = DB::selectOne("
-            SELECT
-                COUNT(*) as total,
-                SUM(created_at >= ?) as today,
-                SUM(CASE WHEN created_at >= ? AND status != 'cancelado' THEN total ELSE 0 END) as monthly_revenue,
-                SUM(status = 'pendiente') as pending
-            FROM orders WHERE deleted_at IS NULL
-        ", [today()->toDateTimeString(), now()->startOfMonth()->toDateTimeString()]);
-
-        $totalOrders = (int) $s->total;
-        $ordersToday = (int) ($s->today ?? 0);
-        $monthlyRevenue = (float) ($s->monthly_revenue ?? 0);
-        $pendingOrders = (int) ($s->pending ?? 0);
-
-        return view('admin.orders.index', compact(
-            'orders', 'totalOrders', 'ordersToday', 'monthlyRevenue', 'pendingOrders'
-        ));
+        return view('admin.orders.index', $data);
     }
 
     public function create()
@@ -81,9 +32,9 @@ class OrderController extends Controller
         return redirect()->route('admin.orders.index');
     }
 
-    public function store(Request $request)
+    public function store(Request $request, CreateOrder $createOrder)
     {
-        $validated = $request->validate([
+        $request->validate([
             'customer_name' => 'required|string|max:255',
             'customer_email' => 'nullable|email|max:255',
             'customer_phone' => 'nullable|string|max:20',
@@ -96,104 +47,22 @@ class OrderController extends Controller
             'items.*.quantity' => 'required|integer|min:1',
         ]);
 
-        return DB::transaction(function () use ($validated, $request) {
-            // Find or create user
-            $user = null;
-            if (!empty($validated['customer_email'])) {
-                $user = User::where('email', $validated['customer_email'])->first();
-            }
+        $dto = CreateOrderDTO::fromRequest($request);
+        $order = $createOrder->execute($dto);
 
-            if (!$user && !empty($validated['customer_email'])) {
-                $nameParts = explode(' ', $validated['customer_name'], 2);
-                $user = User::create([
-                    'first_name' => $nameParts[0],
-                    'last_name' => $nameParts[1] ?? '',
-                    'email' => $validated['customer_email'],
-                    'phone' => $validated['customer_phone'] ?? null,
-                    'password' => bcrypt(Str::random(12)),
-                    'role' => 'cliente',
-                    'is_active' => true,
-                    'auth_provider' => 'form',
-                ]);
-
-                Mail::to($user)->send(new WelcomeMail($user));
-            }
-
-            // Calculate totals
-            $subtotal = 0;
-            $itemsData = [];
-
-            foreach ($validated['items'] as $item) {
-                $product = Product::findOrFail($item['product_id']);
-                $price = $product->sale_price ?? $product->price;
-                $lineTotal = $price * $item['quantity'];
-                $subtotal += $lineTotal;
-
-                $itemsData[] = [
-                    'product_id' => $product->id,
-                    'product_name' => $product->name,
-                    'product_sku' => $product->sku,
-                    'quantity' => $item['quantity'],
-                    'unit_price' => $price,
-                    'line_total' => $lineTotal,
-                ];
-            }
-
-            // Save address to user profile if they don't have one
-            if ($user && !$user->address && !empty($validated['shipping_address'])) {
-                $user->update(['address' => $validated['shipping_address']]);
-            }
-
-            $order = Order::create([
-                'user_id' => $user?->id,
-                'source' => 'admin',
-                'status' => 'confirmado',
-                'payment_method' => $validated['payment_method'],
-                'payment_status' => $validated['payment_status'],
-                'subtotal' => $subtotal,
-                'discount_amount' => 0,
-                'shipping_cost' => 0,
-                'total' => $subtotal,
-                'customer_name' => $validated['customer_name'],
-                'customer_phone' => $validated['customer_phone'] ?? null,
-                'customer_email' => $validated['customer_email'] ?? null,
-                'shipping_address' => $validated['shipping_address'] ?? null,
-                'admin_notes' => $validated['admin_notes'] ?? null,
-                'created_by' => auth()->id(),
-            ]);
-
-            foreach ($itemsData as $itemData) {
-                $order->items()->create($itemData);
-                $product = Product::find($itemData['product_id']);
-                if ($product) {
-                    StockService::decrement($product, $itemData['quantity'], $order, "Venta {$order->order_number}");
-                }
-            }
-
-            // Send order confirmation email
-            if ($order->customer_email) {
-                try {
-                    Mail::to($order->customer_email)->send(new OrderConfirmationMail($order->load('items')));
-                } catch (\Exception $e) {
-                    // Log but don't fail the order
-                    \Log::warning("No se pudo enviar email de confirmación para {$order->order_number}: " . $e->getMessage());
-                }
-            }
-
-            return redirect()->route('admin.orders.index')
-                ->with('success', "Venta {$order->order_number} creada exitosamente.");
-        });
+        return redirect()->route('admin.orders.index')
+            ->with('success', "Venta {$order->order_number} creada exitosamente.");
     }
 
-    public function show(Order $order)
+    public function show(Order $order, ShowOrder $showOrder)
     {
-        $order->load(['items.product.primaryImage', 'user', 'creator']);
+        $order = $showOrder->execute($order);
         return response()->json($order);
     }
 
-    public function update(Request $request, Order $order)
+    public function update(Request $request, Order $order, UpdateOrder $updateOrder)
     {
-        $validated = $request->validate([
+        $request->validate([
             'status' => 'sometimes|in:pendiente,confirmado,en_preparacion,enviado,entregado,cancelado',
             'payment_status' => 'sometimes|in:pendiente,pagado,fallido',
             'payment_method' => 'sometimes|in:efectivo,transferencia,yape_plin,tarjeta',
@@ -207,67 +76,25 @@ class OrderController extends Controller
             'items.*.quantity' => 'required_with:items|integer|min:1',
         ]);
 
-        return DB::transaction(function () use ($validated, $order, $request) {
-            // If items are being updated, handle stock adjustments
-            if (isset($validated['items'])) {
-                // Restore stock from old items
-                foreach ($order->items as $oldItem) {
-                    if ($oldItem->product_id) {
-                        $oldProduct = Product::find($oldItem->product_id);
-                        if ($oldProduct) {
-                            StockService::increment($oldProduct, $oldItem->quantity, $order, "Reversión edición venta {$order->order_number}");
-                        }
-                    }
-                }
+        $dto = UpdateOrderDTO::fromRequest($request);
+        $updatedOrder = $updateOrder->execute($dto, $order);
 
-                // Delete old items
-                $order->items()->delete();
+        if ($request->ajax()) {
+            return response()->json(['message' => 'Venta actualizada', 'order' => $updatedOrder]);
+        }
 
-                // Create new items and reduce stock
-                $subtotal = 0;
-                foreach ($validated['items'] as $item) {
-                    $product = Product::findOrFail($item['product_id']);
-                    $price = $product->sale_price ?? $product->price;
-                    $lineTotal = $price * $item['quantity'];
-                    $subtotal += $lineTotal;
-
-                    $order->items()->create([
-                        'product_id' => $product->id,
-                        'product_name' => $product->name,
-                        'product_sku' => $product->sku,
-                        'quantity' => $item['quantity'],
-                        'unit_price' => $price,
-                        'line_total' => $lineTotal,
-                    ]);
-
-                    StockService::decrement($product, $item['quantity'], $order, "Edición venta {$order->order_number}");
-                }
-
-                $validated['subtotal'] = $subtotal;
-                $validated['total'] = $subtotal - $order->discount_amount + $order->shipping_cost;
-            }
-
-            // Remove items from validated since we handled them separately
-            unset($validated['items']);
-
-            $order->update($validated);
-
-            if ($request->ajax()) {
-                return response()->json(['message' => 'Venta actualizada', 'order' => $order->fresh()]);
-            }
-
-            return redirect()->route('admin.orders.index')
-                ->with('success', 'Venta actualizada exitosamente.');
-        });
+        return redirect()->route('admin.orders.index')
+            ->with('success', 'Venta actualizada exitosamente.');
     }
 
-    public function updateStatus(Request $request, Order $order)
+    public function updateStatus(Request $request, Order $order, UpdateOrderStatus $updateStatus)
     {
         $validated = $request->validate([
             'status' => 'required|in:pendiente,confirmado,en_preparacion,enviado,entregado,cancelado',
+            'tracking_number' => 'nullable|string|max:100',
         ]);
 
-        $order->update(['status' => $validated['status']]);
+        $order = $updateStatus->execute($order, $validated['status'], $validated['tracking_number'] ?? null);
 
         return response()->json([
             'message' => 'Estado actualizado',
@@ -276,142 +103,29 @@ class OrderController extends Controller
         ]);
     }
 
-    public function destroy(Order $order)
+    public function destroy(Order $order, DeleteOrder $deleteOrder)
     {
-        $order->delete();
+        $deleteOrder->execute($order);
 
         return redirect()->route('admin.orders.index')
             ->with('success', 'Venta eliminada exitosamente.');
     }
 
-    public function export(Request $request): StreamedResponse
+    public function export(Request $request, ExportOrders $exportOrders)
     {
-        $query = Order::with(['user', 'items.product']);
-
-        if ($status = $request->get('status')) {
-            $query->where('status', $status);
-        }
-        if ($source = $request->get('source')) {
-            $query->where('source', $source);
-        }
-        if ($paymentMethod = $request->get('payment_method')) {
-            $query->where('payment_method', $paymentMethod);
-        }
-        if ($paymentStatus = $request->get('payment_status')) {
-            $query->where('payment_status', $paymentStatus);
-        }
-        if ($dateFrom = $request->get('date_from')) {
-            $query->whereDate('created_at', '>=', $dateFrom);
-        }
-        if ($dateTo = $request->get('date_to')) {
-            $query->whereDate('created_at', '<=', $dateTo);
-        }
-        if ($search = $request->get('search')) {
-            $query->where(function ($q) use ($search) {
-                $q->where('order_number', 'like', "%{$search}%")
-                  ->orWhere('customer_name', 'like', "%{$search}%")
-                  ->orWhere('customer_email', 'like', "%{$search}%")
-                  ->orWhere('customer_phone', 'like', "%{$search}%");
-            });
-        }
-
-        $filename = 'ventas_' . now()->format('Ymd_His') . '.csv';
-
-        return response()->streamDownload(function () use ($query) {
-            $handle = fopen('php://output', 'w');
-
-            fprintf($handle, chr(0xEF) . chr(0xBB) . chr(0xBF));
-
-            fputcsv($handle, [
-                'N° Orden', 'Fecha', 'Cliente', 'Email', 'Teléfono',
-                'Dirección de Envío', 'Origen', 'Estado', 'Método de Pago',
-                'Estado de Pago', 'Productos', 'Cant. Items', 'Subtotal',
-                'Descuento', 'Envío', 'Total', 'Notas',
-            ], ';');
-
-            $query->with(['items'])->latest()->chunk(500, function ($orders) use ($handle) {
-                foreach ($orders as $order) {
-                    $products = $order->items->map(function ($item) {
-                        return $item->product_name . ' (x' . $item->quantity . ' - S/' . number_format($item->unit_price, 2) . ')';
-                    })->implode(' | ');
-
-                    fputcsv($handle, [
-                        $order->order_number,
-                        $order->created_at->format('d/m/Y H:i'),
-                        $order->customer_name,
-                        $order->customer_email ?? '',
-                        $order->customer_phone ?? '',
-                        $order->shipping_address ?? '',
-                        $order->source === 'web' ? 'Web' : 'Admin',
-                        Order::STATUS_LABELS[$order->status] ?? $order->status,
-                        Order::PAYMENT_METHODS[$order->payment_method] ?? $order->payment_method,
-                        Order::PAYMENT_STATUS_LABELS[$order->payment_status] ?? $order->payment_status,
-                        $products,
-                        $order->items->sum('quantity'),
-                        number_format($order->subtotal, 2),
-                        number_format($order->discount_amount, 2),
-                        number_format($order->shipping_cost, 2),
-                        number_format($order->total, 2),
-                        $order->admin_notes ?? '',
-                    ], ';');
-                }
-            });
-
-            fclose($handle);
-        }, $filename, [
-            'Content-Type' => 'text/csv; charset=UTF-8',
-        ]);
+        $dto = OrderFiltersDTO::fromRequest($request);
+        return $exportOrders->execute($dto);
     }
 
-    // API: Search products for order creation
-    public function searchProducts(Request $request)
+    public function searchProducts(Request $request, OrderRepositoryInterface $orderRepository)
     {
         $search = $request->get('q', '');
-        $products = Product::where('is_active', true)
-            ->where('stock', '>', 0)
-            ->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('sku', 'like', "%{$search}%");
-            })
-            ->with('primaryImage')
-            ->take(10)
-            ->get()
-            ->map(fn($p) => [
-                'id' => $p->id,
-                'name' => $p->name,
-                'sku' => $p->sku,
-                'price' => $p->current_price,
-                'stock' => $p->stock,
-                'image' => $p->primaryImage?->image_url,
-            ]);
-
-        return response()->json($products);
+        return response()->json($orderRepository->searchProducts($search));
     }
 
-    // API: Search users for order creation
-    public function searchUsers(Request $request)
+    public function searchUsers(Request $request, OrderRepositoryInterface $orderRepository)
     {
         $search = $request->get('q', '');
-        $users = User::where(function ($q) use ($search) {
-                $q->where('first_name', 'like', "%{$search}%")
-                  ->orWhere('last_name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%")
-                  ->orWhere('phone', 'like', "%{$search}%");
-            })
-            ->where('is_active', true)
-            ->with(['department', 'province', 'district'])
-            ->take(10)
-            ->get()
-            ->map(fn($u) => [
-                'id' => $u->id,
-                'name' => $u->full_name,
-                'email' => $u->email,
-                'phone' => $u->phone,
-                'full_address' => $u->full_address,
-                'address' => $u->address,
-                'address_reference' => $u->address_reference,
-            ]);
-
-        return response()->json($users);
+        return response()->json($orderRepository->searchUsers($search));
     }
 }

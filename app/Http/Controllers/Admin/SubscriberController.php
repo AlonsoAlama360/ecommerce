@@ -2,47 +2,39 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Application\Subscriber\DTOs\SubscriberFiltersDTO;
+use App\Application\Subscriber\UseCases\DeleteSubscriber;
+use App\Application\Subscriber\UseCases\ListSubscribers;
+use App\Application\Subscriber\UseCases\ToggleSubscriberStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Subscriber;
 use Illuminate\Http\Request;
 
 class SubscriberController extends Controller
 {
+    public function __construct(
+        private ListSubscribers $listSubscribers,
+        private ToggleSubscriberStatus $toggleSubscriberStatus,
+        private DeleteSubscriber $deleteSubscriber,
+    ) {}
+
     public function index(Request $request)
     {
-        $query = Subscriber::query();
+        $dto = SubscriberFiltersDTO::fromRequest($request);
+        $result = $this->listSubscribers->execute($dto);
 
-        if ($search = $request->get('search')) {
-            $query->where('email', 'like', "%{$search}%");
-        }
-
-        if ($request->has('status') && $request->get('status') !== '') {
-            $query->where('is_active', $request->get('status'));
-        }
-
-        $perPage = $request->get('per_page', 15);
-        $subscribers = $query->latest()->paginate($perPage)->withQueryString();
-
-        $ss = \DB::selectOne("
-            SELECT COUNT(*) as total,
-                SUM(is_active = 1) as active,
-                SUM(is_active = 0) as inactive,
-                SUM(created_at >= ?) as new_week
-            FROM subscribers
-        ", [now()->subWeek()->toDateTimeString()]);
-        $totalSubscribers = (int) $ss->total;
-        $activeSubscribers = (int) ($ss->active ?? 0);
-        $inactiveSubscribers = (int) ($ss->inactive ?? 0);
-        $newThisWeek = (int) ($ss->new_week ?? 0);
-
-        return view('admin.subscribers.index', compact(
-            'subscribers', 'totalSubscribers', 'activeSubscribers', 'inactiveSubscribers', 'newThisWeek'
-        ));
+        return view('admin.subscribers.index', [
+            'subscribers' => $result['subscribers'],
+            'totalSubscribers' => $result['totalSubscribers'],
+            'activeSubscribers' => $result['activeSubscribers'],
+            'inactiveSubscribers' => $result['inactiveSubscribers'],
+            'newThisWeek' => $result['newThisWeek'],
+        ]);
     }
 
     public function toggleStatus(Subscriber $subscriber)
     {
-        $subscriber->update(['is_active' => !$subscriber->is_active]);
+        $subscriber = $this->toggleSubscriberStatus->execute($subscriber);
 
         $status = $subscriber->is_active ? 'activado' : 'desactivado';
         return back()->with('success', "Suscriptor {$status} exitosamente.");
@@ -50,7 +42,8 @@ class SubscriberController extends Controller
 
     public function destroy(Subscriber $subscriber)
     {
-        $subscriber->delete();
+        $this->deleteSubscriber->execute($subscriber);
+
         return back()->with('success', 'Suscriptor eliminado exitosamente.');
     }
 
