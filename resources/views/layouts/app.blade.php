@@ -34,24 +34,48 @@
     <meta name="twitter:description" content="@yield('og_description', 'Descubre perfumes, electrodomésticos, joyería y zapatillas en Arixna. Envíos a todo el Perú.')">
     <meta name="twitter:image" content="@yield('og_image', asset('images/logo_arixna.png'))">
 
-    {{-- Global Structured Data: SiteNavigationElement --}}
+    {{-- Global Structured Data: SiteNavigationElement como ItemList --}}
     <script type="application/ld+json">
     {
         "@@context": "https://schema.org",
-        "@@type": "SiteNavigationElement",
-        "name": [
-            "Inicio",
-            "Catálogo",
-            "Ofertas",
-            "Contacto",
-            "Preguntas Frecuentes"
-        ],
-        "url": [
-            "{{ url('/') }}",
-            "{{ route('catalog') }}",
-            "{{ route('ofertas') }}",
-            "{{ route('contact.show') }}",
-            "{{ route('legal.faq') }}"
+        "@@type": "ItemList",
+        "name": "Navegación principal de Arixna",
+        "itemListElement": [
+            {
+                "@@type": "SiteNavigationElement",
+                "position": 1,
+                "name": "Catálogo",
+                "description": "Explora todos nuestros productos: perfumes, electrodomésticos, joyería y zapatillas",
+                "url": "{{ route('catalog') }}"
+            },
+            {
+                "@@type": "SiteNavigationElement",
+                "position": 2,
+                "name": "Ofertas",
+                "description": "Descubre las mejores ofertas y descuentos en productos seleccionados",
+                "url": "{{ route('ofertas') }}"
+            },
+            {
+                "@@type": "SiteNavigationElement",
+                "position": 3,
+                "name": "Contacto",
+                "description": "Contáctanos para consultas, pedidos especiales o soporte al cliente",
+                "url": "{{ route('contact.show') }}"
+            },
+            {
+                "@@type": "SiteNavigationElement",
+                "position": 4,
+                "name": "Preguntas Frecuentes",
+                "description": "Resuelve tus dudas sobre envíos, pagos, devoluciones y más",
+                "url": "{{ route('legal.faq') }}"
+            },
+            {
+                "@@type": "SiteNavigationElement",
+                "position": 5,
+                "name": "Términos y Condiciones",
+                "description": "Conoce nuestros términos y condiciones de servicio",
+                "url": "{{ route('legal.terms') }}"
+            }
         ]
     }
     </script>

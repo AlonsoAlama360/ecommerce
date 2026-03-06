@@ -7,34 +7,93 @@
 @section('og_description', 'Encuentra perfumes, electrodomésticos, joyería y zapatillas de las mejores marcas. Envíos a todo el Perú.')
 
 @section('seo')
+    {{-- WebSite schema con SearchAction y secciones principales --}}
     <script type="application/ld+json">
     {
         "@@context": "https://schema.org",
         "@@type": "WebSite",
         "name": "Arixna",
+        "alternateName": "Arixna Tienda Online",
         "url": "{{ url('/') }}",
         "description": "Tu tienda online de perfumes, electrodomésticos, joyería y zapatillas en Perú.",
+        "inLanguage": "es",
         "potentialAction": {
             "@@type": "SearchAction",
-            "target": "{{ url('/buscar') }}?q={search_term_string}",
+            "target": {
+                "@@type": "EntryPoint",
+                "urlTemplate": "{{ url('/buscar') }}?q={search_term_string}"
+            },
             "query-input": "required name=search_term_string"
-        }
+        },
+        "hasPart": [
+            {
+                "@@type": "WebPage",
+                "name": "Catálogo",
+                "description": "Explora todos nuestros productos: perfumes, electrodomésticos, joyería y zapatillas",
+                "url": "{{ route('catalog') }}"
+            },
+            {
+                "@@type": "WebPage",
+                "name": "Ofertas",
+                "description": "Las mejores ofertas y descuentos en productos seleccionados",
+                "url": "{{ route('ofertas') }}"
+            },
+            {
+                "@@type": "WebPage",
+                "name": "Contacto",
+                "description": "Contáctanos para consultas o soporte al cliente",
+                "url": "{{ route('contact.show') }}"
+            },
+            {
+                "@@type": "WebPage",
+                "name": "Preguntas Frecuentes",
+                "description": "Resuelve tus dudas sobre envíos, pagos y devoluciones",
+                "url": "{{ route('legal.faq') }}"
+            },
+            {
+                "@@type": "WebPage",
+                "name": "Términos y Condiciones",
+                "description": "Nuestros términos y condiciones de servicio",
+                "url": "{{ route('legal.terms') }}"
+            }
+        ]
     }
     </script>
+
+    {{-- Organization schema enriquecido --}}
     <script type="application/ld+json">
     {
         "@@context": "https://schema.org",
         "@@type": "Organization",
         "name": "Arixna",
+        "alternateName": "Arixna Tienda Online",
         "url": "{{ url('/') }}",
-        "logo": "{{ asset('images/logo_arixna.png') }}",
-        "description": "Tu tienda online de perfumes, electrodomésticos, joyería y zapatillas en Perú.",
-        "contactPoint": {
-            "@@type": "ContactPoint",
-            "contactType": "customer service",
-            "email": "{{ $settings['contact_email'] ?? 'contacto@arixna.com' }}",
-            "availableLanguage": "Spanish"
+        "logo": {
+            "@@type": "ImageObject",
+            "url": "{{ asset('images/logo_arixna.png') }}",
+            "width": 512,
+            "height": 512
         },
+        "description": "Tu tienda online de perfumes, electrodomésticos, joyería y zapatillas en Perú.",
+        "contactPoint": [
+            {
+                "@@type": "ContactPoint",
+                "contactType": "customer service",
+                "email": "{{ $settings['contact_email'] ?? 'contacto@arixna.com' }}",
+                @if(!empty($settings['contact_phone']))
+                "telephone": "{{ $settings['contact_phone'] }}",
+                @endif
+                "availableLanguage": "Spanish",
+                "areaServed": "PE"
+            }
+        ],
+        @if(!empty($settings['contact_address']))
+        "address": {
+            "@@type": "PostalAddress",
+            "addressCountry": "PE",
+            "addressLocality": "{{ $settings['contact_address'] }}"
+        },
+        @endif
         "sameAs": [
             @if(!empty($settings['social_facebook']))"{{ $settings['social_facebook'] }}"@endif
             @if(!empty($settings['social_instagram'])),
