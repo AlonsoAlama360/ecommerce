@@ -251,7 +251,7 @@ function showToast(title, message, type = 'success') {
             <p class="text-sm font-semibold text-gray-900">${title}</p>
             <p class="text-xs text-gray-500 mt-0.5">${message}</p>
         </div>
-        <button onclick="this.closest('.pointer-events-auto').remove()" class="text-gray-300 hover:text-gray-500 transition flex-shrink-0">
+        <button onclick="this.closest('.pointer-events-auto').remove()" class="text-gray-300 hover:text-gray-500 transition flex-shrink-0" aria-label="Cerrar notificación">
             <i class="fas fa-times text-xs"></i>
         </button>
     `;

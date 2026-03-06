@@ -23,7 +23,7 @@
             <div class="mb-6 bg-red-50 border border-red-200 rounded-xl px-5 py-4 flex items-center gap-3">
                 <i class="fas fa-exclamation-circle text-red-500"></i>
                 <p class="text-red-700 text-sm font-medium">{{ session('error') }}</p>
-                <button onclick="this.parentElement.remove()" class="ml-auto text-red-400 hover:text-red-600">
+                <button onclick="this.parentElement.remove()" class="ml-auto text-red-400 hover:text-red-600" aria-label="Cerrar notificación">
                     <i class="fas fa-times text-xs"></i>
                 </button>
             </div>

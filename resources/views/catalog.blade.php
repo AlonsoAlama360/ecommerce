@@ -6,6 +6,43 @@
 @section('og_title', 'Catálogo - Arixna | Todos nuestros productos')
 @section('og_description', 'Explora el catálogo completo de Arixna. Los mejores productos con envío a todo el Perú.')
 
+@section('seo')
+    <script type="application/ld+json">
+    {
+        "@@context": "https://schema.org",
+        "@@type": "CollectionPage",
+        "name": "Catálogo de Productos",
+        "description": "Explora el catálogo completo de Arixna. Perfumes, electrodomésticos, joyería y zapatillas con los mejores precios.",
+        "url": "{{ route('catalog') }}",
+        "isPartOf": {
+            "@@type": "WebSite",
+            "name": "Arixna",
+            "url": "{{ url('/') }}"
+        }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+        "@@context": "https://schema.org",
+        "@@type": "BreadcrumbList",
+        "itemListElement": [
+            {
+                "@@type": "ListItem",
+                "position": 1,
+                "name": "Inicio",
+                "item": "{{ url('/') }}"
+            },
+            {
+                "@@type": "ListItem",
+                "position": 2,
+                "name": "Catálogo",
+                "item": "{{ route('catalog') }}"
+            }
+        ]
+    }
+    </script>
+@endsection
+
 @section('styles')
     /* ── Animations ── */
     @keyframes fadeInUp {
@@ -189,10 +226,10 @@
                 {{-- Sort & View Controls --}}
                 <div class="flex items-center gap-3 anim-fade-up" style="animation-delay:.15s">
                     <div class="hidden sm:flex items-center bg-white rounded-xl border border-gray-200 p-1 gap-0.5">
-                        <button type="button" class="view-btn active w-9 h-9 rounded-lg flex items-center justify-center text-sm transition" data-view="grid" title="Vista cuadrícula">
+                        <button type="button" class="view-btn active w-9 h-9 rounded-lg flex items-center justify-center text-sm transition" data-view="grid" title="Vista cuadrícula" aria-label="Vista cuadrícula">
                             <i class="fas fa-th"></i>
                         </button>
-                        <button type="button" class="view-btn w-9 h-9 rounded-lg flex items-center justify-center text-sm text-gray-400 hover:text-gray-700 transition" data-view="list" title="Vista lista">
+                        <button type="button" class="view-btn w-9 h-9 rounded-lg flex items-center justify-center text-sm text-gray-400 hover:text-gray-700 transition" data-view="list" title="Vista lista" aria-label="Vista lista">
                             <i class="fas fa-list"></i>
                         </button>
                     </div>
@@ -447,7 +484,7 @@
                                             @endif
 
                                             {{-- Wishlist --}}
-                                            <button type="button" class="wishlist-btn absolute top-3 right-3 w-9 h-9 sm:w-10 sm:h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all duration-200 shadow-md" data-product-id="{{ $product->id }}">
+                                            <button type="button" class="wishlist-btn absolute top-3 right-3 w-9 h-9 sm:w-10 sm:h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all duration-200 shadow-md" data-product-id="{{ $product->id }}" aria-label="Agregar a lista de deseos">
                                                 <i class="far fa-heart text-xs sm:text-sm"></i>
                                             </button>
 

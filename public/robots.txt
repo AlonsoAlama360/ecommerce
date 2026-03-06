@@ -10,4 +10,4 @@ Disallow: /mi-perfil
 Disallow: /mis-pedidos
 Disallow: /lista-de-deseos
 
-Sitemap: /sitemap.xml
+Sitemap: https://arixna.com/sitemap.xml

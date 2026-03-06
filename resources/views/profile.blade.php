@@ -80,7 +80,7 @@
                     <i class="fas fa-check text-emerald-600"></i>
                 </div>
                 <p class="text-emerald-700 font-medium text-sm flex-1">{{ session('success') }}</p>
-                <button onclick="document.getElementById('toast-success').remove()" class="text-emerald-400 hover:text-emerald-600 transition p-1">
+                <button onclick="document.getElementById('toast-success').remove()" class="text-emerald-400 hover:text-emerald-600 transition p-1" aria-label="Cerrar notificación">
                     <i class="fas fa-times text-sm"></i>
                 </button>
             </div>

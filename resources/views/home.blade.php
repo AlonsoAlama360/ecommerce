@@ -28,11 +28,20 @@
         "name": "Arixna",
         "url": "{{ url('/') }}",
         "logo": "{{ asset('images/logo_arixna.png') }}",
+        "description": "Tu tienda online de perfumes, electrodomésticos, joyería y zapatillas en Perú.",
         "contactPoint": {
             "@@type": "ContactPoint",
             "contactType": "customer service",
+            "email": "{{ $settings['contact_email'] ?? 'contacto@arixna.com' }}",
             "availableLanguage": "Spanish"
-        }
+        },
+        "sameAs": [
+            @if(!empty($settings['social_facebook']))"{{ $settings['social_facebook'] }}"@endif
+            @if(!empty($settings['social_instagram'])),
+            "{{ $settings['social_instagram'] }}"@endif
+            @if(!empty($settings['social_tiktok'])),
+            "{{ $settings['social_tiktok'] }}"@endif
+        ]
     }
     </script>
 @endsection
@@ -366,7 +375,8 @@
                 {{-- Banner 1 --}}
                 <div class="relative rounded-3xl overflow-hidden group cursor-pointer h-80 md:h-96">
                     <img src="https://i.pinimg.com/1200x/e0/4d/5e/e04d5ea05adc67cae665c023676b5ee6.jpg" alt="Colección San Valentín"
-                        class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                        class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                        loading="lazy" decoding="async">
                     <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
                     <div class="absolute top-5 right-5 bg-white/90 backdrop-blur-sm text-[#D4A574] px-4 py-1.5 rounded-full text-sm font-bold">
                         -30% OFF
@@ -383,7 +393,8 @@
                 {{-- Banner 2 --}}
                 <div class="relative rounded-3xl overflow-hidden group cursor-pointer h-80 md:h-96">
                     <img src="https://i.pinimg.com/736x/cb/ef/6e/cbef6e099db2a2b90825505936e65985.jpg" alt="Rosas Eternas"
-                        class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                        class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                        loading="lazy" decoding="async">
                     <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
                     <div class="absolute top-5 right-5 bg-[#D4A574] text-white px-4 py-1.5 rounded-full text-sm font-bold">
                         Nuevo
@@ -433,7 +444,7 @@
                                             -{{ $product->discount_percentage }}%
                                         </div>
                                     @endif
-                                    <button type="button" class="wishlist-btn absolute top-4 right-4 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all duration-200 shadow-md" data-product-id="{{ $product->id }}">
+                                    <button type="button" class="wishlist-btn absolute top-4 right-4 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all duration-200 shadow-md" data-product-id="{{ $product->id }}" aria-label="Agregar a lista de deseos">
                                         <i class="far fa-heart text-sm"></i>
                                     </button>
                                     @if($product->stock <= 5 && $product->stock > 0)
@@ -541,7 +552,7 @@
                                     -{{ $product->discount_percentage }}%
                                 </div>
                             @endif
-                            <button type="button" class="wishlist-btn absolute top-3 right-3 w-9 h-9 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all duration-200 shadow-md" data-product-id="{{ $product->id }}">
+                            <button type="button" class="wishlist-btn absolute top-3 right-3 w-9 h-9 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all duration-200 shadow-md" data-product-id="{{ $product->id }}" aria-label="Agregar a lista de deseos">
                                 <i class="far fa-heart text-xs"></i>
                             </button>
                         </a>
@@ -577,7 +588,7 @@
     {{-- ═══════════════════ BANNER CTA FULLWIDTH ═══════════════════ --}}
     <section class="relative overflow-hidden reveal">
         <div class="absolute inset-0">
-            <img src="https://i.pinimg.com/736x/cb/ef/6e/cbef6e099db2a2b90825505936e65985.jpg" alt="Background" class="w-full h-full object-cover">
+            <img src="https://i.pinimg.com/736x/cb/ef/6e/cbef6e099db2a2b90825505936e65985.jpg" alt="Background" class="w-full h-full object-cover" loading="lazy" decoding="async">
             <div class="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-transparent"></div>
         </div>
         <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-32">

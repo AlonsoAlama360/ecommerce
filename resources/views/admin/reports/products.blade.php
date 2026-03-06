@@ -89,7 +89,7 @@
                     <td class="py-3 pl-3">
                         <div class="flex items-center gap-3">
                             @if($product->primaryImage)
-                            <img src="{{ asset('storage/' . $product->primaryImage->image_path) }}" alt="" class="w-9 h-9 rounded-lg object-cover">
+                            <img src="{{ asset(ltrim($product->primaryImage->image_url, '/')) }}" alt="" class="w-9 h-9 rounded-lg object-cover">
                             @else
                             <div class="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center">
                                 <i class="fas fa-image text-gray-300 text-xs"></i>
@@ -193,7 +193,7 @@
             @forelse($noSalesProducts as $product)
             <div class="flex items-center gap-3 p-3 rounded-xl bg-gray-50/50">
                 @if($product->primaryImage)
-                <img src="{{ asset('storage/' . $product->primaryImage->image_path) }}" alt="" class="w-9 h-9 rounded-lg object-cover flex-shrink-0">
+                <img src="{{ asset(ltrim($product->primaryImage->image_url, '/')) }}" alt="" class="w-9 h-9 rounded-lg object-cover flex-shrink-0">
                 @else
                 <div class="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
                     <i class="fas fa-image text-gray-300 text-xs"></i>

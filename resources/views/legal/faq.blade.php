@@ -3,6 +3,101 @@
 @section('title', 'Preguntas Frecuentes - Arixna')
 @section('meta_description', 'Resuelve tus dudas sobre compras, envíos, pagos, cambios y devoluciones en Arixna. Encuentra respuestas rápidas a las preguntas más comunes.')
 
+@section('seo')
+    <script type="application/ld+json">
+    {
+        "@@context": "https://schema.org",
+        "@@type": "FAQPage",
+        "mainEntity": [
+            {
+                "@@type": "Question",
+                "name": "¿Cómo realizo una compra en Arixna?",
+                "acceptedAnswer": {
+                    "@@type": "Answer",
+                    "text": "Navega por nuestro catálogo, elige los productos, agrégalos al carrito, completa tus datos de envío, elige tu método de pago y confirma tu pedido. Recibirás un correo de confirmación."
+                }
+            },
+            {
+                "@@type": "Question",
+                "name": "¿Hacen envíos a todo el Perú?",
+                "acceptedAnswer": {
+                    "@@type": "Answer",
+                    "text": "Sí, realizamos envíos a todo el Perú. Lima Metropolitana: 3 a 7 días hábiles. Provincias: 5 a 12 días hábiles."
+                }
+            },
+            {
+                "@@type": "Question",
+                "name": "¿Qué métodos de pago aceptan?",
+                "acceptedAnswer": {
+                    "@@type": "Answer",
+                    "text": "Aceptamos tarjetas de crédito y débito (Visa, Mastercard, American Express, Diners Club), billeteras digitales (Yape, Plin) y transferencia bancaria."
+                }
+            },
+            {
+                "@@type": "Question",
+                "name": "¿Es seguro comprar en Arixna?",
+                "acceptedAnswer": {
+                    "@@type": "Answer",
+                    "text": "Sí. Nuestro sitio cuenta con certificado SSL, los pagos son procesados por pasarelas certificadas PCI DSS y no almacenamos datos de tarjetas en nuestros servidores."
+                }
+            },
+            {
+                "@@type": "Question",
+                "name": "¿Puedo devolver un producto?",
+                "acceptedAnswer": {
+                    "@@type": "Answer",
+                    "text": "Sí, tienes 7 días calendario desde la recepción para solicitar una devolución. El producto debe estar sin uso, en su empaque original y con todos sus accesorios."
+                }
+            },
+            {
+                "@@type": "Question",
+                "name": "¿Los productos son originales?",
+                "acceptedAnswer": {
+                    "@@type": "Answer",
+                    "text": "Sí, todos nuestros productos son 100% originales. Trabajamos directamente con marcas y distribuidores autorizados para garantizar la autenticidad."
+                }
+            },
+            {
+                "@@type": "Question",
+                "name": "¿Los productos tienen garantía?",
+                "acceptedAnswer": {
+                    "@@type": "Answer",
+                    "text": "Sí, todos nuestros productos cuentan con garantía legal conforme al Código de Protección al Consumidor (Ley N° 29571)."
+                }
+            },
+            {
+                "@@type": "Question",
+                "name": "¿Emiten boleta o factura?",
+                "acceptedAnswer": {
+                    "@@type": "Answer",
+                    "text": "Sí, emitimos comprobantes de pago con cada compra. Durante el checkout puedes elegir entre boleta o factura."
+                }
+            }
+        ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+        "@@context": "https://schema.org",
+        "@@type": "BreadcrumbList",
+        "itemListElement": [
+            {
+                "@@type": "ListItem",
+                "position": 1,
+                "name": "Inicio",
+                "item": "{{ url('/') }}"
+            },
+            {
+                "@@type": "ListItem",
+                "position": 2,
+                "name": "Preguntas Frecuentes",
+                "item": "{{ route('legal.faq') }}"
+            }
+        ]
+    }
+    </script>
+@endsection
+
 @section('styles')
     .faq-item summary {
         cursor: pointer;

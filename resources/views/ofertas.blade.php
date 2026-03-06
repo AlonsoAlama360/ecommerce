@@ -6,6 +6,38 @@
 @section('og_title', 'Ofertas y Descuentos - Arixna')
 @section('og_description', 'Aprovecha las mejores ofertas y descuentos en Arixna. Productos con precios rebajados por tiempo limitado.')
 
+@section('seo')
+    <script type="application/ld+json">
+    {
+        "@@context": "https://schema.org",
+        "@@type": "OfferCatalog",
+        "name": "Ofertas y Descuentos - Arixna",
+        "description": "Aprovecha las mejores ofertas y descuentos en Arixna. Productos con precios rebajados por tiempo limitado.",
+        "url": "{{ route('ofertas') }}"
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+        "@@context": "https://schema.org",
+        "@@type": "BreadcrumbList",
+        "itemListElement": [
+            {
+                "@@type": "ListItem",
+                "position": 1,
+                "name": "Inicio",
+                "item": "{{ url('/') }}"
+            },
+            {
+                "@@type": "ListItem",
+                "position": 2,
+                "name": "Ofertas",
+                "item": "{{ route('ofertas') }}"
+            }
+        ]
+    }
+    </script>
+@endsection
+
 @section('styles')
     /* ── Animations ── */
     @keyframes fadeInUp {
@@ -486,7 +518,7 @@
                                             </div>
 
                                             {{-- Wishlist --}}
-                                            <button type="button" class="wishlist-btn absolute top-12 right-3 sm:top-14 sm:right-3 w-9 h-9 sm:w-10 sm:h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all duration-200 shadow-md" data-product-id="{{ $product->id }}">
+                                            <button type="button" class="wishlist-btn absolute top-12 right-3 sm:top-14 sm:right-3 w-9 h-9 sm:w-10 sm:h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all duration-200 shadow-md" data-product-id="{{ $product->id }}" aria-label="Agregar a lista de deseos">
                                                 <i class="far fa-heart text-xs sm:text-sm"></i>
                                             </button>
 

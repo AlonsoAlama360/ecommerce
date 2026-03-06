@@ -3,6 +3,38 @@
 @section('title', 'Contacto - Arixna')
 @section('meta_description', 'Contáctanos para cualquier consulta sobre pedidos, productos o atención al cliente. Estamos para ayudarte.')
 
+@section('seo')
+    <script type="application/ld+json">
+    {
+        "@@context": "https://schema.org",
+        "@@type": "ContactPage",
+        "name": "Contacto - Arixna",
+        "description": "Contáctanos para cualquier consulta sobre pedidos, productos o atención al cliente.",
+        "url": "{{ route('contact.show') }}"
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+        "@@context": "https://schema.org",
+        "@@type": "BreadcrumbList",
+        "itemListElement": [
+            {
+                "@@type": "ListItem",
+                "position": 1,
+                "name": "Inicio",
+                "item": "{{ url('/') }}"
+            },
+            {
+                "@@type": "ListItem",
+                "position": 2,
+                "name": "Contacto",
+                "item": "{{ route('contact.show') }}"
+            }
+        ]
+    }
+    </script>
+@endsection
+
 @section('styles')
     .contact-hero {
         background: linear-gradient(160deg, #faf5f0 0%, #f5ece3 40%, #efe4d8 100%);
@@ -234,7 +266,7 @@ function showToast(message, type = 'success') {
             <p class="text-sm font-semibold text-gray-900">${isSuccess ? 'Mensaje enviado' : 'Error'}</p>
             <p class="text-xs text-gray-500 mt-0.5">${message}</p>
         </div>
-        <button onclick="this.closest('.pointer-events-auto').remove()" class="text-gray-300 hover:text-gray-500 transition flex-shrink-0">
+        <button onclick="this.closest('.pointer-events-auto').remove()" class="text-gray-300 hover:text-gray-500 transition flex-shrink-0" aria-label="Cerrar notificación">
             <i class="fas fa-times text-xs"></i>
         </button>
     `;
