@@ -131,12 +131,12 @@ const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
 
 function getCartEl(id) { return document.getElementById(id); }
 
-function openCartSidebar() {
+window.openCartSidebar = function() {
     loadCartSidebar();
     getCartEl('cartSidebar').classList.add('active');
     getCartEl('cartOverlay').classList.add('active');
     document.body.style.overflow = 'hidden';
-}
+};
 
 function closeCartSidebar() {
     getCartEl('cartSidebar').classList.remove('active');
