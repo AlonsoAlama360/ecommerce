@@ -121,12 +121,14 @@
     }
 
     /* ── Mobile Filter Panel ── */
-    .catalog-filters-mobile {
-        transform: translateX(-100%);
-        transition: transform .35s cubic-bezier(.4,0,.2,1);
-    }
-    .catalog-filters-mobile.active {
-        transform: translateX(0);
+    @media (max-width: 1023px) {
+        .catalog-filters-mobile {
+            transform: translateX(-100%);
+            transition: transform .35s cubic-bezier(.4,0,.2,1);
+        }
+        .catalog-filters-mobile.active {
+            transform: translateX(0);
+        }
     }
 
     /* ── Product Cards ── */
@@ -256,7 +258,7 @@
                         </button>
 
                         {{-- Filters Container --}}
-                        <div class="catalog-filters-mobile filter-sidebar lg:transform-none fixed lg:static inset-y-0 left-0 w-[320px] lg:w-auto bg-white lg:bg-transparent z-40 overflow-y-auto lg:overflow-visible shadow-2xl lg:shadow-none" id="catalogFiltersContainer">
+                        <div class="catalog-filters-mobile filter-sidebar fixed lg:static inset-y-0 left-0 w-[320px] lg:w-auto bg-white lg:bg-transparent z-40 lg:z-auto overflow-y-auto lg:overflow-visible shadow-2xl lg:shadow-none" id="catalogFiltersContainer">
                             {{-- Mobile header --}}
                             <div class="lg:hidden flex items-center justify-between px-6 py-5 border-b border-gray-100">
                                 <h2 class="font-serif text-xl font-bold text-gray-900">Filtros</h2>

@@ -54,7 +54,7 @@
                                             if ($item->product && $item->product->primaryImage) {
                                                 $imgUrl = $item->product->primaryImage->image_url;
                                                 if ($imgUrl && !str_starts_with($imgUrl, 'http')) {
-                                                    $imgUrl = url(ltrim($imgUrl, '/'));
+                                                    $imgUrl = rtrim(config('app.url'), '/') . '/' . ltrim($imgUrl, '/');
                                                 }
                                             }
                                         @endphp
@@ -140,7 +140,7 @@
                                 <!-- CTA -->
                                 <tr>
                                     <td style="padding: 8px 40px 36px; text-align: center;">
-                                        <a href="{{ url('/mis-pedidos') }}" target="_blank"
+                                        <a href="{{ rtrim(config('app.url'), '/') }}/mis-pedidos" target="_blank"
                                             style="display: inline-block; background-color: #1A1A1A; color: #FFFFFF; text-decoration: none; padding: 14px 40px; border-radius: 10px; font-size: 14px; font-weight: 600;">
                                             Ver mi pedido
                                         </a>

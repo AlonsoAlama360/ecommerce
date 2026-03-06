@@ -10,3 +10,4 @@ Artisan::command('inspire', function () {
 
 Schedule::command('abandoned-carts:send')->hourly();
 Schedule::command('stock:alert')->dailyAt('08:00');
+Schedule::command('queue:work', ['--stop-when-empty', '--max-time=55'])->everyMinute()->withoutOverlapping(2);

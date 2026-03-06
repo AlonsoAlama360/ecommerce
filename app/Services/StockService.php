@@ -103,8 +103,10 @@ class StockService
     {
         $threshold = (int) SiteSetting::get('low_stock_threshold', 5);
 
-        // Only alert when crossing the threshold (was above, now at or below)
-        if ($stockBefore > $threshold && $stockAfter <= $threshold) {
+        $crossedThreshold = $stockBefore > $threshold && $stockAfter <= $threshold;
+        $reachedZero = $stockBefore > 0 && $stockAfter === 0;
+
+        if ($crossedThreshold || $reachedZero) {
             $product->load('category');
             AdminNotificationService::send(
                 'notify_low_stock',

@@ -4,7 +4,10 @@ namespace App\Application\Product\UseCases;
 
 use App\Application\Product\DTOs\UpdateProductDTO;
 use App\Domain\Product\Repositories\ProductRepositoryInterface;
+use App\Mail\Admin\LowStockImmediateAlertMail;
 use App\Models\Product;
+use App\Models\SiteSetting;
+use App\Services\AdminNotificationService;
 use App\Services\ImageService;
 use Illuminate\Support\Str;
 
@@ -18,6 +21,7 @@ class UpdateProduct
     public function execute(UpdateProductDTO $dto, Product $product): Product
     {
         $slug = $dto->slug ?: Str::slug($dto->name);
+        $stockBefore = $product->stock;
 
         $product = $this->productRepository->update($product, [
             'name' => $dto->name,
@@ -56,6 +60,21 @@ class UpdateProduct
                     'thumbnail_url' => $thumbnailPath,
                     'is_primary' => true,
                 ]);
+            }
+        }
+
+        // Verificar si el stock cruzó el umbral o llegó a 0
+        if ($dto->stock !== null && $dto->stock != $stockBefore) {
+            $threshold = (int) SiteSetting::get('low_stock_threshold', 5);
+            $crossedThreshold = $stockBefore > $threshold && $dto->stock <= $threshold;
+            $reachedZero = $stockBefore > 0 && $dto->stock === 0;
+
+            if ($crossedThreshold || $reachedZero) {
+                $product->load('category');
+                AdminNotificationService::send(
+                    'notify_low_stock',
+                    new LowStockImmediateAlertMail($product, $threshold)
+                );
             }
         }
 
