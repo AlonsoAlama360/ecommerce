@@ -3,10 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 
 class Role extends Model
 {
+    use SoftDeletes;
     protected $fillable = ['name', 'display_name', 'description', 'is_admin'];
 
     protected function casts(): array

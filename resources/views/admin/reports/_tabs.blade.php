@@ -75,13 +75,13 @@
 <div class="relative mb-6" id="tabSliderWrapper">
     {{-- Arrow Left --}}
     <button type="button" id="tabArrowLeft"
-        class="absolute -left-3 top-1/2 -translate-y-1/2 z-30 w-9 h-9 rounded-full bg-white/95 backdrop-blur border border-gray-200/80 shadow-lg shadow-gray-900/10 flex items-center justify-center text-gray-500 hover:text-indigo-600 hover:border-indigo-200 hover:shadow-xl active:scale-90 transition-all duration-200 opacity-0 pointer-events-none">
+        class="absolute -left-3 top-1/2 -translate-y-1/2 z-30 w-9 h-9 rounded-full bg-white/95 backdrop-blur border border-gray-200/80 shadow-lg shadow-gray-900/10 flex items-center justify-center text-gray-500 hover:text-indigo-600 hover:border-indigo-200 hover:shadow-xl active:scale-90 transition-all duration-200 opacity-0 pointer-events-none" aria-label="Anterior">
         <i class="fas fa-chevron-left text-[10px]"></i>
     </button>
 
     {{-- Arrow Right --}}
     <button type="button" id="tabArrowRight"
-        class="absolute -right-3 top-1/2 -translate-y-1/2 z-30 w-9 h-9 rounded-full bg-white/95 backdrop-blur border border-gray-200/80 shadow-lg shadow-gray-900/10 flex items-center justify-center text-gray-500 hover:text-indigo-600 hover:border-indigo-200 hover:shadow-xl active:scale-90 transition-all duration-200 opacity-0 pointer-events-none">
+        class="absolute -right-3 top-1/2 -translate-y-1/2 z-30 w-9 h-9 rounded-full bg-white/95 backdrop-blur border border-gray-200/80 shadow-lg shadow-gray-900/10 flex items-center justify-center text-gray-500 hover:text-indigo-600 hover:border-indigo-200 hover:shadow-xl active:scale-90 transition-all duration-200 opacity-0 pointer-events-none" aria-label="Siguiente">
         <i class="fas fa-chevron-right text-[10px]"></i>
     </button>
 

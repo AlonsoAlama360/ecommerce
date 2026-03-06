@@ -142,7 +142,7 @@
                     </div>
                 @endif
             </a>
-            <button class="lg:hidden w-8 h-8 rounded-lg hover:bg-white/10 flex items-center justify-center text-slate-400 transition" onclick="closeSidebar()">
+            <button class="lg:hidden w-8 h-8 rounded-lg hover:bg-white/10 flex items-center justify-center text-slate-400 transition" onclick="closeSidebar()" aria-label="Cerrar menú lateral">
                 <i class="fas fa-times text-sm"></i>
             </button>
         </div>
@@ -415,7 +415,7 @@
                     </div>
                     <form action="{{ route('logout') }}" method="POST">
                         @csrf
-                        <button type="submit" class="w-8 h-8 rounded-lg hover:bg-white/10 flex items-center justify-center text-slate-500 hover:text-red-400 transition" title="Cerrar sesión">
+                        <button type="submit" class="w-8 h-8 rounded-lg hover:bg-white/10 flex items-center justify-center text-slate-500 hover:text-red-400 transition" aria-label="Cerrar sesión">
                             <i class="fas fa-right-from-bracket text-xs"></i>
                         </button>
                     </form>
@@ -431,7 +431,7 @@
             <div class="flex items-center justify-between px-4 sm:px-6 lg:px-8 py-3">
                 <!-- Left: Mobile toggle + breadcrumb -->
                 <div class="flex items-center gap-3">
-                    <button id="sidebarToggle" class="lg:hidden w-9 h-9 rounded-xl bg-gray-50 hover:bg-gray-100 flex items-center justify-center transition">
+                    <button id="sidebarToggle" class="lg:hidden w-9 h-9 rounded-xl bg-gray-50 hover:bg-gray-100 flex items-center justify-center transition" aria-label="Abrir menú lateral">
                         <i class="fas fa-bars text-gray-500 text-sm"></i>
                     </button>
                     <div class="hidden sm:flex items-center gap-2 text-sm">
@@ -451,7 +451,7 @@
                     </div>
 
                     {{-- Notifications placeholder --}}
-                    <button class="w-9 h-9 rounded-xl bg-gray-50 hover:bg-gray-100 flex items-center justify-center transition relative">
+                    <button class="w-9 h-9 rounded-xl bg-gray-50 hover:bg-gray-100 flex items-center justify-center transition relative" aria-label="Notificaciones">
                         <i class="fas fa-bell text-gray-500 text-sm"></i>
                         <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
                     </button>
@@ -556,7 +556,7 @@
             toast.innerHTML = `
                 <i class="fas ${c.icon} text-lg"></i>
                 <p class="text-sm font-medium flex-1">${message}</p>
-                <button onclick="dismissToast(this.parentElement)" class="text-white/70 hover:text-white transition">
+                <button onclick="dismissToast(this.parentElement)" class="text-white/70 hover:text-white transition" aria-label="Cerrar notificación">
                     <i class="fas fa-times text-sm"></i>
                 </button>
             `;

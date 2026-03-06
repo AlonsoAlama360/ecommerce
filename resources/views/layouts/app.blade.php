@@ -82,10 +82,12 @@
 
     @yield('seo')
 
-    {{-- Google Fonts with preconnect --}}
+    {{-- Google Fonts: carga asíncrona para no bloquear el renderizado --}}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap">
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap"></noscript>
 
     {{-- Vite: Tailwind CSS + Font Awesome + custom styles + JS --}}
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -263,7 +265,7 @@
                     <div class="hidden lg:block relative">
                         @auth
                             {{-- Usuario autenticado: avatar con dropdown --}}
-                            <button class="flex items-center gap-2 text-gray-700 hover:text-gray-900 transition" id="userBtn">
+                            <button class="flex items-center gap-2 text-gray-700 hover:text-gray-900 transition" id="userBtn" aria-label="Menú de usuario">
                                 <div class="w-9 h-9 bg-gradient-to-br from-[#D4A574] to-[#C39563] rounded-full flex items-center justify-center text-white font-semibold text-sm">
                                     {{ strtoupper(substr(Auth::user()->first_name, 0, 1)) }}{{ strtoupper(substr(Auth::user()->last_name, 0, 1)) }}
                                 </div>
@@ -357,10 +359,10 @@
                     </div>
 
                     <div class="popular-slider-wrapper">
-                        <button type="button" class="popular-slider-arrow left" id="popularArrowLeft">
+                        <button type="button" class="popular-slider-arrow left" id="popularArrowLeft" aria-label="Anterior">
                             <i class="fas fa-chevron-left text-[9px]"></i>
                         </button>
-                        <button type="button" class="popular-slider-arrow right" id="popularArrowRight">
+                        <button type="button" class="popular-slider-arrow right" id="popularArrowRight" aria-label="Siguiente">
                             <i class="fas fa-chevron-right text-[9px]"></i>
                         </button>
 
@@ -473,7 +475,7 @@
                         <i class="fas fa-book-open text-white text-sm"></i>
                     </div>
                     <div class="text-left">
-                        <span class="block text-[11px] font-semibold text-gray-400 uppercase tracking-wider leading-none mb-0.5">Libro de</span>
+                        <span class="block text-[11px] font-semibold text-gray-800 uppercase tracking-wider leading-none mb-0.5">Libro de</span>
                         <span class="block text-sm font-bold text-gray-800 leading-tight">Reclamaciones</span>
                     </div>
                     <i class="fas fa-arrow-right text-gray-300 text-xs ml-1 group-hover:translate-x-1 group-hover:text-gray-500 transition-all duration-300"></i>

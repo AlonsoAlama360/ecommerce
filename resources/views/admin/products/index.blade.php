@@ -1424,9 +1424,9 @@ if ($stock <= 5) return ['bg'=> 'bg-amber-50', 'text' => 'text-amber-600', 'labe
                 </div>
             </div>
             <div class="flex flex-col gap-0.5 pt-1">
-                ${index > 0 ? `<button onclick="moveImage(${img.id}, 'up')" class="w-6 h-6 flex items-center justify-center text-gray-300 hover:text-gray-600 hover:bg-gray-100 rounded transition text-[10px]"><i class="fas fa-chevron-up"></i></button>` : '<div class="w-6 h-6"></div>'}
+                ${index > 0 ? `<button onclick="moveImage(${img.id}, 'up')" class="w-6 h-6 flex items-center justify-center text-gray-300 hover:text-gray-600 hover:bg-gray-100 rounded transition text-[10px]" aria-label="Mover arriba"><i class="fas fa-chevron-up"></i></button>` : '<div class="w-6 h-6"></div>'}
                 <span class="text-[10px] text-gray-300 text-center">${index + 1}</span>
-                ${index < total - 1 ? `<button onclick="moveImage(${img.id}, 'down')" class="w-6 h-6 flex items-center justify-center text-gray-300 hover:text-gray-600 hover:bg-gray-100 rounded transition text-[10px]"><i class="fas fa-chevron-down"></i></button>` : '<div class="w-6 h-6"></div>'}
+                ${index < total - 1 ? `<button onclick="moveImage(${img.id}, 'down')" class="w-6 h-6 flex items-center justify-center text-gray-300 hover:text-gray-600 hover:bg-gray-100 rounded transition text-[10px]" aria-label="Mover abajo"><i class="fas fa-chevron-down"></i></button>` : '<div class="w-6 h-6"></div>'}
             </div>
         `;
 
@@ -1655,18 +1655,18 @@ if ($stock <= 5) return ['bg'=> 'bg-amber-50', 'text' => 'text-amber-600', 'labe
                        onkeydown="if(event.key==='Enter'){event.preventDefault();saveSpecEdit(this.closest('[data-spec-key]'))}">
             </div>
             <div class="flex items-center gap-0.5 spec-display">
-                <button onclick="startEditSpec(this.closest('[data-spec-key]'))" class="w-7 h-7 flex items-center justify-center text-gray-300 hover:text-indigo-600 hover:bg-indigo-50 rounded-md transition" title="Editar">
+                <button onclick="startEditSpec(this.closest('[data-spec-key]'))" class="w-7 h-7 flex items-center justify-center text-gray-300 hover:text-indigo-600 hover:bg-indigo-50 rounded-md transition" title="Editar" aria-label="Editar">
                     <i class="fas fa-pen text-[10px]"></i>
                 </button>
-                <button onclick="deleteSpec('${escapeAttr(key)}')" class="w-7 h-7 flex items-center justify-center text-gray-300 hover:text-red-600 hover:bg-red-50 rounded-md transition" title="Eliminar">
+                <button onclick="deleteSpec('${escapeAttr(key)}')" class="w-7 h-7 flex items-center justify-center text-gray-300 hover:text-red-600 hover:bg-red-50 rounded-md transition" title="Eliminar" aria-label="Eliminar">
                     <i class="fas fa-trash-can text-[10px]"></i>
                 </button>
             </div>
             <div class="flex items-center gap-0.5 spec-edit hidden">
-                <button onclick="saveSpecEdit(this.closest('[data-spec-key]'))" class="w-7 h-7 flex items-center justify-center text-gray-300 hover:text-emerald-600 hover:bg-emerald-50 rounded-md transition" title="Guardar">
+                <button onclick="saveSpecEdit(this.closest('[data-spec-key]'))" class="w-7 h-7 flex items-center justify-center text-gray-300 hover:text-emerald-600 hover:bg-emerald-50 rounded-md transition" title="Guardar" aria-label="Guardar">
                     <i class="fas fa-check text-[10px]"></i>
                 </button>
-                <button onclick="cancelEditSpec(this.closest('[data-spec-key]'))" class="w-7 h-7 flex items-center justify-center text-gray-300 hover:text-gray-600 hover:bg-gray-100 rounded-md transition" title="Cancelar">
+                <button onclick="cancelEditSpec(this.closest('[data-spec-key]'))" class="w-7 h-7 flex items-center justify-center text-gray-300 hover:text-gray-600 hover:bg-gray-100 rounded-md transition" title="Cancelar" aria-label="Cancelar">
                     <i class="fas fa-times text-[10px]"></i>
                 </button>
             </div>

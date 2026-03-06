@@ -1005,14 +1005,14 @@
                     </div>
                     <div class="flex items-center gap-1.5">
                         <button type="button" onclick="updateItemQty(${item.idx}, ${item.quantity - 1})"
-                            class="w-7 h-7 rounded-md bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-100 transition text-xs">
+                            class="w-7 h-7 rounded-md bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-100 transition text-xs" aria-label="Disminuir cantidad">
                             <i class="fas fa-minus"></i>
                         </button>
                         <input type="number" value="${item.quantity}" min="1" max="${item.stock}"
                             onchange="updateItemQty(${item.idx}, this.value)"
                             class="w-12 text-center text-sm border border-gray-200 rounded-md py-1 outline-none focus:ring-1 focus:ring-indigo-400">
                         <button type="button" onclick="updateItemQty(${item.idx}, ${item.quantity + 1})"
-                            class="w-7 h-7 rounded-md bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-100 transition text-xs">
+                            class="w-7 h-7 rounded-md bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-100 transition text-xs" aria-label="Aumentar cantidad">
                             <i class="fas fa-plus"></i>
                         </button>
                     </div>
@@ -1020,7 +1020,7 @@
                         <p class="text-sm font-bold text-gray-800">S/ ${lineTotal.toFixed(2)}</p>
                     </div>
                     <button type="button" onclick="removeOrderItem(${item.idx})"
-                        class="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-md transition flex-shrink-0">
+                        class="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-md transition flex-shrink-0" aria-label="Eliminar producto">
                         <i class="fas fa-times text-xs"></i>
                     </button>
                     <input type="hidden" name="items[${item.idx}][product_id]" value="${item.product_id}" form="createOrderForm">
@@ -1350,14 +1350,14 @@
                     </div>
                     <div class="flex items-center gap-1.5">
                         <button type="button" onclick="updateEditItemQty(${item.idx}, ${item.quantity - 1})"
-                            class="w-7 h-7 rounded-md bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-100 transition text-xs">
+                            class="w-7 h-7 rounded-md bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-100 transition text-xs" aria-label="Disminuir cantidad">
                             <i class="fas fa-minus"></i>
                         </button>
                         <input type="number" value="${item.quantity}" min="1"
                             onchange="updateEditItemQty(${item.idx}, this.value)"
                             class="w-12 text-center text-sm border border-gray-200 rounded-md py-1 outline-none focus:ring-1 focus:ring-indigo-400">
                         <button type="button" onclick="updateEditItemQty(${item.idx}, ${item.quantity + 1})"
-                            class="w-7 h-7 rounded-md bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-100 transition text-xs">
+                            class="w-7 h-7 rounded-md bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-100 transition text-xs" aria-label="Aumentar cantidad">
                             <i class="fas fa-plus"></i>
                         </button>
                     </div>
@@ -1365,7 +1365,7 @@
                         <p class="text-sm font-bold text-gray-800">S/ ${lineTotal.toFixed(2)}</p>
                     </div>
                     <button type="button" onclick="removeEditItem(${item.idx})"
-                        class="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-md transition flex-shrink-0">
+                        class="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-md transition flex-shrink-0" aria-label="Eliminar producto">
                         <i class="fas fa-times text-xs"></i>
                     </button>
                     <input type="hidden" name="items[${item.idx}][product_id]" value="${item.product_id}">

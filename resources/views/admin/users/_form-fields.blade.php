@@ -96,7 +96,7 @@
                 <input type="password" name="password" id="{{ $prefix }}_password" {{ $passwordRequired ? 'required' : '' }}
                        class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent focus:bg-white outline-none text-sm transition pr-10 @error('password') border-red-400 bg-red-50 @enderror"
                        placeholder="{{ $passwordRequired ? 'Min. 8 caracteres' : 'Dejar vacío para mantener' }}">
-                <button type="button" onclick="togglePass('{{ $prefix }}_password')" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                <button type="button" onclick="togglePass('{{ $prefix }}_password')" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600" aria-label="Mostrar u ocultar contraseña">
                     <i class="fas fa-eye text-xs"></i>
                 </button>
             </div>

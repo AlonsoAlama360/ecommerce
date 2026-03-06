@@ -188,7 +188,7 @@
                                 onsubmit="return confirm('¿Eliminar este suscriptor?')">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-md transition" title="Eliminar">
+                                <button type="submit" class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-md transition" title="Eliminar" aria-label="Eliminar">
                                     <i class="fas fa-trash-can text-sm"></i>
                                 </button>
                             </form>
@@ -236,7 +236,7 @@
                         onsubmit="return confirm('¿Eliminar?')">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-red-600 rounded-md transition">
+                        <button type="submit" class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-red-600 rounded-md transition" aria-label="Eliminar">
                             <i class="fas fa-trash-can text-sm"></i>
                         </button>
                     </form>

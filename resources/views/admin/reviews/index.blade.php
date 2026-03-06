@@ -194,21 +194,21 @@
                                     @if(!$review->is_approved)
                                         <form action="{{ route('admin.reviews.approve', $review) }}" method="POST" class="inline">
                                             @csrf @method('PUT')
-                                            <button type="submit" title="Aprobar" class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 flex items-center justify-center transition">
+                                            <button type="submit" title="Aprobar" aria-label="Aprobar" class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 flex items-center justify-center transition">
                                                 <i class="fas fa-check text-xs"></i>
                                             </button>
                                         </form>
                                     @else
                                         <form action="{{ route('admin.reviews.reject', $review) }}" method="POST" class="inline">
                                             @csrf @method('PUT')
-                                            <button type="submit" title="Rechazar" class="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 hover:bg-amber-100 flex items-center justify-center transition">
+                                            <button type="submit" title="Rechazar" aria-label="Rechazar" class="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 hover:bg-amber-100 flex items-center justify-center transition">
                                                 <i class="fas fa-ban text-xs"></i>
                                             </button>
                                         </form>
                                     @endif
                                     <form action="{{ route('admin.reviews.destroy', $review) }}" method="POST" class="inline" onsubmit="return confirm('¿Estás seguro de eliminar esta reseña?')">
                                         @csrf @method('DELETE')
-                                        <button type="submit" title="Eliminar" class="w-8 h-8 rounded-lg bg-red-50 text-red-500 hover:bg-red-100 flex items-center justify-center transition">
+                                        <button type="submit" title="Eliminar" aria-label="Eliminar" class="w-8 h-8 rounded-lg bg-red-50 text-red-500 hover:bg-red-100 flex items-center justify-center transition">
                                             <i class="fas fa-trash text-xs"></i>
                                         </button>
                                     </form>

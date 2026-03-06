@@ -196,7 +196,7 @@
                             @endif
                             @if(!$role->is_system && Auth::user()->hasPermission('roles.edit'))
                             <button onclick="openEditRoleDrawer({{ json_encode($role) }})"
-                                class="w-6 h-6 flex items-center justify-center text-gray-300 hover:text-indigo-500 hover:bg-indigo-50 rounded-md transition">
+                                class="w-6 h-6 flex items-center justify-center text-gray-300 hover:text-indigo-500 hover:bg-indigo-50 rounded-md transition" aria-label="Editar rol">
                                 <i class="fas fa-pen text-[10px]"></i>
                             </button>
                             @endif
@@ -397,7 +397,7 @@
                     <p class="text-xs text-gray-400 mt-0.5">Define un nuevo rol para el sistema</p>
                 </div>
             </div>
-            <button onclick="closeRoleDrawer()" class="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center transition text-gray-400 hover:text-gray-600">
+            <button onclick="closeRoleDrawer()" class="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center transition text-gray-400 hover:text-gray-600" aria-label="Cerrar">
                 <i class="fas fa-times text-sm"></i>
             </button>
         </div>
@@ -462,7 +462,7 @@
                     <p class="text-xs text-gray-400 mt-0.5" id="editRoleSubtitle">Modifica los datos del rol</p>
                 </div>
             </div>
-            <button onclick="closeRoleDrawer()" class="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center transition text-gray-400 hover:text-gray-600">
+            <button onclick="closeRoleDrawer()" class="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center transition text-gray-400 hover:text-gray-600" aria-label="Cerrar">
                 <i class="fas fa-times text-sm"></i>
             </button>
         </div>

@@ -358,7 +358,7 @@
                             <p class="text-lg font-bold text-gray-800" id="selectedProductStock">0</p>
                         </div>
                         <button type="button" onclick="clearProduct()"
-                            class="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-md transition flex-shrink-0">
+                            class="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-md transition flex-shrink-0" aria-label="Limpiar producto">
                             <i class="fas fa-times text-xs"></i>
                         </button>
                     </div>

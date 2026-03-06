@@ -405,7 +405,8 @@
                                                 <div class="flex gap-1" id="starRating">
                                                     @for($s = 1; $s <= 5; $s++)
                                                         <button type="button" data-rating="{{ $s }}"
-                                                            class="star-select w-10 h-10 flex items-center justify-center rounded-lg hover:bg-amber-50 transition-colors">
+                                                            class="star-select w-10 h-10 flex items-center justify-center rounded-lg hover:bg-amber-50 transition-colors"
+                                                            aria-label="{{ $s }} {{ $s === 1 ? 'estrella' : 'estrellas' }}">
                                                             <i class="far fa-star text-xl text-gray-300 hover:text-amber-400 transition-colors"></i>
                                                         </button>
                                                     @endfor

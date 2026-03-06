@@ -455,7 +455,7 @@ function renderEmailChips() {
         const chip = document.createElement('span');
         chip.className = 'inline-flex items-center gap-1.5 bg-indigo-50 text-indigo-700 pl-3 pr-1.5 py-1.5 rounded-lg text-sm font-medium';
         chip.innerHTML = `<i class="fas fa-envelope text-xs text-indigo-400"></i> ${email}
-            <button type="button" onclick="removeNotificationEmail(${i})" class="ml-1 w-5 h-5 rounded-full hover:bg-indigo-200 flex items-center justify-center transition" title="Eliminar">
+            <button type="button" onclick="removeNotificationEmail(${i})" class="ml-1 w-5 h-5 rounded-full hover:bg-indigo-200 flex items-center justify-center transition" title="Eliminar" aria-label="Eliminar">
                 <i class="fas fa-times text-xs"></i>
             </button>`;
         emailChipsContainer.appendChild(chip);
