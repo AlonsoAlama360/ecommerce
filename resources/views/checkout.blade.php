@@ -121,7 +121,7 @@
 
                 {{-- Step 2: Checkout (activo) --}}
                 <div class="flex items-center gap-2.5 relative">
-                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-[#D4A574] to-[#C39563] flex items-center justify-center shadow-lg shadow-[#D4A574]/30 ring-4 ring-[#D4A574]/10">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-[#D4A574] to-[#C39563] flex items-center justify-center shadow-lg shadow-[#D4A574]/30" style="box-shadow: 0 0 0 4px rgba(212,165,116,0.15), 0 10px 15px -3px rgba(212,165,116,0.3)">
                         <i class="fas fa-credit-card text-white text-xs"></i>
                     </div>
                     <span class="text-sm font-bold text-gray-900 hidden sm:inline">Pago</span>
