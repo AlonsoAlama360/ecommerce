@@ -23,7 +23,6 @@
                     <li><strong>RUC:</strong> {{ $settings['ruc'] ?? 'Por definir' }}</li>
                     <li><strong>Domicilio fiscal:</strong> {{ $settings['address'] ?? 'Por definir' }}</li>
                     <li><strong>Correo electrónico:</strong> {{ $settings['contact_email'] ?? 'contacto@arixna.com' }}</li>
-                    <li><strong>Teléfono:</strong> {{ $settings['phone'] ?? 'Por definir' }}</li>
                 </ul>
             </section>
 
@@ -64,7 +63,6 @@
                 <p>Arixna acepta los siguientes medios de pago:</p>
                 <ul class="mt-3 space-y-1 list-disc list-inside">
                     <li>Tarjetas de crédito y débito (Visa, Mastercard, American Express, Diners Club)</li>
-                    <li>Transferencia bancaria</li>
                     <li>Yape / Plin</li>
                 </ul>
                 <p class="mt-3">Los pagos con tarjeta son procesados de forma segura a través de nuestra pasarela de pago. Arixna no almacena datos de tarjetas de crédito o débito.</p>
@@ -145,7 +143,6 @@
                 <p>Para cualquier consulta relacionada con estos Términos y Condiciones, puedes comunicarte con nosotros a través de:</p>
                 <ul class="mt-3 space-y-1 list-disc list-inside">
                     <li><strong>Correo electrónico:</strong> {{ $settings['contact_email'] ?? 'contacto@arixna.com' }}</li>
-                    <li><strong>Teléfono:</strong> {{ $settings['phone'] ?? 'Por definir' }}</li>
                     <li><strong>Horario de atención:</strong> {{ $settings['business_hours'] ?? '' }}</li>
                 </ul>
             </section>

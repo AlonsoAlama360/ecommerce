@@ -2,7 +2,7 @@
 
 namespace App\Application\User\UseCases;
 
-use App\Application\User\DTOs\CreateUserDTO;
+use App\Application\User\DTOs\UpdateUserDTO;
 use App\Domain\User\Repositories\UserRepositoryInterface;
 use App\Models\User;
 
@@ -12,7 +12,7 @@ class UpdateUser
         private UserRepositoryInterface $userRepository,
     ) {}
 
-    public function execute(User $user, CreateUserDTO $dto): User
+    public function execute(User $user, UpdateUserDTO $dto): User
     {
         $data = [
             'first_name' => $dto->firstName,

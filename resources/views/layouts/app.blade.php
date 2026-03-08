@@ -319,7 +319,7 @@
     </header>
 
     <!-- Modal de Búsqueda -->
-    <div class="search-modal fixed inset-0 bg-black/40 backdrop-blur-md z-50 items-center justify-start pt-[12vh] sm:pt-[15vh]" id="searchModal">
+    <div class="search-modal fixed inset-0 bg-black/40 backdrop-blur-md z-50 items-center justify-center sm:justify-start sm:pt-[15vh]" id="searchModal">
         <div class="search-modal-card bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-7 max-w-2xl w-full mx-3 sm:mx-auto relative shadow-2xl" style="max-height: 75vh; display: flex; flex-direction: column;">
 
             {{-- Header con título y cerrar --}}

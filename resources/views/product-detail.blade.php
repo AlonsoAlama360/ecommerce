@@ -504,32 +504,49 @@
 
         <!-- Related Products -->
         @if($relatedProducts->isNotEmpty())
-            <div class="mt-16">
-                <h2 class="text-3xl font-serif font-semibold text-gray-900 mb-8">Productos Relacionados</h2>
-                <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+            <div class="mt-16 pt-10 border-t border-gray-100">
+                <div class="flex items-center gap-3 mb-8">
+                    <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-[#D4A574]/15 to-[#E8B4B8]/10 flex items-center justify-center">
+                        <i class="fas fa-heart text-[#D4A574] text-sm"></i>
+                    </div>
+                    <h2 class="text-2xl sm:text-3xl font-serif font-bold text-gray-900">Productos Relacionados</h2>
+                </div>
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
                     @foreach($relatedProducts as $related)
-                        <a href="{{ route('product.show', $related->slug) }}" class="group">
-                            <div class="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-shadow">
-                                <div class="relative aspect-square overflow-hidden">
-                                    <img src="{{ $related->primaryImage?->thumbnail() ?? 'https://via.placeholder.com/300x300?text=Sin+Imagen' }}"
-                                         alt="{{ $related->name }}"
-                                         class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                                         loading="lazy">
-                                    @if($related->discount_percentage)
-                                        <span class="absolute top-3 right-3 bg-[#E8B4B8] text-white px-3 py-1 rounded-full text-xs sm:text-sm font-semibold">-{{ $related->discount_percentage }}%</span>
+                        <div class="bg-white rounded-2xl overflow-hidden border border-gray-100 group hover:shadow-xl hover:shadow-gray-200/50 hover:border-[#D4A574]/15 transition-all duration-500">
+                            <a href="{{ route('product.show', $related->slug) }}" class="block relative overflow-hidden aspect-[4/5]">
+                                <img src="{{ $related->primaryImage?->thumbnail() ?? asset('images/placeholder.png') }}"
+                                     alt="{{ $related->name }}"
+                                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                                     loading="lazy">
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                @if($related->discount_percentage)
+                                    <div class="absolute top-3 left-3 bg-gradient-to-r from-[#D4A574] to-[#C39563] text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
+                                        -{{ $related->discount_percentage }}%
+                                    </div>
+                                @endif
+                                <button type="button" class="wishlist-btn absolute top-3 right-3 w-9 h-9 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all duration-200 shadow-md" data-product-id="{{ $related->id }}" aria-label="Agregar a lista de deseos">
+                                    <i class="far fa-heart text-xs"></i>
+                                </button>
+                            </a>
+                            <div class="p-4 sm:p-5">
+                                <p class="text-[10px] text-[#D4A574] font-semibold uppercase tracking-wider mb-1">{{ $related->category?->name }}</p>
+                                <a href="{{ route('product.show', $related->slug) }}">
+                                    <h3 class="font-semibold text-sm sm:text-base mb-2 line-clamp-2 group-hover:text-[#D4A574] transition-colors leading-snug min-h-[2.5rem]">{{ $related->name }}</h3>
+                                </a>
+                                <div class="flex items-end gap-2 mb-3">
+                                    <span class="text-lg sm:text-xl font-bold text-gray-900 leading-none">S/ {{ number_format($related->current_price, 2) }}</span>
+                                    @if($related->sale_price && $related->sale_price < $related->price)
+                                        <span class="text-xs text-gray-400 line-through leading-none pb-0.5">S/ {{ number_format($related->price, 2) }}</span>
                                     @endif
                                 </div>
-                                <div class="p-4">
-                                    <h3 class="font-semibold text-gray-900 mb-2 text-sm sm:text-base line-clamp-2">{{ $related->name }}</h3>
-                                    <div class="flex items-center gap-2">
-                                        <span class="text-lg font-bold text-gray-900">S/ {{ number_format($related->current_price, 2) }}</span>
-                                        @if($related->sale_price && $related->sale_price < $related->price)
-                                            <span class="text-sm text-gray-400 line-through">S/ {{ number_format($related->price, 2) }}</span>
-                                        @endif
-                                    </div>
-                                </div>
+                                <button type="button"
+                                        class="add-to-cart-btn w-full bg-gray-900 text-white py-2.5 sm:py-3 rounded-full hover:bg-[#D4A574] active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-2 font-medium text-xs sm:text-sm"
+                                        data-product-id="{{ $related->id }}">
+                                    <i class="fas fa-shopping-bag text-xs"></i> Agregar
+                                </button>
                             </div>
-                        </a>
+                        </div>
                     @endforeach
                 </div>
             </div>

@@ -161,6 +161,7 @@
             <form id="checkoutForm" method="POST" action="{{ route('checkout.process') }}">
                 @csrf
                 <input type="hidden" name="token" id="culqiToken">
+                <input type="hidden" name="culqi_order_id" id="culqiOrderId">
 
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
 
@@ -541,6 +542,7 @@
             if (Culqi.token) {
                 setProcessing();
                 culqiTokenInput.value = Culqi.token.id;
+                document.getElementById('culqiOrderId').value = currentCulqiOrderId || '';
                 checkoutForm.submit();
                 return;
             }

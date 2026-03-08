@@ -125,6 +125,33 @@ window.showToast = function(message) {
     }, 3000);
 };
 
+window.showSuccessToast = function(title, message) {
+    var container = document.getElementById('toastContainer');
+    var toast = document.createElement('div');
+    toast.className = 'toast toast-success';
+    toast.innerHTML =
+        '<div class="toast-icon"><i class="fas fa-check text-sm"></i></div>' +
+        '<div class="flex-1">' +
+            '<p class="font-bold text-gray-900 text-sm">' + title + '</p>' +
+            '<p class="text-gray-500 text-xs mt-0.5">' + message + '</p>' +
+        '</div>' +
+        '<div class="toast-progress"></div>';
+    var closeBtn = document.createElement('button');
+    closeBtn.className = 'text-gray-300 hover:text-gray-500 transition flex-shrink-0';
+    closeBtn.innerHTML = '<i class="fas fa-times text-xs"></i>';
+    closeBtn.addEventListener('click', function() {
+        toast.classList.remove('show');
+        setTimeout(function() { toast.remove(); }, 500);
+    });
+    toast.insertBefore(closeBtn, toast.querySelector('.toast-progress'));
+    container.appendChild(toast);
+    requestAnimationFrame(function() { toast.classList.add('show'); });
+    setTimeout(function() {
+        toast.classList.remove('show');
+        setTimeout(function() { toast.remove(); }, 500);
+    }, 5000);
+};
+
 // ── Cart Sidebar ──
 const cartBtn = document.getElementById('cartBtn');
 const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
@@ -138,11 +165,11 @@ window.openCartSidebar = function() {
     document.body.style.overflow = 'hidden';
 };
 
-function closeCartSidebar() {
+window.closeCartSidebar = function() {
     getCartEl('cartSidebar').classList.remove('active');
     getCartEl('cartOverlay').classList.remove('active');
     document.body.style.overflow = '';
-}
+};
 
 function loadCartSidebar() {
     fetch('/carrito/items', {

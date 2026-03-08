@@ -11,6 +11,14 @@
         from { opacity: 0; }
         to { opacity: 1; }
     }
+    @keyframes thankYouPop {
+        0% { transform: scale(0); opacity: 0; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+    @keyframes thankYouCheck {
+        0% { opacity: 0; transform: scale(0) rotate(-45deg); }
+        100% { opacity: 1; transform: scale(1) rotate(0deg); }
+    }
     @keyframes float {
         0%, 100% { transform: translateY(0); }
         50% { transform: translateY(-8px); }
@@ -69,6 +77,7 @@
 
 @section('content')
     @php
+        $isPaymentSuccess = session('success') || request()->query('payment_success');
         $colors = $order->status_color;
         $statusIcons = [
             'pendiente' => 'fa-clock',
@@ -107,6 +116,57 @@
             'entregado' => 'fa-gift',
         ];
     @endphp
+
+    {{-- Thank You Section (only after successful payment) --}}
+    @if($isPaymentSuccess)
+        <div class="relative bg-gradient-to-br from-emerald-50 via-white to-[#FDF6F0] overflow-hidden" id="thankYouSection">
+            <div class="absolute inset-0 overflow-hidden pointer-events-none">
+                <div class="absolute -top-10 -right-10 w-60 h-60 bg-emerald-100/40 rounded-full blur-3xl"></div>
+                <div class="absolute -bottom-10 -left-10 w-48 h-48 bg-[#D4A574]/10 rounded-full blur-3xl"></div>
+            </div>
+
+            <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 relative text-center">
+                {{-- Animated check icon --}}
+                <div class="mb-6 inline-flex items-center justify-center" style="animation: thankYouPop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;">
+                    <div class="relative">
+                        <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-500 flex items-center justify-center shadow-xl shadow-emerald-200/50">
+                            <i class="fas fa-check text-white text-3xl sm:text-4xl" style="animation: thankYouCheck 0.4s 0.4s ease both;"></i>
+                        </div>
+                        <div class="absolute inset-0 w-20 h-20 sm:w-24 sm:h-24 rounded-full border-4 border-emerald-200 animate-ping opacity-20"></div>
+                    </div>
+                </div>
+
+                <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2" style="animation: fadeInUp 0.5s 0.2s ease both;">
+                    ¡Gracias por tu compra!
+                </h2>
+                <p class="text-gray-500 text-sm sm:text-base mb-4" style="animation: fadeInUp 0.5s 0.35s ease both;">
+                    Tu pedido ha sido procesado exitosamente
+                </p>
+
+                <div class="inline-flex items-center gap-2 bg-white rounded-full px-5 py-2.5 shadow-sm border border-gray-100 mb-6" style="animation: fadeInUp 0.5s 0.5s ease both;">
+                    <i class="fas fa-receipt text-[#D4A574] text-sm"></i>
+                    <span class="text-sm font-semibold text-gray-700">Pedido</span>
+                    <span class="text-sm font-bold text-[#D4A574]">{{ $order->order_number }}</span>
+                </div>
+
+                <p class="text-xs text-gray-400 mb-6" style="animation: fadeInUp 0.5s 0.6s ease both;">
+                    <i class="fas fa-envelope mr-1"></i>
+                    Recibirás una confirmación en <strong class="text-gray-500">{{ $order->customer_email }}</strong>
+                </p>
+
+                <div class="flex items-center justify-center gap-3" style="animation: fadeInUp 0.5s 0.7s ease both;">
+                    <a href="{{ route('catalog') }}" class="inline-flex items-center gap-2 bg-gradient-to-r from-[#D4A574] to-[#C39563] text-white px-6 py-3 rounded-xl text-sm font-semibold hover:shadow-lg hover:shadow-[#D4A574]/25 transition-all">
+                        <i class="fas fa-shopping-bag text-xs"></i>
+                        Seguir comprando
+                    </a>
+                    <a href="{{ route('orders.index') }}" class="inline-flex items-center gap-2 bg-white text-gray-600 px-6 py-3 rounded-xl text-sm font-semibold border border-gray-200 hover:border-gray-300 hover:text-gray-800 transition-all">
+                        <i class="fas fa-list text-xs"></i>
+                        Mis pedidos
+                    </a>
+                </div>
+            </div>
+        </div>
+    @endif
 
     {{-- Hero Header --}}
     <div class="relative bg-gradient-to-br from-[#D4A574] via-[#C39563] to-[#B8845A] overflow-hidden">
@@ -509,4 +569,16 @@
             </div>
         </div>
     </div>
+
+    @if($isPaymentSuccess)
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof showSuccessToast === 'function') {
+                setTimeout(function() {
+                    showSuccessToast('¡Compra exitosa!', 'Tu pedido {!! $order->order_number !!} ha sido confirmado');
+                }, 800);
+            }
+        });
+    </script>
+    @endif
 @endsection

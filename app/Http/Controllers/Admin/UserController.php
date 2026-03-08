@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Application\User\DTOs\CreateUserDTO;
+use App\Application\User\DTOs\UpdateUserDTO;
 use App\Application\User\DTOs\UserFiltersDTO;
 use App\Application\User\UseCases\CreateUser;
 use App\Application\User\UseCases\DeleteUser;
@@ -73,7 +74,7 @@ class UserController extends Controller
 
     public function update(AdminUpdateUserRequest $request, User $user)
     {
-        $this->updateUser->execute($user, new CreateUserDTO(
+        $this->updateUser->execute($user, new UpdateUserDTO(
             firstName: $request->first_name,
             lastName: $request->last_name,
             email: $request->email,

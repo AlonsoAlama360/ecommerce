@@ -30,7 +30,7 @@
                 "name": "¿Qué métodos de pago aceptan?",
                 "acceptedAnswer": {
                     "@@type": "Answer",
-                    "text": "Aceptamos tarjetas de crédito y débito (Visa, Mastercard, American Express, Diners Club), billeteras digitales (Yape, Plin) y transferencia bancaria."
+                    "text": "Aceptamos tarjetas de crédito y débito (Visa, Mastercard, American Express, Diners Club) y billeteras digitales (Yape, Plin)."
                 }
             },
             {
@@ -297,7 +297,6 @@
                             <ul class="mt-2 space-y-1 list-disc list-inside">
                                 <li><strong>Tarjetas de crédito y débito:</strong> Visa, Mastercard, American Express, Diners Club</li>
                                 <li><strong>Billeteras digitales:</strong> Yape, Plin</li>
-                                <li><strong>Transferencia bancaria</strong></li>
                             </ul>
                         </div>
                     </details>
@@ -327,15 +326,6 @@
                         </div>
                     </details>
 
-                    <details class="faq-item bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
-                        <summary class="flex items-center justify-between px-6 py-4 hover:bg-gray-50 transition">
-                            <span class="font-medium text-gray-900 pr-4">¿Puedo pagar en cuotas?</span>
-                            <span class="faq-icon text-gray-400 text-xl transition-transform duration-300 flex-shrink-0">+</span>
-                        </summary>
-                        <div class="faq-answer px-6 pb-5 text-gray-600 text-sm leading-relaxed">
-                            <p>Sí, si pagas con tarjeta de crédito puedes optar por el pago en cuotas. Las opciones de cuotas disponibles dependerán de tu banco emisor y se mostrarán al momento del pago.</p>
-                        </div>
-                    </details>
                 </div>
             </section>
 

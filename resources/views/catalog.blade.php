@@ -468,15 +468,15 @@
                             {{-- Products Grid --}}
                             <div class="grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 mb-12" id="productsGrid">
                                 @foreach($products as $index => $product)
-                                    <div class="product-card-catalog bg-white rounded-2xl overflow-hidden border border-gray-100/80 group reveal-catalog" style="transition-delay: {{ min($index * 50, 300) }}ms">
-                                        <a href="{{ route('product.show', $product->slug) }}" class="block relative overflow-hidden">
-                                            <img src="{{ $product->primaryImage?->thumbnail() ?? 'https://via.placeholder.com/400x300?text=Sin+Imagen' }}"
+                                    <div class="product-card-catalog bg-white rounded-2xl overflow-hidden border border-gray-100/80 group hover:shadow-xl hover:shadow-gray-200/50 hover:border-[#D4A574]/15 transition-all duration-500 reveal-catalog" style="transition-delay: {{ min($index * 50, 300) }}ms">
+                                        <a href="{{ route('product.show', $product->slug) }}" class="block relative overflow-hidden aspect-[4/5]">
+                                            <img src="{{ $product->primaryImage?->thumbnail() ?? asset('images/placeholder.png') }}"
                                                  alt="{{ $product->primaryImage?->alt_text ?? $product->name }}"
-                                                 class="product-img w-full h-52 sm:h-72 lg:h-80 object-cover"
+                                                 class="product-img w-full h-full object-cover"
                                                  loading="lazy">
 
                                             {{-- Overlay --}}
-                                            <div class="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                                            <div class="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
                                             {{-- Badges --}}
                                             @if($product->discount_percentage)
@@ -486,8 +486,8 @@
                                             @endif
 
                                             {{-- Wishlist --}}
-                                            <button type="button" class="wishlist-btn absolute top-3 right-3 w-9 h-9 sm:w-10 sm:h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all duration-200 shadow-md" data-product-id="{{ $product->id }}" aria-label="Agregar a lista de deseos">
-                                                <i class="far fa-heart text-xs sm:text-sm"></i>
+                                            <button type="button" class="wishlist-btn absolute top-3 right-3 w-9 h-9 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all duration-200 shadow-md" data-product-id="{{ $product->id }}" aria-label="Agregar a lista de deseos">
+                                                <i class="far fa-heart text-xs"></i>
                                             </button>
 
                                             {{-- Low Stock --}}
@@ -517,7 +517,7 @@
                                                 @endif
                                             </div>
                                             <a href="{{ route('product.show', $product->slug) }}" class="block">
-                                                <h3 class="font-semibold text-sm sm:text-base mb-2 line-clamp-2 group-hover:text-[#D4A574] transition-colors duration-200 leading-snug">{{ $product->name }}</h3>
+                                                <h3 class="font-semibold text-sm sm:text-base mb-2 line-clamp-2 group-hover:text-[#D4A574] transition-colors duration-200 leading-snug min-h-[2.5rem]">{{ $product->name }}</h3>
                                             </a>
                                             <div class="flex items-end gap-2 mb-3 sm:mb-4">
                                                 <span class="text-lg sm:text-xl font-bold text-gray-900 leading-none">S/ {{ number_format($product->current_price, 2) }}</span>
@@ -526,14 +526,13 @@
                                                 @endif
                                             </div>
 
-                                            {{-- Mobile Add to Cart --}}
                                             <button type="button"
                                                     class="add-to-cart-btn sm:hidden w-full bg-gray-900 text-white py-2.5 rounded-full hover:bg-[#D4A574] active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-2 font-medium text-xs"
                                                     data-product-id="{{ $product->id }}">
                                                 <i class="fas fa-shopping-bag text-xs"></i> Agregar
                                             </button>
                                             <button type="button"
-                                                    class="add-to-cart-btn hidden sm:flex w-full bg-gray-900 text-white py-3 rounded-full hover:bg-[#D4A574] active:scale-[0.98] transition-all duration-300 items-center justify-center gap-2 font-medium text-sm"
+                                                    class="add-to-cart-btn hidden sm:flex w-full bg-gray-900 text-white py-2.5 sm:py-3 rounded-full hover:bg-[#D4A574] active:scale-[0.98] transition-all duration-300 items-center justify-center gap-2 font-medium text-sm"
                                                     data-product-id="{{ $product->id }}">
                                                 <i class="fas fa-shopping-bag text-xs"></i> Agregar al Carrito
                                             </button>

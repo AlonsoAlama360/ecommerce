@@ -378,13 +378,35 @@
         transition: transform 0.5s ease;
     }
 
-    .product-card {
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    .product-card,
+    .product-card-home,
+    .product-card-catalog,
+    .product-card-offer {
+        transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.5s ease, border-color 0.5s ease;
     }
 
-    .product-card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    .product-card:hover,
+    .product-card-home:hover,
+    .product-card-catalog:hover,
+    .product-card-offer:hover {
+        transform: translateY(-6px);
+    }
+
+    .product-card > div > .add-to-cart-btn,
+    .product-card-home > div > .add-to-cart-btn,
+    .product-card-catalog > div > .add-to-cart-btn,
+    .product-card-offer > div > .add-to-cart-btn {
+        background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .product-card > div > .add-to-cart-btn:hover,
+    .product-card-home > div > .add-to-cart-btn:hover,
+    .product-card-catalog > div > .add-to-cart-btn:hover,
+    .product-card-offer > div > .add-to-cart-btn:hover {
+        background: linear-gradient(135deg, #D4A574 0%, #C39563 100%);
+        box-shadow: 0 4px 15px rgba(212,165,116,0.3);
     }
 
     /* ── Badges & Buttons ── */
@@ -466,5 +488,52 @@
         justify-content: center;
         flex-shrink: 0;
         color: #22c55e;
+    }
+
+    /* Success Toast (compra exitosa) */
+    .toast-success {
+        max-width: 400px;
+        border-left: 4px solid #D4A574;
+        border-radius: 16px;
+        padding: 16px 20px;
+        box-shadow: 0 12px 40px rgba(212,165,116,0.2), 0 4px 12px rgba(0,0,0,0.08);
+        animation: toastBounceIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .toast-success .toast-icon {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, #D4A574, #E8B4B8);
+        color: white;
+        border-radius: 12px;
+        animation: toastIconPop 0.5s 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    }
+
+    .toast-success .toast-progress {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #D4A574, #E8B4B8);
+        border-radius: 0 0 16px 16px;
+        animation: toastProgress 5s linear forwards;
+    }
+
+    @keyframes toastBounceIn {
+        0% { transform: translateX(120%) scale(0.8); opacity: 0; }
+        60% { transform: translateX(-8px) scale(1.02); opacity: 1; }
+        100% { transform: translateX(0) scale(1); opacity: 1; }
+    }
+
+    @keyframes toastIconPop {
+        0% { transform: scale(0) rotate(-45deg); }
+        100% { transform: scale(1) rotate(0deg); }
+    }
+
+    @keyframes toastProgress {
+        from { width: 100%; }
+        to { width: 0%; }
     }
 }

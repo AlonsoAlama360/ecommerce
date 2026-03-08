@@ -317,7 +317,7 @@
                 <div class="relative anim-fade-right">
                     <div class="relative z-10">
                         <img src="https://i.pinimg.com/1200x/e0/4d/5e/e04d5ea05adc67cae665c023676b5ee6.jpg" alt="Arixna"
-                            class="rounded-3xl shadow-2xl w-full object-cover aspect-[4/5] lg:aspect-[3/4]">
+                            class="rounded-3xl shadow-2xl w-full object-cover aspect-[4/5] lg:aspect-[4/5]">
                         <div class="absolute inset-0 rounded-3xl bg-gradient-to-t from-black/10 via-transparent to-transparent"></div>
                     </div>
 
@@ -491,48 +491,42 @@
             <div class="slider-container reveal">
                 <div class="slider-track" id="sliderTrack">
                     @foreach($featuredProducts as $product)
-                        <div class="min-w-[280px] sm:min-w-[300px] px-3">
-                            <div class="product-card-home bg-white rounded-2xl overflow-hidden border border-gray-100 group">
-                                <a href="{{ route('product.show', $product->slug) }}" class="block relative overflow-hidden">
+                        <div class="min-w-[260px] sm:min-w-[280px] px-2.5">
+                            <div class="product-card-home bg-white rounded-2xl overflow-hidden border border-gray-100 group hover:shadow-xl hover:shadow-gray-200/50 hover:border-[#D4A574]/15 transition-all duration-500">
+                                <a href="{{ route('product.show', $product->slug) }}" class="block relative overflow-hidden aspect-[4/5]">
                                     <img src="{{ $product->primaryImage?->thumbnail() ?? '' }}"
                                         alt="{{ $product->name }}"
-                                        class="w-full h-80 object-cover group-hover:scale-105 transition-transform duration-700" loading="lazy">
-                                    <div class="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" loading="lazy">
+                                    <div class="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                                     @if($product->discount_percentage)
-                                        <div class="absolute top-4 left-4 bg-gradient-to-r from-[#D4A574] to-[#C39563] text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg">
+                                        <div class="absolute top-3 left-3 bg-gradient-to-r from-[#D4A574] to-[#C39563] text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
                                             -{{ $product->discount_percentage }}%
                                         </div>
                                     @endif
-                                    <button type="button" class="wishlist-btn absolute top-4 right-4 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all duration-200 shadow-md" data-product-id="{{ $product->id }}" aria-label="Agregar a lista de deseos">
-                                        <i class="far fa-heart text-sm"></i>
+                                    <button type="button" class="wishlist-btn absolute top-3 right-3 w-9 h-9 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all duration-200 shadow-md" data-product-id="{{ $product->id }}" aria-label="Agregar a lista de deseos">
+                                        <i class="far fa-heart text-xs"></i>
                                     </button>
                                     @if($product->stock <= 5 && $product->stock > 0)
-                                        <div class="absolute bottom-4 left-4 bg-amber-500/90 backdrop-blur-sm text-white px-3 py-1 rounded-full text-xs font-semibold">
-                                            ¡Últimas {{ $product->stock }} unidades!
+                                        <div class="absolute bottom-3 left-3 bg-amber-500/90 backdrop-blur-sm text-white px-3 py-1 rounded-full text-[10px] sm:text-xs font-semibold flex items-center gap-1">
+                                            <i class="fas fa-fire text-[9px]"></i> ¡Últimas {{ $product->stock }} uds!
                                         </div>
                                     @endif
                                 </a>
-                                <div class="p-5">
+                                <div class="p-4 sm:p-5">
+                                    <p class="text-[10px] text-[#D4A574] font-semibold uppercase tracking-wider mb-1">{{ $product->category?->name }}</p>
                                     <a href="{{ route('product.show', $product->slug) }}" class="block">
-                                        <h3 class="font-semibold text-base mb-1 line-clamp-1 group-hover:text-[#D4A574] transition-colors">{{ $product->name }}</h3>
+                                        <h3 class="font-semibold text-sm sm:text-base mb-2 line-clamp-2 group-hover:text-[#D4A574] transition-colors leading-snug min-h-[2.5rem]">{{ $product->name }}</h3>
                                     </a>
-                                    @if($product->short_description)
-                                        <p class="text-xs text-gray-400 mb-3 line-clamp-1">{{ $product->short_description }}</p>
-                                    @else
-                                        <p class="text-xs text-gray-400 mb-3">{{ $product->category?->name }}</p>
-                                    @endif
-                                    <div class="flex items-center justify-between">
-                                        <div class="flex items-end gap-2">
-                                            <span class="text-xl font-bold text-gray-900">S/ {{ number_format($product->current_price, 2) }}</span>
-                                            @if($product->sale_price && $product->sale_price < $product->price)
-                                                <span class="text-sm text-gray-400 line-through pb-0.5">S/ {{ number_format($product->price, 2) }}</span>
-                                            @endif
-                                        </div>
+                                    <div class="flex items-end gap-2 mb-3">
+                                        <span class="text-lg sm:text-xl font-bold text-gray-900 leading-none">S/ {{ number_format($product->current_price, 2) }}</span>
+                                        @if($product->sale_price && $product->sale_price < $product->price)
+                                            <span class="text-xs text-gray-400 line-through leading-none pb-0.5">S/ {{ number_format($product->price, 2) }}</span>
+                                        @endif
                                     </div>
                                     <button type="button"
-                                            class="add-to-cart-btn mt-4 w-full bg-gray-900 text-white py-3 rounded-full hover:bg-[#D4A574] active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-2 font-medium text-sm"
+                                            class="add-to-cart-btn w-full bg-gray-900 text-white py-2.5 sm:py-3 rounded-full hover:bg-[#D4A574] active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-2 font-medium text-xs sm:text-sm"
                                             data-product-id="{{ $product->id }}">
-                                        <i class="fas fa-shopping-bag"></i> Agregar al Carrito
+                                        <i class="fas fa-shopping-bag text-xs"></i> Agregar al Carrito
                                     </button>
                                 </div>
                             </div>
@@ -598,16 +592,16 @@
                 </a>
             </div>
 
-            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 reveal">
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 reveal">
                 @foreach($newArrivals->take(4) as $product)
-                    <div class="product-card-home bg-white rounded-2xl overflow-hidden border border-gray-100 group">
-                        <a href="{{ route('product.show', $product->slug) }}" class="block relative overflow-hidden">
+                    <div class="product-card-home bg-white rounded-2xl overflow-hidden border border-gray-100 group hover:shadow-xl hover:shadow-gray-200/50 hover:border-[#D4A574]/15 transition-all duration-500">
+                        <a href="{{ route('product.show', $product->slug) }}" class="block relative overflow-hidden aspect-[4/5]">
                             <img src="{{ $product->primaryImage?->thumbnail() ?? '' }}"
                                 alt="{{ $product->name }}"
-                                class="w-full h-56 sm:h-72 object-cover group-hover:scale-105 transition-transform duration-700" loading="lazy">
-                            <div class="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" loading="lazy">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                             @if($product->discount_percentage)
-                                <div class="absolute top-3 left-3 bg-gradient-to-r from-[#D4A574] to-[#C39563] text-white px-2.5 py-1 rounded-full text-xs font-bold">
+                                <div class="absolute top-3 left-3 bg-gradient-to-r from-[#D4A574] to-[#C39563] text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
                                     -{{ $product->discount_percentage }}%
                                 </div>
                             @endif
@@ -615,19 +609,19 @@
                                 <i class="far fa-heart text-xs"></i>
                             </button>
                         </a>
-                        <div class="p-4">
+                        <div class="p-4 sm:p-5">
                             <p class="text-[10px] text-[#D4A574] font-semibold uppercase tracking-wider mb-1">{{ $product->category?->name }}</p>
                             <a href="{{ route('product.show', $product->slug) }}">
-                                <h3 class="font-semibold text-sm mb-2 line-clamp-1 group-hover:text-[#D4A574] transition-colors">{{ $product->name }}</h3>
+                                <h3 class="font-semibold text-sm sm:text-base mb-2 line-clamp-2 group-hover:text-[#D4A574] transition-colors leading-snug min-h-[2.5rem]">{{ $product->name }}</h3>
                             </a>
                             <div class="flex items-end gap-2 mb-3">
-                                <span class="text-lg font-bold text-gray-900">S/ {{ number_format($product->current_price, 2) }}</span>
+                                <span class="text-lg sm:text-xl font-bold text-gray-900 leading-none">S/ {{ number_format($product->current_price, 2) }}</span>
                                 @if($product->sale_price && $product->sale_price < $product->price)
-                                    <span class="text-xs text-gray-400 line-through">S/ {{ number_format($product->price, 2) }}</span>
+                                    <span class="text-xs text-gray-400 line-through leading-none pb-0.5">S/ {{ number_format($product->price, 2) }}</span>
                                 @endif
                             </div>
                             <button type="button"
-                                    class="add-to-cart-btn w-full bg-gray-900 text-white py-2.5 rounded-full hover:bg-[#D4A574] active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-2 font-medium text-xs"
+                                    class="add-to-cart-btn w-full bg-gray-900 text-white py-2.5 sm:py-3 rounded-full hover:bg-[#D4A574] active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-2 font-medium text-xs sm:text-sm"
                                     data-product-id="{{ $product->id }}">
                                 <i class="fas fa-shopping-bag text-xs"></i> Agregar
                             </button>

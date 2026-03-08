@@ -68,6 +68,7 @@ class CheckoutController extends Controller
                     'email' => $request->input('customer_email', auth()->user()->email),
                     'phone_number' => $request->input('customer_phone', auth()->user()->phone ?? ''),
                 ],
+                'confirm' => false,
                 'expiration_date' => now()->addHours(1)->timestamp,
             ]);
 
@@ -96,6 +97,7 @@ class CheckoutController extends Controller
     {
         $validated = $request->validate([
             'token' => 'required|string',
+            'culqi_order_id' => 'nullable|string',
             'customer_name' => 'required|string|max:255',
             'customer_email' => 'required|email|max:255',
             'customer_phone' => 'required|string|max:20',
@@ -128,12 +130,25 @@ class CheckoutController extends Controller
         try {
             $culqi = new Culqi(['api_key' => config('culqi.secret_key')]);
 
+            $nameParts = explode(' ', $validated['customer_name'], 2);
+            $firstName = $nameParts[0];
+            $lastName = $nameParts[1] ?? '';
+
             $charge = $culqi->Charges->create([
                 'amount' => $totalInCents,
                 'currency_code' => 'PEN',
                 'email' => $validated['customer_email'],
                 'source_id' => $validated['token'],
                 'description' => 'Pedido en ' . config('app.name'),
+                'antifraud_details' => [
+                    'first_name' => $firstName,
+                    'last_name' => $lastName,
+                    'email' => $validated['customer_email'],
+                    'phone_number' => $validated['customer_phone'],
+                    'address' => $validated['shipping_address'],
+                    'address_city' => 'Lima',
+                    'country_code' => 'PE',
+                ],
                 'metadata' => [
                     'customer_name' => $validated['customer_name'],
                     'customer_phone' => $validated['customer_phone'],
@@ -158,6 +173,18 @@ class CheckoutController extends Controller
 
         $chargeId = is_object($charge) ? $charge->id : ($charge['id'] ?? null);
 
+        // Clean up the pending Culqi order so it doesn't stay as "pendiente" in the panel
+        if (!empty($validated['culqi_order_id'])) {
+            try {
+                $culqi->Orders->delete($validated['culqi_order_id']);
+            } catch (\Exception $e) {
+                Log::info('Could not delete Culqi order', [
+                    'order_id' => $validated['culqi_order_id'],
+                    'reason' => $e->getMessage(),
+                ]);
+            }
+        }
+
         $order = $this->createLocalOrder($validated, $cart, $chargeId, $createOrder);
 
         return redirect()->route('orders.show', $order)
@@ -181,7 +208,7 @@ class CheckoutController extends Controller
             session()->forget('cart');
             return response()->json([
                 'success' => true,
-                'redirect' => route('orders.show', $existingOrder),
+                'redirect' => route('orders.show', $existingOrder) . '?payment_success=1',
             ]);
         }
 
@@ -221,7 +248,7 @@ class CheckoutController extends Controller
 
         return response()->json([
             'success' => true,
-            'redirect' => route('orders.show', $order),
+            'redirect' => route('orders.show', $order) . '?payment_success=1',
         ]);
     }
 
