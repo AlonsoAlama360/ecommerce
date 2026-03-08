@@ -18,12 +18,14 @@ class EloquentOrderRepository implements OrderRepositoryInterface
 
     public function create(array $data): Order
     {
-        return Order::create($data);
+        $order = new Order();
+        $order->forceFill($data)->save();
+        return $order;
     }
 
     public function update(Order $order, array $data): Order
     {
-        $order->update($data);
+        $order->forceFill($data)->save();
         return $order->fresh();
     }
 

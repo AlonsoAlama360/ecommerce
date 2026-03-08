@@ -17,8 +17,6 @@ class Review extends Model
         'rating',
         'title',
         'comment',
-        'is_approved',
-        'is_featured',
     ];
 
     protected function casts(): array

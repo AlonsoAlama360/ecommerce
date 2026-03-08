@@ -22,8 +22,6 @@ class User extends Authenticatable
         'phone',
         'password',
         'newsletter',
-        'role',
-        'is_active',
         'document_type',
         'document_number',
         'department_id',

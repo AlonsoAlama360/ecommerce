@@ -367,16 +367,12 @@
                         </button>
 
                         <div class="popular-slider-track" id="popularSliderTrack">
-                            <button class="search-suggestion popular-chip"><i class="fas fa-seedling text-rose-400"></i> Rosas</button>
-                            <button class="search-suggestion popular-chip"><i class="fas fa-gem text-purple-400"></i> Collar</button>
-                            <button class="search-suggestion popular-chip"><i class="fas fa-heart text-pink-400"></i> Peluche</button>
-                            <button class="search-suggestion popular-chip"><i class="fas fa-glass-cheers text-amber-400"></i> Aniversario</button>
-                            <button class="search-suggestion popular-chip"><i class="fas fa-cookie-bite text-yellow-700"></i> Chocolate</button>
-                            <button class="search-suggestion popular-chip"><i class="fas fa-ring text-indigo-400"></i> Pulsera</button>
-                            <button class="search-suggestion popular-chip"><i class="fas fa-gift text-red-400"></i> Regalo</button>
-                            <button class="search-suggestion popular-chip"><i class="fas fa-spa text-emerald-400"></i> Arreglo floral</button>
-                            <button class="search-suggestion popular-chip"><i class="fas fa-crown text-amber-500"></i> Premium</button>
-                            <button class="search-suggestion popular-chip"><i class="fas fa-star text-yellow-400"></i> Más vendidos</button>
+                            @foreach($navCategories->take(6) as $cat)
+                                <button class="search-suggestion popular-chip"><i class="{{ $cat->icon }} text-[#D4A574]"></i> {{ $cat->name }}</button>
+                            @endforeach
+                            <button class="search-suggestion popular-chip"><i class="fas fa-tag text-rose-400"></i> Ofertas</button>
+                            <button class="search-suggestion popular-chip"><i class="fas fa-gift text-red-400"></i> Regalos</button>
+                            <button class="search-suggestion popular-chip"><i class="fas fa-bolt text-amber-500"></i> Nuevos</button>
                         </div>
                     </div>
 

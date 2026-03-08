@@ -81,6 +81,8 @@ class CartController extends Controller
 
     public function remove(Request $request)
     {
+        $request->validate(['product_id' => 'required|integer']);
+
         $cartCount = $this->removeFromCart->execute($request->input('product_id'));
 
         if ($request->expectsJson()) {

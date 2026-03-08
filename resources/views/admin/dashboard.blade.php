@@ -5,8 +5,8 @@
 {{-- Header --}}
 <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
     <div>
-        <h1 class="text-2xl font-bold text-gray-900">Buenos {{ now()->hour < 12 ? 'd&iacute;as' : (now()->hour < 19 ? 'tardes' : 'noches') }}, {{ Auth::user()->first_name }}</h1>
-        <p class="text-gray-500 mt-1">Resumen de tu tienda &mdash; {{ now()->translatedFormat('l j \\d\\e F, Y') }}</p>
+        <h1 class="text-2xl font-bold text-gray-900">Buenos {{ now()->hour < 12 ? 'días' : (now()->hour < 19 ? 'tardes' : 'noches') }}, {{ Auth::user()->first_name }}</h1>
+        <p class="text-gray-500 mt-1">Resumen de tu tienda — {{ now()->translatedFormat('l j \\d\\e F, Y') }}</p>
     </div>
     <div class="flex items-center gap-2">
         @if($stats['pending_complaints'] > 0)

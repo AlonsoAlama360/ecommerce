@@ -32,7 +32,7 @@ class GoogleController extends Controller
         } catch (\Exception $e) {
             Log::error('Google login error: ' . $e->getMessage());
             return redirect()->route('login')->withErrors([
-                'email' => 'Error Google: ' . $e->getMessage(),
+                'email' => 'No se pudo iniciar sesión con Google. Por favor intenta nuevamente.',
             ]);
         }
 

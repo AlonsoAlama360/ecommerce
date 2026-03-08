@@ -322,7 +322,12 @@ if (searchModal) {
 
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape' && searchModal && searchModal.classList.contains('active')) {
-        closeSearch();
+        if (searchInput.value.trim() !== '') {
+            searchInput.value = '';
+            searchInput.dispatchEvent(new Event('input'));
+        } else {
+            closeSearch();
+        }
     }
 });
 

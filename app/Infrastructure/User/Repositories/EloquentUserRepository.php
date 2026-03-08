@@ -29,12 +29,14 @@ class EloquentUserRepository implements UserRepositoryInterface
 
     public function create(array $data): User
     {
-        return User::create($data);
+        $user = new User();
+        $user->forceFill($data)->save();
+        return $user;
     }
 
     public function update(User $user, array $data): User
     {
-        $user->update($data);
+        $user->forceFill($data)->save();
         return $user->fresh();
     }
 

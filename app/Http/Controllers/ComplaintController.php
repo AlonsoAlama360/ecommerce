@@ -6,6 +6,7 @@ use App\Application\Complaint\DTOs\CreateComplaintDTO;
 use App\Application\Complaint\UseCases\CreateComplaint;
 use App\Models\Complaint;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\URL;
 
 class ComplaintController extends Controller
 {
@@ -59,7 +60,7 @@ class ComplaintController extends Controller
             ]);
         }
 
-        return redirect()->route('complaint.confirmation', $complaint)
+        return redirect()->to(URL::signedRoute('complaint.confirmation', $complaint))
             ->with('success', 'Tu reclamo ha sido registrado exitosamente.');
     }
 

@@ -57,7 +57,7 @@ Route::middleware('throttle:global')->group(function () {
     Route::get('/preguntas-frecuentes', [LegalController::class, 'faq'])->name('legal.faq');
     Route::get('/contacto', [ContactController::class, 'show'])->name('contact.show');
     Route::get('/libro-de-reclamaciones', [ComplaintController::class, 'create'])->name('complaint.create');
-    Route::get('/libro-de-reclamaciones/{complaint}/confirmacion', [ComplaintController::class, 'confirmation'])->name('complaint.confirmation');
+    Route::get('/libro-de-reclamaciones/{complaint}/confirmacion', [ComplaintController::class, 'confirmation'])->name('complaint.confirmation')->middleware('signed');
 });
 
 // Formularios públicos - rate limit estricto
@@ -123,9 +123,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/mis-pedidos/{order}', [CustomerOrderController::class, 'show'])->name('orders.show');
 
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
-    Route::post('/checkout/culqi-order', [CheckoutController::class, 'createCulqiOrder'])->name('checkout.culqi-order');
-    Route::post('/checkout/process', [CheckoutController::class, 'process'])->name('checkout.process');
-    Route::post('/checkout/process-yape', [CheckoutController::class, 'processYape'])->name('checkout.process-yape');
+    Route::post('/checkout/culqi-order', [CheckoutController::class, 'createCulqiOrder'])->middleware('throttle:5,1')->name('checkout.culqi-order');
+    Route::post('/checkout/process', [CheckoutController::class, 'process'])->middleware('throttle:5,1')->name('checkout.process');
+    Route::post('/checkout/process-yape', [CheckoutController::class, 'processYape'])->middleware('throttle:5,1')->name('checkout.process-yape');
 
     Route::post('/producto/{product}/review', [ReviewController::class, 'store'])->middleware('throttle:reviews')->name('reviews.store');
 });

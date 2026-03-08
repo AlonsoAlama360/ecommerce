@@ -50,8 +50,7 @@ class StockService
         if ($type === 'entrada') {
             $signedQty = $quantity;
             // Atomic increment
-            Product::where('id', $product->id)
-                ->update(['stock' => \DB::raw("stock + {$quantity}")]);
+            Product::where('id', $product->id)->increment('stock', $quantity);
             $product->refresh();
             $stockAfter = $product->stock;
         } else {
@@ -59,7 +58,7 @@ class StockService
             // Atomic decrement with floor at 0 to prevent overselling
             $affected = Product::where('id', $product->id)
                 ->where('stock', '>=', $quantity)
-                ->update(['stock' => \DB::raw("stock - {$quantity}")]);
+                ->decrement('stock', $quantity);
 
             if ($affected === 0) {
                 // Not enough stock — decrement to 0 as fallback

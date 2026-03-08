@@ -33,7 +33,8 @@ class CreateOrder
 
             if (!$user && !empty($dto->customerEmail)) {
                 $nameParts = explode(' ', $dto->customerName, 2);
-                $user = User::create([
+                $user = new User();
+                $user->forceFill([
                     'first_name' => $nameParts[0],
                     'last_name' => $nameParts[1] ?? '',
                     'email' => $dto->customerEmail,
@@ -42,7 +43,7 @@ class CreateOrder
                     'role' => 'cliente',
                     'is_active' => true,
                     'auth_provider' => 'form',
-                ]);
+                ])->save();
 
                 Mail::to($user)->queue(new WelcomeMail($user));
             }

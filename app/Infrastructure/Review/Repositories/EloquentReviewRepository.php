@@ -15,12 +15,14 @@ class EloquentReviewRepository implements ReviewRepositoryInterface
 
     public function create(array $data): Review
     {
-        return Review::create($data);
+        $review = new Review();
+        $review->forceFill($data)->save();
+        return $review;
     }
 
     public function update(Review $review, array $data): Review
     {
-        $review->update($data);
+        $review->forceFill($data)->save();
         return $review->fresh();
     }
 

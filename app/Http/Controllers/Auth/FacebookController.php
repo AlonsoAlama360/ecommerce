@@ -32,7 +32,7 @@ class FacebookController extends Controller
         } catch (\Exception $e) {
             Log::error('Facebook login error: ' . $e->getMessage());
             return redirect()->route('login')->withErrors([
-                'email' => 'Error Facebook: ' . $e->getMessage(),
+                'email' => 'No se pudo iniciar sesión con Facebook. Por favor intenta nuevamente.',
             ]);
         }
 
