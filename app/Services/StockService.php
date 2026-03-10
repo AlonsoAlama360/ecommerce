@@ -6,6 +6,7 @@ use App\Mail\Admin\LowStockImmediateAlertMail;
 use App\Models\Product;
 use App\Models\SiteSetting;
 use App\Models\StockMovement;
+use App\Notifications\Admin\LowStockNotification;
 use Illuminate\Database\Eloquent\Model;
 
 class StockService
@@ -111,6 +112,7 @@ class StockService
                 'notify_low_stock',
                 new LowStockImmediateAlertMail($product, $threshold)
             );
+            AdminNotificationService::notify(new LowStockNotification($product));
         }
     }
 }

@@ -123,9 +123,9 @@
                         onkeydown="if(event.key==='Enter'){event.preventDefault();applyFilters()}"
                         class="w-full sm:w-56 pl-9 pr-3 py-2 border border-gray-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition">
                 </div>
-                <button type="button" class="hidden sm:inline-flex items-center gap-2 px-4 py-2 text-sm text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-50 transition">
+                <a href="{{ route('admin.suppliers.export', request()->only(['search'])) }}" class="hidden sm:inline-flex items-center gap-2 px-4 py-2 text-sm text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-50 transition">
                     <i class="fas fa-arrow-up-from-bracket text-xs"></i> Exportar
-                </button>
+                </a>
                 <button onclick="openCreateDrawer()"
                     class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition text-sm font-medium shadow-sm shadow-indigo-200 cursor-pointer whitespace-nowrap">
                     <i class="fas fa-plus text-xs"></i>
@@ -141,9 +141,6 @@
         <table class="w-full">
             <thead>
                 <tr class="border-b border-gray-100">
-                    <th class="w-12 px-5 py-3.5">
-                        <input type="checkbox" id="selectAll" class="w-4 h-4 text-indigo-500 border-gray-300 rounded focus:ring-indigo-500 cursor-pointer">
-                    </th>
                     <th class="px-4 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Proveedor</th>
                     <th class="px-4 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">RUC</th>
                     <th class="px-4 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Contacto</th>
@@ -155,9 +152,6 @@
             <tbody class="divide-y divide-gray-50">
                 @forelse($suppliers as $supplier)
                 <tr class="hover:bg-gray-50/60 transition-colors duration-150">
-                    <td class="px-5 py-3">
-                        <input type="checkbox" class="row-check w-4 h-4 text-indigo-500 border-gray-300 rounded focus:ring-indigo-500 cursor-pointer">
-                    </td>
                     <td class="px-4 py-3">
                         <div class="flex items-center gap-3">
                             <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-indigo-400 to-violet-500 flex items-center justify-center text-xs font-bold text-white flex-shrink-0">
@@ -653,22 +647,6 @@
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') closeDrawer();
     });
-
-    // Select all checkboxes
-    const selectAll = document.getElementById('selectAll');
-    if (selectAll) {
-        selectAll.addEventListener('change', function() {
-            document.querySelectorAll('.row-check').forEach(cb => cb.checked = this.checked);
-        });
-        document.querySelectorAll('.row-check').forEach(cb => {
-            cb.addEventListener('change', () => {
-                const all = document.querySelectorAll('.row-check');
-                const checked = document.querySelectorAll('.row-check:checked');
-                selectAll.checked = all.length === checked.length;
-                selectAll.indeterminate = checked.length > 0 && checked.length < all.length;
-            });
-        });
-    }
 
     // Auto-open if validation errors
     @if($errors->any() && old('_method') === 'PUT')

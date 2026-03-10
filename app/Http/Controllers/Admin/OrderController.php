@@ -23,6 +23,8 @@ class OrderController extends Controller
     {
         $dto = OrderFiltersDTO::fromRequest($request);
         $data = $listOrders->execute($dto);
+        $data['shippingAgencies'] = \App\Models\ShippingAgency::where('is_active', true)->with(['addresses' => fn($q) => $q->where('is_active', true)->orderBy('address')])->orderBy('name')->get();
+        $data['shippingMode'] = \App\Models\SiteSetting::get('shipping_mode', 'agency');
 
         return view('admin.orders.index', $data);
     }
@@ -39,6 +41,8 @@ class OrderController extends Controller
             'customer_email' => 'nullable|email|max:255',
             'customer_phone' => 'nullable|string|max:20',
             'shipping_address' => 'nullable|string|max:1000',
+            'shipping_agency' => 'nullable|string|max:255',
+            'shipping_agency_address' => 'nullable|string|max:500',
             'payment_method' => 'required|in:efectivo,transferencia,yape_plin,tarjeta,culqi',
             'payment_status' => 'required|in:pendiente,pagado,fallido',
             'admin_notes' => 'nullable|string|max:2000',
@@ -68,6 +72,8 @@ class OrderController extends Controller
             'payment_method' => 'sometimes|in:efectivo,transferencia,yape_plin,tarjeta,culqi',
             'admin_notes' => 'nullable|string|max:2000',
             'shipping_address' => 'nullable|string|max:1000',
+            'shipping_agency' => 'nullable|string|max:255',
+            'shipping_agency_address' => 'nullable|string|max:500',
             'customer_name' => 'sometimes|string|max:255',
             'customer_email' => 'nullable|email|max:255',
             'customer_phone' => 'nullable|string|max:20',

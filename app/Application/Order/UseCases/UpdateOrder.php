@@ -59,6 +59,8 @@ class UpdateOrder
             $updateData['payment_method'] = $dto->paymentMethod ?? $order->payment_method;
             $updateData['admin_notes'] = $dto->adminNotes;
             $updateData['shipping_address'] = $dto->shippingAddress ?? $order->shipping_address;
+            $updateData['shipping_agency'] = $dto->shippingAgency ?? $order->shipping_agency;
+            $updateData['shipping_agency_address'] = $dto->shippingAgencyAddress ?? $order->shipping_agency_address;
             $updateData['customer_name'] = $dto->customerName ?? $order->customer_name;
             $updateData['customer_email'] = $dto->customerEmail ?? $order->customer_email;
             $updateData['customer_phone'] = $dto->customerPhone ?? $order->customer_phone;

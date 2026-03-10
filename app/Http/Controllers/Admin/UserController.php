@@ -9,6 +9,7 @@ use App\Application\User\UseCases\CreateUser;
 use App\Application\User\UseCases\DeleteUser;
 use App\Application\User\UseCases\ListUsers;
 use App\Application\User\UseCases\UpdateUser;
+use App\Domain\User\Repositories\UserRepositoryInterface;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\AdminCreateUserRequest;
 use App\Http\Requests\User\AdminUpdateUserRequest;
@@ -16,6 +17,7 @@ use App\Models\Department;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class UserController extends Controller
 {
@@ -125,6 +127,52 @@ class UserController extends Controller
 
         return redirect()->route('admin.users.index')
             ->with('success', 'Dirección eliminada exitosamente.');
+    }
+
+    public function export(Request $request, UserRepositoryInterface $userRepository): StreamedResponse
+    {
+        $query = $userRepository->exportQuery([
+            'search' => $request->get('search'),
+            'role' => $request->get('role'),
+            'status' => $request->has('status') && $request->get('status') !== '' ? $request->get('status') : null,
+            'date_from' => $request->get('date_from'),
+            'date_to' => $request->get('date_to'),
+        ]);
+
+        $filename = 'usuarios_' . now()->format('Ymd_His') . '.csv';
+
+        return response()->streamDownload(function () use ($query) {
+            $handle = fopen('php://output', 'w');
+            fprintf($handle, chr(0xEF) . chr(0xBB) . chr(0xBF));
+
+            fputcsv($handle, [
+                'Nombre', 'Apellido', 'Email', 'Teléfono', 'Doc. Tipo',
+                'Doc. Número', 'Rol', 'Estado', 'Newsletter',
+                'Proveedor Auth', 'Fecha Registro',
+            ], ';');
+
+            $query->chunk(500, function ($users) use ($handle) {
+                foreach ($users as $user) {
+                    fputcsv($handle, [
+                        $user->first_name,
+                        $user->last_name,
+                        $user->email,
+                        $user->phone ?? '',
+                        $user->document_type ?? '',
+                        $user->document_number ?? '',
+                        ucfirst($user->role),
+                        $user->is_active ? 'Activo' : 'Inactivo',
+                        $user->newsletter ? 'Sí' : 'No',
+                        ucfirst($user->auth_provider ?? 'form'),
+                        $user->created_at->format('d/m/Y H:i'),
+                    ], ';');
+                }
+            });
+
+            fclose($handle);
+        }, $filename, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+        ]);
     }
 
     public function destroy(User $user)

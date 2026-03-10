@@ -16,38 +16,41 @@ class ProfitabilityReportService
         $totalRevenue = Order::whereBetween('created_at', $dateRange)
             ->where('status', '!=', 'cancelado')->sum('total');
 
-        $productProfitability = $this->getProductProfitability($dateRange);
-        $totalCost = $productProfitability->sum('total_cost');
+        $costMap = $this->getCostMap();
+        $revenueVsCostByMonth = $this->getRevenueVsCostByMonth($dateRange, $costMap);
+        $totalCost = collect($revenueVsCostByMonth)->sum('cost');
         $grossProfit = $totalRevenue - $totalCost;
+        $productProfitability = $this->getProductProfitability($dateRange, $costMap);
 
         return [
             'totalRevenue' => $totalRevenue,
             'totalCost' => $totalCost,
             'grossProfit' => $grossProfit,
             'profitMargin' => $totalRevenue > 0 ? round(($grossProfit / $totalRevenue) * 100, 1) : 0,
-            'revenueVsCostByMonth' => $this->getRevenueVsCostByMonth($dateRange),
+            'revenueVsCostByMonth' => $revenueVsCostByMonth,
             'categoryProfitability' => $this->getCategoryProfitability($dateRange),
             'productProfitability' => $productProfitability,
         ];
     }
 
-    private function getProductProfitability(array $dateRange)
+    private function getCostMap(): \Illuminate\Support\Collection
     {
-        // Get last purchase cost per product
         $lastCosts = PurchaseItem::join('purchases', 'purchase_items.purchase_id', '=', 'purchases.id')
             ->where('purchases.status', '!=', 'cancelado')
             ->whereNotNull('purchase_items.product_id')
             ->select('purchase_items.product_id', DB::raw('MAX(purchases.created_at) as last_purchase'))
             ->groupBy('purchase_items.product_id');
 
-        $costMap = PurchaseItem::join('purchases', 'purchase_items.purchase_id', '=', 'purchases.id')
+        return PurchaseItem::join('purchases', 'purchase_items.purchase_id', '=', 'purchases.id')
             ->joinSub($lastCosts, 'latest', function ($join) {
                 $join->on('purchase_items.product_id', '=', 'latest.product_id')
                     ->on('purchases.created_at', '=', 'latest.last_purchase');
             })
             ->pluck('purchase_items.unit_cost', 'purchase_items.product_id');
+    }
 
-        // Get sales data
+    private function getProductProfitability(array $dateRange, \Illuminate\Support\Collection $costMap)
+    {
         $sales = OrderItem::join('orders', 'order_items.order_id', '=', 'orders.id')
             ->whereBetween('orders.created_at', $dateRange)
             ->where('orders.status', '!=', 'cancelado')
@@ -78,25 +81,39 @@ class ProfitabilityReportService
         });
     }
 
-    private function getRevenueVsCostByMonth(array $dateRange)
+    private function getRevenueVsCostByMonth(array $dateRange, \Illuminate\Support\Collection $costMap)
     {
-        $revenue = Order::whereBetween('created_at', $dateRange)
+        // Revenue by month
+        $revenueByMonth = Order::whereBetween('created_at', $dateRange)
             ->where('status', '!=', 'cancelado')
             ->select(DB::raw("DATE_FORMAT(created_at, '%Y-%m') as month"), DB::raw('SUM(total) as revenue'))
             ->groupBy('month')->orderBy('month')->get()->keyBy('month');
 
-        $costs = PurchaseItem::join('purchases', 'purchase_items.purchase_id', '=', 'purchases.id')
-            ->whereBetween('purchases.created_at', $dateRange)
-            ->where('purchases.status', '!=', 'cancelado')
-            ->select(DB::raw("DATE_FORMAT(purchases.created_at, '%Y-%m') as month"), DB::raw('SUM(purchase_items.line_total) as cost'))
-            ->groupBy('month')->orderBy('month')->get()->keyBy('month');
+        // COGS by month (cost of goods SOLD, not purchased)
+        $salesByMonth = OrderItem::join('orders', 'order_items.order_id', '=', 'orders.id')
+            ->whereBetween('orders.created_at', $dateRange)
+            ->where('orders.status', '!=', 'cancelado')
+            ->select(
+                DB::raw("DATE_FORMAT(orders.created_at, '%Y-%m') as month"),
+                'order_items.product_id',
+                DB::raw('SUM(order_items.quantity) as qty'),
+                DB::raw('AVG(order_items.unit_price) as avg_price')
+            )
+            ->groupBy('month', 'order_items.product_id')
+            ->get();
 
-        $months = $revenue->keys()->merge($costs->keys())->unique()->sort()->values();
+        $cogsByMonth = [];
+        foreach ($salesByMonth as $row) {
+            $unitCost = $costMap[$row->product_id] ?? ($row->avg_price * 0.6);
+            $cogsByMonth[$row->month] = ($cogsByMonth[$row->month] ?? 0) + ($unitCost * $row->qty);
+        }
+
+        $months = $revenueByMonth->keys()->merge(collect(array_keys($cogsByMonth)))->unique()->sort()->values();
 
         return $months->map(fn($m) => [
             'month' => $m,
-            'revenue' => (float) ($revenue[$m]->revenue ?? 0),
-            'cost' => (float) ($costs[$m]->cost ?? 0),
+            'revenue' => (float) ($revenueByMonth[$m]->revenue ?? 0),
+            'cost' => round($cogsByMonth[$m] ?? 0, 2),
         ]);
     }
 

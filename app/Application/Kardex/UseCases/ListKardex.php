@@ -4,6 +4,7 @@ namespace App\Application\Kardex\UseCases;
 
 use App\Application\Kardex\DTOs\KardexFiltersDTO;
 use App\Domain\Kardex\Repositories\KardexRepositoryInterface;
+use App\Models\Product;
 
 class ListKardex
 {
@@ -21,7 +22,10 @@ class ListKardex
         ], $filters->perPage);
 
         $stats = $this->kardexRepository->getMonthlyStats();
-        $products = $this->kardexRepository->getActiveProducts();
+
+        $selectedProduct = $filters->productId
+            ? Product::select('id', 'name')->find($filters->productId)
+            : null;
 
         return [
             'movements' => $movements,
@@ -29,7 +33,7 @@ class ListKardex
             'entriesMonth' => $stats->entriesMonth,
             'exitsMonth' => $stats->exitsMonth,
             'adjustmentsMonth' => $stats->adjustmentsMonth,
-            'products' => $products,
+            'selectedProduct' => $selectedProduct,
         ];
     }
 }

@@ -29,4 +29,6 @@ interface UserRepositoryInterface
     public function countInactive(): int;
 
     public function countNewThisWeek(): int;
+
+    public function exportQuery(array $filters): mixed;
 }

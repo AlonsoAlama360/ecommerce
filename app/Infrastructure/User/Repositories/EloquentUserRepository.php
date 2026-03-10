@@ -96,4 +96,36 @@ class EloquentUserRepository implements UserRepositoryInterface
     {
         return User::where('created_at', '>=', now()->subWeek())->count();
     }
+
+    public function exportQuery(array $filters): mixed
+    {
+        $query = User::query();
+
+        if (!empty($filters['search'])) {
+            $search = $filters['search'];
+            $query->where(function ($q) use ($search) {
+                $q->where('first_name', 'like', "%{$search}%")
+                  ->orWhere('last_name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        if (!empty($filters['role'])) {
+            $query->where('role', $filters['role']);
+        }
+
+        if (isset($filters['status']) && $filters['status'] !== '' && $filters['status'] !== null) {
+            $query->where('is_active', $filters['status']);
+        }
+
+        if (!empty($filters['date_from'])) {
+            $query->whereDate('created_at', '>=', $filters['date_from']);
+        }
+
+        if (!empty($filters['date_to'])) {
+            $query->whereDate('created_at', '<=', $filters['date_to']);
+        }
+
+        return $query->latest();
+    }
 }

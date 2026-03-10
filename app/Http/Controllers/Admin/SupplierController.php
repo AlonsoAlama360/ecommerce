@@ -13,6 +13,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Supplier;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class SupplierController extends Controller
 {
@@ -74,6 +75,53 @@ class SupplierController extends Controller
 
         return redirect()->route('admin.suppliers.index')
             ->with('success', 'Proveedor actualizado exitosamente.');
+    }
+
+    public function export(Request $request): StreamedResponse
+    {
+        $query = Supplier::query();
+
+        if ($search = $request->get('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('business_name', 'like', "%{$search}%")
+                  ->orWhere('contact_name', 'like', "%{$search}%")
+                  ->orWhere('ruc', 'like', "%{$search}%");
+            });
+        }
+
+        $filename = 'proveedores_' . now()->format('Ymd_His') . '.csv';
+
+        return response()->streamDownload(function () use ($query) {
+            $handle = fopen('php://output', 'w');
+            fprintf($handle, chr(0xEF) . chr(0xBB) . chr(0xBF));
+
+            fputcsv($handle, [
+                'Razón Social', 'Contacto', 'Email', 'Teléfono',
+                'RUC', 'Dirección', 'Ciudad', 'Estado', 'Notas',
+                'Fecha Registro',
+            ], ';');
+
+            $query->latest()->chunk(500, function ($suppliers) use ($handle) {
+                foreach ($suppliers as $supplier) {
+                    fputcsv($handle, [
+                        $supplier->business_name,
+                        $supplier->contact_name,
+                        $supplier->email ?? '',
+                        $supplier->phone ?? '',
+                        $supplier->ruc ?? '',
+                        $supplier->address ?? '',
+                        $supplier->city ?? '',
+                        $supplier->is_active ? 'Activo' : 'Inactivo',
+                        $supplier->notes ?? '',
+                        $supplier->created_at->format('d/m/Y H:i'),
+                    ], ';');
+                }
+            });
+
+            fclose($handle);
+        }, $filename, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+        ]);
     }
 
     public function destroy(Supplier $supplier, DeleteSupplier $deleteSupplier)

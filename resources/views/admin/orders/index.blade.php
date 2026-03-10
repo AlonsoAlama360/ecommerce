@@ -215,13 +215,25 @@
                         </div>
                     </td>
                     <td class="px-4 py-3">
-                        <select onchange="updateOrderStatus({{ $order->id }}, this.value)"
-                            class="px-2.5 py-1 rounded-md text-xs font-semibold border-0 cursor-pointer focus:ring-2 focus:ring-indigo-500/20 {{ $order->status_color['bg'] }} {{ $order->status_color['text'] }}"
-                            style="{{ $selectStyle }} background-size: 0.75rem; padding-right: 1.5rem;">
-                            @foreach(\App\Models\Order::STATUS_LABELS as $val => $label)
-                            <option value="{{ $val }}" {{ $order->status === $val ? 'selected' : '' }}>{{ $label }}</option>
-                            @endforeach
-                        </select>
+                        <div class="relative" data-status-dropdown>
+                            <button type="button" onclick="toggleStatusDropdown(this, {{ $order->id }})"
+                                class="status-badge inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-all hover:shadow-sm {{ $order->status_color['bg'] }} {{ $order->status_color['text'] }}" data-current="{{ $order->status }}">
+                                <span class="w-1.5 h-1.5 rounded-full bg-current opacity-70"></span>
+                                <span class="status-label">{{ $order->status_label }}</span>
+                                <i class="fas fa-chevron-down text-[8px] opacity-50 ml-0.5"></i>
+                            </button>
+                            <div class="status-dropdown hidden absolute left-0 top-full mt-1 w-44 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-50 animate-fade-in">
+                                @foreach(\App\Models\Order::STATUS_LABELS as $val => $label)
+                                @php $c = \App\Models\Order::STATUS_COLORS[$val]; @endphp
+                                <button type="button" onclick="selectStatus(this, {{ $order->id }}, '{{ $val }}')"
+                                    class="w-full flex items-center gap-2.5 px-3 py-2 text-xs hover:bg-gray-50 transition {{ $order->status === $val ? 'font-bold' : '' }}">
+                                    <span class="w-2 h-2 rounded-full {{ $c['bg'] }} {{ $c['text'] }} border border-current/20 flex-shrink-0" style="background-color: currentColor; opacity: 0.6;"></span>
+                                    <span class="flex-1 text-left text-gray-700">{{ $label }}</span>
+                                    @if($order->status === $val)<i class="fas fa-check text-[9px] text-indigo-500"></i>@endif
+                                </button>
+                                @endforeach
+                            </div>
+                        </div>
                     </td>
                     <td class="px-4 py-3">
                         <span class="text-sm text-gray-500">{{ $order->created_at->format('d/m/Y') }}</span>
@@ -421,7 +433,23 @@
                                 class="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition">
                         </div>
                     </div>
+                    @if($shippingMode === 'both')
                     <div>
+                        <label class="block text-xs font-medium text-gray-500 mb-1.5">Método de envío</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button type="button" onclick="toggleAdminShipping('create', 'agency')" id="createOptAgency"
+                                class="flex items-center gap-2 px-3 py-2 rounded-lg border-2 border-indigo-400 bg-indigo-50/50 text-sm font-medium transition">
+                                <i class="fas fa-building text-indigo-500 text-xs"></i> Agencia
+                            </button>
+                            <button type="button" onclick="toggleAdminShipping('create', 'address')" id="createOptAddress"
+                                class="flex items-center gap-2 px-3 py-2 rounded-lg border-2 border-gray-200 text-sm font-medium transition">
+                                <i class="fas fa-home text-gray-400 text-xs"></i> Domicilio
+                            </button>
+                        </div>
+                    </div>
+                    @endif
+
+                    <div id="createAddressField" class="{{ $shippingMode === 'agency' ? 'hidden' : '' }} {{ $shippingMode === 'both' ? 'hidden' : '' }}">
                         <label class="block text-xs font-medium text-gray-500 mb-1.5">Dirección de envío</label>
                         <input type="text" name="shipping_address" id="create_shipping_address"
                             class="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition">
@@ -432,6 +460,26 @@
                                 <p class="text-xs text-emerald-700 mt-0.5" id="savedAddressText"></p>
                             </div>
                             <button type="button" onclick="useSavedAddress()" class="text-[10px] font-semibold text-emerald-600 hover:text-emerald-800 bg-emerald-100 hover:bg-emerald-200 px-2 py-1 rounded transition flex-shrink-0">Usar esta</button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3 {{ $shippingMode === 'address' ? 'hidden' : '' }}" id="createAgencyFields">
+                        <div>
+                            <label class="block text-xs font-medium text-gray-500 mb-1.5">Agencia de transporte</label>
+                            <select name="shipping_agency" id="create_shipping_agency"
+                                class="w-full px-3.5 py-2.5 bg-white border border-gray-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 cursor-pointer transition appearance-none">
+                                @foreach($shippingAgencies as $agency)
+                                    <option value="{{ $agency->name }}" {{ $loop->first ? 'selected' : '' }}>{{ $agency->name }}</option>
+                                @endforeach
+                                <option value="">Sin agencia</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-500 mb-1.5">Dirección agencia</label>
+                            <input type="text" name="shipping_agency_address" id="create_shipping_agency_address" placeholder="Nombre/dirección de sede"
+                                list="createAgencyAddressList"
+                                class="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition">
+                            <datalist id="createAgencyAddressList"></datalist>
                         </div>
                     </div>
                 </div>
@@ -668,12 +716,29 @@
                 </div>
             </div>
 
-            {{-- Shipping Address --}}
+            {{-- Shipping --}}
             <div class="mb-6">
                 <h3 class="text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2">
                     <i class="fas fa-truck text-amber-400 text-xs"></i> Envío
                 </h3>
-                <div>
+
+                @if($shippingMode === 'both')
+                <div class="mb-3">
+                    <label class="block text-xs font-medium text-gray-500 mb-1.5">Método de envío</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button type="button" onclick="toggleAdminShipping('edit', 'agency')" id="editOptAgency"
+                            class="flex items-center gap-2 px-3 py-2 rounded-lg border-2 border-indigo-400 bg-indigo-50/50 text-sm font-medium transition">
+                            <i class="fas fa-building text-indigo-500 text-xs"></i> Agencia
+                        </button>
+                        <button type="button" onclick="toggleAdminShipping('edit', 'address')" id="editOptAddress"
+                            class="flex items-center gap-2 px-3 py-2 rounded-lg border-2 border-gray-200 text-sm font-medium transition">
+                            <i class="fas fa-home text-gray-400 text-xs"></i> Domicilio
+                        </button>
+                    </div>
+                </div>
+                @endif
+
+                <div id="editAddressField" class="{{ $shippingMode === 'agency' ? 'hidden' : '' }} {{ $shippingMode === 'both' ? 'hidden' : '' }}">
                     <label class="block text-xs font-medium text-gray-500 mb-1.5">Dirección de envío</label>
                     <input type="text" name="shipping_address" id="edit_shipping_address" placeholder="Dirección de entrega"
                         class="{{ $drawerInputClass }}">
@@ -684,6 +749,26 @@
                             <p class="text-xs text-emerald-700 mt-0.5" id="editSavedAddressText"></p>
                         </div>
                         <button type="button" onclick="useEditSavedAddress()" class="text-[10px] font-semibold text-emerald-600 hover:text-emerald-800 bg-emerald-100 hover:bg-emerald-200 px-2 py-1 rounded transition flex-shrink-0">Usar esta</button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3 {{ $shippingMode === 'address' ? 'hidden' : '' }}" id="editAgencyFields">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 mb-1.5">Agencia de transporte</label>
+                        <select name="shipping_agency" id="edit_shipping_agency"
+                            class="{{ $drawerSelectClass }}">
+                            @foreach($shippingAgencies as $agency)
+                                <option value="{{ $agency->name }}">{{ $agency->name }}</option>
+                            @endforeach
+                            <option value="">Sin agencia</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 mb-1.5">Dirección agencia</label>
+                        <input type="text" name="shipping_agency_address" id="edit_shipping_agency_address" placeholder="Nombre/dirección de sede"
+                            list="editAgencyAddressList"
+                            class="{{ $drawerInputClass }}">
+                        <datalist id="editAgencyAddressList"></datalist>
                     </div>
                 </div>
             </div>
@@ -733,6 +818,60 @@
     let editItemsList = [];
     let editItemCounter = 0;
     let searchTimeout = null;
+
+    // ==================== AGENCY ADDRESSES ====================
+    const agenciesData = @json($shippingAgencies->mapWithKeys(fn($a) => [$a->name => $a->addresses->pluck('address')]));
+
+    function updateAgencyDatalist(selectId, datalistId) {
+        const select = document.getElementById(selectId);
+        const datalist = document.getElementById(datalistId);
+        if (!select || !datalist) return;
+        const name = select.value;
+        datalist.innerHTML = '';
+        if (name && agenciesData[name]) {
+            agenciesData[name].forEach(addr => {
+                const opt = document.createElement('option');
+                opt.value = addr;
+                datalist.appendChild(opt);
+            });
+        }
+    }
+
+    const createAgencySelect = document.getElementById('create_shipping_agency');
+    if (createAgencySelect) {
+        createAgencySelect.addEventListener('change', function() {
+            document.getElementById('create_shipping_agency_address').value = '';
+            updateAgencyDatalist('create_shipping_agency', 'createAgencyAddressList');
+        });
+        updateAgencyDatalist('create_shipping_agency', 'createAgencyAddressList');
+    }
+    const editAgencySelect = document.getElementById('edit_shipping_agency');
+    if (editAgencySelect) {
+        editAgencySelect.addEventListener('change', function() {
+            document.getElementById('edit_shipping_agency_address').value = '';
+            updateAgencyDatalist('edit_shipping_agency', 'editAgencyAddressList');
+        });
+    }
+
+    // ==================== ADMIN SHIPPING TOGGLE ====================
+    function toggleAdminShipping(prefix, mode) {
+        const addrField = document.getElementById(prefix + 'AddressField');
+        const agencyField = document.getElementById(prefix + 'AgencyFields');
+        const optAgency = document.getElementById(prefix + 'OptAgency');
+        const optAddress = document.getElementById(prefix + 'OptAddress');
+
+        if (mode === 'agency') {
+            if (addrField) addrField.classList.add('hidden');
+            if (agencyField) agencyField.classList.remove('hidden');
+            if (optAgency) { optAgency.classList.add('border-indigo-400', 'bg-indigo-50/50'); optAgency.classList.remove('border-gray-200'); }
+            if (optAddress) { optAddress.classList.remove('border-indigo-400', 'bg-indigo-50/50'); optAddress.classList.add('border-gray-200'); }
+        } else {
+            if (addrField) addrField.classList.remove('hidden');
+            if (agencyField) agencyField.classList.add('hidden');
+            if (optAddress) { optAddress.classList.add('border-indigo-400', 'bg-indigo-50/50'); optAddress.classList.remove('border-gray-200'); }
+            if (optAgency) { optAgency.classList.remove('border-indigo-400', 'bg-indigo-50/50'); optAgency.classList.add('border-gray-200'); }
+        }
+    }
 
     // ==================== UNIFIED FILTERS ====================
     function applyFilters() {
@@ -806,7 +945,8 @@
         orderItemsList = [];
         itemCounter = 0;
         selectedClientAddress = null;
-        document.getElementById('savedAddressBadge').classList.add('hidden');
+        const badge = document.getElementById('savedAddressBadge');
+        if (badge) badge.classList.add('hidden');
         renderOrderItems();
         showDrawer(createDrawer);
     }
@@ -856,21 +996,22 @@
 
         // Show saved address if user has one
         var badge = document.getElementById('savedAddressBadge');
-        if (user.full_address) {
+        if (user.full_address && badge) {
             selectedClientAddress = user.full_address;
             document.getElementById('savedAddressText').textContent = user.full_address;
             badge.classList.remove('hidden');
-            // Auto-fill the address field
-            document.getElementById('create_shipping_address').value = user.full_address;
+            const createShipAddr = document.getElementById('create_shipping_address');
+            if (createShipAddr) createShipAddr.value = user.full_address;
         } else {
             selectedClientAddress = null;
-            badge.classList.add('hidden');
+            if (badge) badge.classList.add('hidden');
         }
     }
 
     function useSavedAddress() {
-        if (selectedClientAddress) {
-            document.getElementById('create_shipping_address').value = selectedClientAddress;
+        const createShipAddr = document.getElementById('create_shipping_address');
+        if (selectedClientAddress && createShipAddr) {
+            createShipAddr.value = selectedClientAddress;
         }
     }
 
@@ -1105,6 +1246,7 @@
                                 ${order.customer_email ? `<p class="text-sm text-gray-500"><i class="fas fa-envelope text-[10px] text-gray-400 mr-2"></i>${order.customer_email}</p>` : ''}
                                 ${order.customer_phone ? `<p class="text-sm text-gray-500"><i class="fas fa-phone text-[10px] text-gray-400 mr-2"></i>${order.customer_phone}</p>` : ''}
                                 ${order.shipping_address ? `<p class="text-sm text-gray-500"><i class="fas fa-location-dot text-[10px] text-gray-400 mr-2"></i>${order.shipping_address}</p>` : ''}
+                                ${order.shipping_agency ? `<p class="text-sm text-gray-500"><i class="fas fa-truck text-[10px] text-gray-400 mr-2"></i>${order.shipping_agency}${order.shipping_agency_address ? ' — ' + order.shipping_agency_address : ''}</p>` : ''}
                             </div>
                         </div>
 
@@ -1225,20 +1367,22 @@
         editClientSearchInput.value = '';
 
         var badge = document.getElementById('editSavedAddressBadge');
-        if (user.full_address) {
+        if (user.full_address && badge) {
             editSelectedClientAddress = user.full_address;
             document.getElementById('editSavedAddressText').textContent = user.full_address;
             badge.classList.remove('hidden');
-            document.getElementById('edit_shipping_address').value = user.full_address;
+            const editShipAddr = document.getElementById('edit_shipping_address');
+            if (editShipAddr) editShipAddr.value = user.full_address;
         } else {
             editSelectedClientAddress = null;
-            badge.classList.add('hidden');
+            if (badge) badge.classList.add('hidden');
         }
     }
 
     function useEditSavedAddress() {
-        if (editSelectedClientAddress) {
-            document.getElementById('edit_shipping_address').value = editSelectedClientAddress;
+        const editShipAddr = document.getElementById('edit_shipping_address');
+        if (editSelectedClientAddress && editShipAddr) {
+            editShipAddr.value = editSelectedClientAddress;
         }
     }
 
@@ -1421,8 +1565,24 @@
                 document.getElementById('edit_payment_method').value = order.payment_method;
                 document.getElementById('edit_payment_status').value = order.payment_status;
 
-                // Shipping address
-                document.getElementById('edit_shipping_address').value = order.shipping_address || '';
+                // Shipping
+                const editAddr = document.getElementById('edit_shipping_address');
+                if (editAddr) editAddr.value = order.shipping_address || '';
+                const editAgency = document.getElementById('edit_shipping_agency');
+                if (editAgency) {
+                    editAgency.value = order.shipping_agency || '';
+                    updateAgencyDatalist('edit_shipping_agency', 'editAgencyAddressList');
+                }
+                const editAgencyAddr = document.getElementById('edit_shipping_agency_address');
+                @if($shippingMode === 'both')
+                // Auto-select the correct tab based on order data
+                if (order.shipping_agency) {
+                    toggleAdminShipping('edit', 'agency');
+                } else {
+                    toggleAdminShipping('edit', 'address');
+                }
+                @endif
+                if (editAgencyAddr) editAgencyAddr.value = order.shipping_agency_address || '';
 
                 // Notes
                 document.getElementById('edit_admin_notes').value = order.admin_notes || '';
@@ -1459,7 +1619,40 @@
     }
 
     // ==================== UPDATE STATUS AJAX ====================
-    function updateOrderStatus(orderId, status) {
+    // Status dropdown
+    const statusStyles = @json(\App\Models\Order::STATUS_COLORS);
+    const statusLabels = @json(\App\Models\Order::STATUS_LABELS);
+
+    function toggleStatusDropdown(btn, orderId) {
+        // Close all other open dropdowns
+        document.querySelectorAll('.status-dropdown').forEach(d => {
+            if (d !== btn.nextElementSibling) d.classList.add('hidden');
+        });
+        btn.nextElementSibling.classList.toggle('hidden');
+    }
+
+    function selectStatus(optBtn, orderId, status) {
+        const container = optBtn.closest('[data-status-dropdown]');
+        const badge = container.querySelector('.status-badge');
+        const dropdown = container.querySelector('.status-dropdown');
+        dropdown.classList.add('hidden');
+
+        // Optimistic UI update
+        const style = statusStyles[status] || { bg: 'bg-gray-50', text: 'text-gray-500' };
+        const oldClasses = badge.className;
+        badge.className = 'status-badge inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-all hover:shadow-sm ' + style.bg + ' ' + style.text;
+        badge.dataset.current = status;
+        badge.querySelector('.status-label').textContent = statusLabels[status];
+
+        // Update checkmarks in dropdown
+        dropdown.querySelectorAll('button').forEach(b => {
+            b.classList.remove('font-bold');
+            const check = b.querySelector('.fa-check');
+            if (check) check.remove();
+        });
+        optBtn.classList.add('font-bold');
+        optBtn.insertAdjacentHTML('beforeend', '<i class="fas fa-check text-[9px] text-indigo-500"></i>');
+
         fetch('/admin/orders/' + orderId + '/status', {
             method: 'PUT',
             headers: {
@@ -1475,8 +1668,16 @@
         })
         .catch(() => {
             showToast('Error al actualizar estado', 'error');
+            badge.className = oldClasses;
         });
     }
+
+    // Close dropdown on outside click
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('[data-status-dropdown]')) {
+            document.querySelectorAll('.status-dropdown').forEach(d => d.classList.add('hidden'));
+        }
+    });
 
     // Close on Escape
     document.addEventListener('keydown', (e) => {
@@ -1487,5 +1688,12 @@
     @if($errors->any())
     openCreateDrawer();
     @endif
+
+    // Auto-open order from notification link (?view=ID)
+    const viewParam = new URLSearchParams(window.location.search).get('view');
+    if (viewParam) {
+        viewOrder(viewParam);
+        history.replaceState(null, '', window.location.pathname + window.location.search.replace(/[?&]view=\d+/, '').replace(/^\?$/, ''));
+    }
 </script>
 @endsection

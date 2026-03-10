@@ -21,6 +21,7 @@
             'negocio' => ['label' => 'Negocio', 'icon' => 'fa-building'],
             'redes' => ['label' => 'Redes Sociales', 'icon' => 'fa-share-nodes'],
             'seo' => ['label' => 'SEO', 'icon' => 'fa-magnifying-glass'],
+            'envio' => ['label' => 'Envío', 'icon' => 'fa-truck'],
             'notificaciones' => ['label' => 'Notificaciones', 'icon' => 'fa-bell'],
         ];
         $groupDescriptions = [
@@ -28,6 +29,7 @@
             'negocio' => 'Datos legales, dirección y contacto de tu empresa. Esta información se muestra en el footer, páginas legales y formularios.',
             'redes' => 'Conecta tus perfiles de redes sociales. Los iconos se mostrarán automáticamente en el footer y la página de contacto.',
             'seo' => 'Optimiza cómo aparece tu tienda en los resultados de búsqueda de Google.',
+            'envio' => 'Configura cómo los clientes eligen la entrega de sus pedidos en el checkout.',
             'notificaciones' => 'Configura los correos que recibir&aacute;n alertas del sistema y qu&eacute; notificaciones enviar.',
         ];
 
@@ -56,6 +58,7 @@
             'notify_new_complaint' => 'fa-book',
             'notify_new_review' => 'fa-star',
             'low_stock_threshold' => 'fa-layer-group',
+            'shipping_mode' => 'fa-truck',
         ];
 
         $iconColors = [
@@ -74,6 +77,7 @@
             'notify_new_complaint' => 'text-red-500 bg-red-50',
             'notify_new_review' => 'text-yellow-500 bg-yellow-50',
             'low_stock_threshold' => 'text-orange-500 bg-orange-50',
+            'shipping_mode' => 'text-teal-500 bg-teal-50',
         ];
     @endphp
 
@@ -310,7 +314,40 @@
                                         <label for="setting_{{ $setting->key }}" class="block text-sm font-semibold text-gray-800 mb-1">
                                             {{ $setting->label }}
                                         </label>
-                                        @if($setting->key === 'meta_description' || $setting->key === 'tagline' || $setting->key === 'whatsapp_message')
+                                        @if($setting->type === 'select')
+                                            @php
+                                                $selectOptions = match($setting->key) {
+                                                    'shipping_mode' => [
+                                                        'agency' => 'Solo agencia',
+                                                        'address' => 'Solo dirección (courier)',
+                                                        'both' => 'Agencia y dirección',
+                                                    ],
+                                                    default => [],
+                                                };
+                                                $selectDescriptions = match($setting->key) {
+                                                    'shipping_mode' => [
+                                                        'agency' => 'El cliente elige una agencia de transporte y escribe la dirección de la sede donde recibirá su pedido.',
+                                                        'address' => 'El cliente ingresa su dirección completa para entrega por courier a domicilio.',
+                                                        'both' => 'El cliente puede elegir entre envío por agencia o entrega a domicilio.',
+                                                    ],
+                                                    default => [],
+                                                };
+                                            @endphp
+                                            <select
+                                                id="setting_{{ $setting->key }}"
+                                                name="settings[{{ $setting->key }}]"
+                                                class="w-full border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition appearance-none cursor-pointer"
+                                            >
+                                                @foreach($selectOptions as $optVal => $optLabel)
+                                                    <option value="{{ $optVal }}" {{ old("settings.{$setting->key}", $setting->value) === $optVal ? 'selected' : '' }}>{{ $optLabel }}</option>
+                                                @endforeach
+                                            </select>
+                                            @if(!empty($selectDescriptions))
+                                                <p class="text-xs text-gray-400 mt-1.5" id="desc_{{ $setting->key }}">
+                                                    {{ $selectDescriptions[old("settings.{$setting->key}", $setting->value)] ?? '' }}
+                                                </p>
+                                            @endif
+                                        @elseif($setting->key === 'meta_description' || $setting->key === 'tagline' || $setting->key === 'whatsapp_message')
                                             <textarea
                                                 id="setting_{{ $setting->key }}"
                                                 name="settings[{{ $setting->key }}]"
@@ -503,6 +540,20 @@ if (metaInput && metaCount) {
         const len = metaInput.value.length;
         metaCount.textContent = len;
         metaCount.className = len > 160 ? 'text-red-500' : 'text-gray-400';
+    });
+}
+
+// Shipping mode description
+const shippingSelect = document.getElementById('setting_shipping_mode');
+if (shippingSelect) {
+    const descs = {
+        agency: 'El cliente elige una agencia de transporte y escribe la dirección de la sede donde recibirá su pedido.',
+        address: 'El cliente ingresa su dirección completa para entrega por courier a domicilio.',
+        both: 'El cliente puede elegir entre envío por agencia o entrega a domicilio.',
+    };
+    shippingSelect.addEventListener('change', function() {
+        const descEl = document.getElementById('desc_shipping_mode');
+        if (descEl) descEl.textContent = descs[this.value] || '';
     });
 }
 </script>

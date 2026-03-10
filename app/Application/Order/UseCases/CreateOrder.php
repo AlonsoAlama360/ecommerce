@@ -7,10 +7,13 @@ use App\Domain\Order\Repositories\OrderRepositoryInterface;
 use App\Mail\Admin\NewOrderNotificationMail;
 use App\Mail\OrderConfirmationMail;
 use App\Mail\WelcomeMail;
+use App\Notifications\Admin\NewOrderNotification;
 use App\Models\AbandonedCart;
 use App\Services\AdminNotificationService;
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\ShippingAgency;
+use App\Models\ShippingAgencyAddress;
 use App\Models\User;
 use App\Services\StockService;
 use Illuminate\Support\Facades\DB;
@@ -86,6 +89,8 @@ class CreateOrder
                 'customer_phone' => $dto->customerPhone,
                 'customer_email' => $dto->customerEmail,
                 'shipping_address' => $dto->shippingAddress,
+                'shipping_agency' => $dto->shippingAgency,
+                'shipping_agency_address' => $dto->shippingAgencyAddress,
                 'customer_notes' => $dto->customerNotes,
                 'admin_notes' => $dto->adminNotes,
                 'created_by' => $dto->createdBy,
@@ -96,6 +101,16 @@ class CreateOrder
                 $product = Product::find($itemData['product_id']);
                 if ($product) {
                     StockService::decrement($product, $itemData['quantity'], $order, "Venta {$order->order_number}");
+                }
+            }
+
+            // Registrar dirección de agencia si no existe
+            if ($dto->shippingAgency && $dto->shippingAgencyAddress) {
+                $agency = ShippingAgency::where('name', $dto->shippingAgency)->first();
+                if ($agency) {
+                    ShippingAgencyAddress::firstOrCreate(
+                        ['shipping_agency_id' => $agency->id, 'address' => trim($dto->shippingAgencyAddress)],
+                    );
                 }
             }
 
@@ -114,6 +129,7 @@ class CreateOrder
             }
 
             AdminNotificationService::send('notify_new_order', new NewOrderNotificationMail($order->load('items')));
+            AdminNotificationService::notify(new NewOrderNotification($order));
 
             return $order;
         });

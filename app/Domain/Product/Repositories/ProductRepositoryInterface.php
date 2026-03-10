@@ -18,6 +18,8 @@ interface ProductRepositoryInterface
 
     public function paginate(array $filters, int $perPage = 10): mixed;
 
+    public function exportQuery(array $filters): mixed;
+
     public function getStats(): object;
 
     public function findBySlugWithRelations(string $slug): ?Product;

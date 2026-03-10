@@ -162,6 +162,7 @@
                 @csrf
                 <input type="hidden" name="token" id="culqiToken">
                 <input type="hidden" name="culqi_order_id" id="culqiOrderId">
+                <input type="hidden" name="shipping_method" id="shippingMethodHidden" value="{{ $shippingMode === 'both' ? 'agency' : $shippingMode }}">
 
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
 
@@ -239,18 +240,88 @@
                             </div>
 
                             <div class="space-y-4">
+                                @if($shippingMode === 'both')
+                                {{-- Selector de método de envío --}}
                                 <div>
-                                    <label for="shipping_address" class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Dirección completa</label>
-                                    <div class="relative">
-                                        <i class="fas fa-home absolute left-4 top-4 text-gray-300 text-xs"></i>
-                                        <textarea name="shipping_address" id="shipping_address" rows="3"
-                                            class="checkout-input w-full pl-10 pr-4 py-3.5 rounded-xl border border-gray-200 outline-none text-sm font-medium text-gray-900 placeholder:text-gray-400 resize-none"
-                                            placeholder="Av. / Jr. / Calle, Número, Distrito, Ciudad"
-                                            required>{{ old('shipping_address', $user->full_address) }}</textarea>
+                                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Método de envío</label>
+                                    <div class="grid grid-cols-2 gap-3">
+                                        <label class="shipping-method-option relative flex items-center gap-3 p-3.5 rounded-xl border-2 cursor-pointer transition" id="optAgency">
+                                            <input type="radio" name="shipping_method" value="agency" class="sr-only" checked onchange="toggleShippingMethod()">
+                                            <div class="w-8 h-8 rounded-lg bg-[#D4A574]/10 flex items-center justify-center flex-shrink-0">
+                                                <i class="fas fa-building text-[#D4A574] text-xs"></i>
+                                            </div>
+                                            <div>
+                                                <p class="text-sm font-semibold text-gray-800">Agencia</p>
+                                                <p class="text-[10px] text-gray-400">Recojo en sede</p>
+                                            </div>
+                                        </label>
+                                        <label class="shipping-method-option relative flex items-center gap-3 p-3.5 rounded-xl border-2 cursor-pointer transition" id="optAddress">
+                                            <input type="radio" name="shipping_method" value="address" class="sr-only" onchange="toggleShippingMethod()">
+                                            <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
+                                                <i class="fas fa-home text-blue-500 text-xs"></i>
+                                            </div>
+                                            <div>
+                                                <p class="text-sm font-semibold text-gray-800">Domicilio</p>
+                                                <p class="text-[10px] text-gray-400">Courier a tu dirección</p>
+                                            </div>
+                                        </label>
                                     </div>
-                                    @error('shipping_address')
-                                        <p class="text-red-500 text-xs mt-1.5 flex items-center gap-1"><i class="fas fa-exclamation-circle"></i> {{ $message }}</p>
-                                    @enderror
+                                </div>
+                                @endif
+
+                                {{-- Campos de agencia --}}
+                                <div id="agencyFields" class="{{ $shippingMode === 'address' ? 'hidden' : '' }}">
+                                    <div class="space-y-4">
+                                        <div>
+                                            <label for="shipping_agency" class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Agencia de transporte</label>
+                                            <div class="relative">
+                                                <i class="fas fa-truck absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 text-xs"></i>
+                                                <select name="shipping_agency" id="shipping_agency"
+                                                    class="checkout-input w-full pl-10 pr-4 py-3.5 rounded-xl border border-gray-200 outline-none text-sm font-medium text-gray-900 appearance-none bg-white">
+                                                    @foreach($shippingAgencies as $agency)
+                                                        <option value="{{ $agency->name }}" {{ $loop->first ? 'selected' : '' }}>{{ $agency->name }}</option>
+                                                    @endforeach
+                                                </select>
+                                                <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-gray-300 text-xs pointer-events-none"></i>
+                                            </div>
+                                            <p class="text-xs text-gray-400 mt-1.5 flex items-center gap-1.5">
+                                                <i class="fas fa-info-circle text-[#D4A574]"></i>
+                                                Tu pedido será enviado a la sede de agencia que indiques.
+                                            </p>
+                                        </div>
+
+                                        <div>
+                                            <label for="shipping_agency_address" id="shipping_agency_address_label" class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Dirección de agencia</label>
+                                            <div class="relative">
+                                                <i class="fas fa-building absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 text-xs"></i>
+                                                <input type="text" name="shipping_agency_address" id="shipping_agency_address"
+                                                    list="agencyAddressList"
+                                                    class="checkout-input w-full pl-10 pr-4 py-3.5 rounded-xl border border-gray-200 outline-none text-sm font-medium text-gray-900 placeholder:text-gray-400"
+                                                    placeholder="Escribe o selecciona la sede donde recibirás tu pedido"
+                                                    value="{{ old('shipping_agency_address') }}">
+                                                <datalist id="agencyAddressList"></datalist>
+                                            </div>
+                                            @error('shipping_agency_address')
+                                                <p class="text-red-500 text-xs mt-1.5 flex items-center gap-1"><i class="fas fa-exclamation-circle"></i> {{ $message }}</p>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {{-- Campo de dirección (courier) --}}
+                                <div id="addressFields" class="{{ $shippingMode === 'agency' ? 'hidden' : '' }}">
+                                    <div>
+                                        <label for="shipping_address" class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Dirección completa</label>
+                                        <div class="relative">
+                                            <i class="fas fa-home absolute left-4 top-4 text-gray-300 text-xs"></i>
+                                            <textarea name="shipping_address" id="shipping_address" rows="3"
+                                                class="checkout-input w-full pl-10 pr-4 py-3.5 rounded-xl border border-gray-200 outline-none text-sm font-medium text-gray-900 placeholder:text-gray-400 resize-none"
+                                                placeholder="Av. / Jr. / Calle, Número, Distrito, Ciudad">{{ old('shipping_address', $user->full_address) }}</textarea>
+                                        </div>
+                                        @error('shipping_address')
+                                            <p class="text-red-500 text-xs mt-1.5 flex items-center gap-1"><i class="fas fa-exclamation-circle"></i> {{ $message }}</p>
+                                        @enderror
+                                    </div>
                                 </div>
 
                                 <div>
@@ -426,15 +497,80 @@
         var currentCulqiOrderId = null;
         var csrfToken = document.querySelector('meta[name="csrf-token"]').content;
 
+        // Shipping mode config
+        var shippingMode = '{{ $shippingMode }}';
+
+        // Agencias y sus direcciones
+        var agenciesData = @json($shippingAgencies->mapWithKeys(fn($a) => [$a->name => $a->addresses->pluck('address')]));
+        var agencySelect = document.getElementById('shipping_agency');
+        var agencyAddressInput = document.getElementById('shipping_agency_address');
+        var agencyAddressList = document.getElementById('agencyAddressList');
+        var agencyLabel = document.getElementById('shipping_agency_address_label');
+
+        function updateAgencyAddresses() {
+            if (!agencySelect) return;
+            var name = agencySelect.value;
+            agencyAddressList.innerHTML = '';
+            agencyLabel.textContent = name ? 'Dirección de agencia ' + name : 'Dirección de agencia';
+            if (name && agenciesData[name]) {
+                agenciesData[name].forEach(function(addr) {
+                    var opt = document.createElement('option');
+                    opt.value = addr;
+                    agencyAddressList.appendChild(opt);
+                });
+            }
+        }
+        if (agencySelect) {
+            agencySelect.addEventListener('change', function() {
+                agencyAddressInput.value = '';
+                updateAgencyAddresses();
+            });
+            updateAgencyAddresses();
+        }
+
+        // Toggle shipping method (only in "both" mode)
+        window.toggleShippingMethod = function() {
+            var selected = document.querySelector('input[name="shipping_method"]:checked');
+            if (!selected) return;
+            var isAgency = selected.value === 'agency';
+            var agencyFields = document.getElementById('agencyFields');
+            var addressFields = document.getElementById('addressFields');
+            var optAgency = document.getElementById('optAgency');
+            var optAddress = document.getElementById('optAddress');
+
+            agencyFields.classList.toggle('hidden', !isAgency);
+            addressFields.classList.toggle('hidden', isAgency);
+
+            optAgency.classList.toggle('border-[#D4A574]', isAgency);
+            optAgency.classList.toggle('bg-[#D4A574]/5', isAgency);
+            optAgency.classList.toggle('border-gray-200', !isAgency);
+            optAddress.classList.toggle('border-blue-400', !isAgency);
+            optAddress.classList.toggle('bg-blue-50/50', !isAgency);
+            optAddress.classList.toggle('border-gray-200', isAgency);
+
+            document.getElementById('shippingMethodHidden').value = selected.value;
+        };
+        if (shippingMode === 'both') toggleShippingMethod();
+
         function validateForm() {
             var name = document.getElementById('customer_name').value.trim();
             var email = document.getElementById('customer_email').value.trim();
             var phone = document.getElementById('customer_phone').value.trim();
-            var address = document.getElementById('shipping_address').value.trim();
 
-            if (!name || !email || !phone || !address) {
+            if (!name || !email || !phone) {
                 checkoutForm.reportValidity();
                 return false;
+            }
+
+            var currentMethod = document.getElementById('shippingMethodHidden').value;
+            if (currentMethod === 'agency') {
+                var agency = document.getElementById('shipping_agency');
+                var agencyAddr = document.getElementById('shipping_agency_address');
+                if (agency && !agency.value) { checkoutForm.reportValidity(); return false; }
+                if (agencyAddr && !agencyAddr.value.trim()) { checkoutForm.reportValidity(); return false; }
+            } else {
+                var address = document.getElementById('shipping_address');
+                if (address && !address.value.trim()) { checkoutForm.reportValidity(); return false; }
             }
             return true;
         }
@@ -465,7 +601,7 @@
                 logo: '{{ asset("images/logo_arixna.png") }}',
                 bannerColor: '#1a1a1a',
                 buttonBackground: '#D4A574',
-                buttonText: '#ffffff',
+                buttonText: 'Pagar',
                 buttonTextColor: '#ffffff',
                 menuColor: '#D4A574',
                 linksColor: '#D4A574',
@@ -566,7 +702,10 @@
                             customer_name: document.getElementById('customer_name').value.trim(),
                             customer_email: document.getElementById('customer_email').value.trim(),
                             customer_phone: document.getElementById('customer_phone').value.trim(),
-                            shipping_address: document.getElementById('shipping_address').value.trim(),
+                            shipping_address: document.getElementById('shipping_address') ? document.getElementById('shipping_address').value.trim() : '',
+                            shipping_agency: document.getElementById('shipping_agency') ? document.getElementById('shipping_agency').value : '',
+                            shipping_agency_address: document.getElementById('shipping_agency_address') ? document.getElementById('shipping_agency_address').value.trim() : '',
+                            shipping_method: document.querySelector('input[name="shipping_method"]:checked') ? document.querySelector('input[name="shipping_method"]:checked').value : shippingMode,
                             customer_notes: document.getElementById('customer_notes').value.trim(),
                         })
                     })

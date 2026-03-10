@@ -12,10 +12,12 @@ use App\Application\Product\UseCases\GetProductSpecifications;
 use App\Application\Product\UseCases\ListProducts;
 use App\Application\Product\UseCases\UpdateProduct;
 use App\Application\Product\UseCases\UpdateProductSpecifications;
+use App\Domain\Product\Repositories\ProductRepositoryInterface;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ProductController extends Controller
 {
@@ -113,5 +115,55 @@ class ProductController extends Controller
         $result = $updateSpecifications->execute($dto, $product);
 
         return response()->json($result);
+    }
+
+    public function export(Request $request, ProductRepositoryInterface $productRepository): StreamedResponse
+    {
+        $query = $productRepository->exportQuery([
+            'search' => $request->get('search'),
+            'category' => $request->get('category') ? (int) $request->get('category') : null,
+            'status' => $request->has('status') && $request->get('status') !== '' ? $request->get('status') : null,
+            'featured' => $request->has('featured') && $request->get('featured') !== '' ? $request->get('featured') : null,
+            'stock' => $request->has('stock') && $request->get('stock') !== '' ? $request->get('stock') : null,
+        ]);
+
+        $filename = 'productos_' . now()->format('Ymd_His') . '.csv';
+
+        return response()->streamDownload(function () use ($query) {
+            $handle = fopen('php://output', 'w');
+            fprintf($handle, chr(0xEF) . chr(0xBB) . chr(0xBF));
+
+            fputcsv($handle, [
+                'SKU', 'Nombre', 'Categoría', 'Precio', 'Precio Oferta',
+                'Descuento %', 'Stock', 'Material', 'Destacado', 'Estado',
+                'Fecha Creación',
+            ], ';');
+
+            $query->chunk(500, function ($products) use ($handle) {
+                foreach ($products as $product) {
+                    $discount = $product->sale_price
+                        ? round((1 - $product->sale_price / $product->price) * 100)
+                        : 0;
+
+                    fputcsv($handle, [
+                        $product->sku,
+                        $product->name,
+                        $product->category?->name ?? '',
+                        number_format($product->price, 2),
+                        $product->sale_price ? number_format($product->sale_price, 2) : '',
+                        $discount ? $discount . '%' : '',
+                        $product->stock,
+                        $product->material ?? '',
+                        $product->is_featured ? 'Sí' : 'No',
+                        $product->is_active ? 'Activo' : 'Inactivo',
+                        $product->created_at->format('d/m/Y H:i'),
+                    ], ';');
+                }
+            });
+
+            fclose($handle);
+        }, $filename, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+        ]);
     }
 }

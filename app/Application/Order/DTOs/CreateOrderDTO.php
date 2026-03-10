@@ -14,6 +14,8 @@ class CreateOrderDTO
         public readonly ?string $customerEmail = null,
         public readonly ?string $customerPhone = null,
         public readonly ?string $shippingAddress = null,
+        public readonly ?string $shippingAgency = null,
+        public readonly ?string $shippingAgencyAddress = null,
         public readonly ?string $adminNotes = null,
         public readonly int $createdBy = 0,
         public readonly string $source = 'admin',
@@ -31,6 +33,8 @@ class CreateOrderDTO
             customerEmail: $request->input('customer_email'),
             customerPhone: $request->input('customer_phone'),
             shippingAddress: $request->input('shipping_address'),
+            shippingAgency: $request->input('shipping_agency'),
+            shippingAgencyAddress: $request->input('shipping_agency_address'),
             adminNotes: $request->input('admin_notes'),
             createdBy: auth()->id(),
         );

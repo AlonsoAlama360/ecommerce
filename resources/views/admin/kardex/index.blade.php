@@ -59,14 +59,20 @@
     </div>
     <div class="px-5 pb-5 mt-3">
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div>
+            <div class="relative" id="productSearchWrapper">
                 <label class="block text-xs font-medium text-gray-500 mb-1.5">Producto</label>
-                <select id="filter_product_id" onchange="applyFilters()" class="{{ $selectClass }}" style="{{ $selectStyle }}">
-                    <option value="">Todos los productos</option>
-                    @foreach($products as $product)
-                    <option value="{{ $product->id }}" {{ request('product_id') == $product->id ? 'selected' : '' }}>{{ $product->name }} ({{ $product->sku }})</option>
-                    @endforeach
-                </select>
+                <div class="relative">
+                    <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                    <input type="text" id="productSearchInput" placeholder="Buscar producto..."
+                        autocomplete="off"
+                        class="{{ $inputClass }} pl-9 pr-8"
+                        value="{{ $selectedProduct?->name ?? '' }}">
+                    <button type="button" id="productSearchClear" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition {{ request('product_id') ? '' : 'hidden' }}" onclick="clearProductFilter()">
+                        <i class="fas fa-times text-xs"></i>
+                    </button>
+                </div>
+                <input type="hidden" id="filter_product_id" value="{{ request('product_id') }}">
+                <div id="productSearchResults" class="absolute left-0 right-0 top-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg z-50 max-h-60 overflow-y-auto hidden"></div>
             </div>
             <div>
                 <label class="block text-xs font-medium text-gray-500 mb-1.5">Tipo</label>
@@ -425,6 +431,77 @@
 
         window.location.href = '{{ route("admin.kardex.index") }}' + (params.toString() ? '?' + params.toString() : '');
     }
+
+    // ==================== PRODUCT AUTOCOMPLETE ====================
+    const productInput = document.getElementById('productSearchInput');
+    const productResults = document.getElementById('productSearchResults');
+    const productHidden = document.getElementById('filter_product_id');
+    const productClearBtn = document.getElementById('productSearchClear');
+    let productSearchTimeout = null;
+
+    productInput.addEventListener('input', function() {
+        const q = this.value.trim();
+        clearTimeout(productSearchTimeout);
+
+        if (q.length < 2) {
+            productResults.classList.add('hidden');
+            return;
+        }
+
+        productSearchTimeout = setTimeout(() => {
+            fetch('{{ route("admin.kardex.search-products") }}?q=' + encodeURIComponent(q), {
+                headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(r => r.json())
+            .then(items => {
+                if (!items.length) {
+                    productResults.innerHTML = '<div class="px-4 py-3 text-sm text-gray-400">Sin resultados</div>';
+                } else {
+                    productResults.innerHTML = items.map(p => `
+                        <button type="button" class="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 transition text-left" onclick="selectProductFilter(${p.id}, '${p.name.replace(/'/g, "\\'")}')">
+                            <div class="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                                ${p.image ? `<img src="${p.image}" class="w-full h-full object-cover" alt="">` : '<i class="fas fa-box text-gray-400 text-xs"></i>'}
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm text-gray-800 font-medium truncate">${p.name}</p>
+                                <p class="text-[11px] text-gray-400">${p.sku || '—'} · Stock: ${p.stock}</p>
+                            </div>
+                        </button>
+                    `).join('');
+                }
+                productResults.classList.remove('hidden');
+            });
+        }, 300);
+    });
+
+    productInput.addEventListener('focus', function() {
+        if (this.value.trim().length >= 2) {
+            this.dispatchEvent(new Event('input'));
+        }
+    });
+
+    function selectProductFilter(id, name) {
+        productHidden.value = id;
+        productInput.value = name;
+        productResults.classList.add('hidden');
+        productClearBtn.classList.remove('hidden');
+        applyFilters();
+    }
+
+    function clearProductFilter() {
+        productHidden.value = '';
+        productInput.value = '';
+        productClearBtn.classList.add('hidden');
+        productResults.classList.add('hidden');
+        applyFilters();
+    }
+
+    // Close results on outside click
+    document.addEventListener('click', function(e) {
+        if (!document.getElementById('productSearchWrapper').contains(e.target)) {
+            productResults.classList.add('hidden');
+        }
+    });
 
     // ==================== DRAWER SYSTEM ====================
     function showDrawer(drawer) {

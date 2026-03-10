@@ -20,6 +20,8 @@ class Order extends Model
         'customer_phone',
         'customer_email',
         'shipping_address',
+        'shipping_agency',
+        'shipping_agency_address',
         'customer_notes',
         'admin_notes',
         'created_by',

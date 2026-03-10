@@ -6,6 +6,7 @@ use App\Application\Contact\DTOs\CreateContactDTO;
 use App\Domain\Contact\Repositories\ContactRepositoryInterface;
 use App\Mail\Admin\NewContactNotificationMail;
 use App\Models\ContactMessage;
+use App\Notifications\Admin\NewContactNotification;
 use App\Services\AdminNotificationService;
 
 class CreateContactMessage
@@ -27,6 +28,7 @@ class CreateContactMessage
         $contact = $this->contactRepository->create($data);
 
         AdminNotificationService::send('notify_new_contact', new NewContactNotificationMail($contact));
+        AdminNotificationService::notify(new NewContactNotification($contact));
 
         return $contact;
     }

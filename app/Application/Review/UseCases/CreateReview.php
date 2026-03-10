@@ -6,6 +6,7 @@ use App\Application\Review\DTOs\CreateReviewDTO;
 use App\Domain\Review\Repositories\ReviewRepositoryInterface;
 use App\Mail\Admin\NewReviewNotificationMail;
 use App\Models\Review;
+use App\Notifications\Admin\NewReviewNotification;
 use App\Services\AdminNotificationService;
 
 class CreateReview
@@ -33,6 +34,7 @@ class CreateReview
 
         $review->load(['user', 'product']);
         AdminNotificationService::send('notify_new_review', new NewReviewNotificationMail($review));
+        AdminNotificationService::notify(new NewReviewNotification($review));
 
         return $review;
     }

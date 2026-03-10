@@ -6,6 +6,7 @@ use App\Application\Complaint\DTOs\CreateComplaintDTO;
 use App\Domain\Complaint\Repositories\ComplaintRepositoryInterface;
 use App\Mail\Admin\NewComplaintNotificationMail;
 use App\Models\Complaint;
+use App\Notifications\Admin\NewComplaintNotification;
 use App\Services\AdminNotificationService;
 
 class CreateComplaint
@@ -37,6 +38,7 @@ class CreateComplaint
         $complaint = $this->complaintRepository->create($data);
 
         AdminNotificationService::send('notify_new_complaint', new NewComplaintNotificationMail($complaint));
+        AdminNotificationService::notify(new NewComplaintNotification($complaint));
 
         return $complaint;
     }

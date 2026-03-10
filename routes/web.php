@@ -38,7 +38,11 @@ use App\Http\Controllers\Admin\ComplaintController as AdminComplaintController;
 use App\Http\Controllers\Admin\ContactMessageController as AdminContactMessageController;
 use App\Http\Controllers\Admin\ReportController as AdminReportController;
 use App\Http\Controllers\Admin\SiteSettingController as AdminSiteSettingController;
+use App\Http\Controllers\Admin\NotificationController as AdminNotificationController;
+use App\Http\Controllers\Admin\PushSubscriptionController as AdminPushSubscriptionController;
 use App\Http\Controllers\Admin\RolePermissionController;
+use App\Http\Controllers\Admin\SearchController as AdminSearchController;
+use App\Http\Controllers\Admin\ShippingAgencyController as AdminShippingAgencyController;
 use Illuminate\Support\Facades\Route;
 
 // Sitemap SEO
@@ -134,8 +138,12 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->middleware('permission:dashboard.view')->name('dashboard');
 
+    // Global search
+    Route::get('search', AdminSearchController::class)->name('search');
+
     // Users
     Route::resource('users', AdminUserController::class)->except(['show'])->middleware('permission:users.view');
+    Route::get('users-export', [AdminUserController::class, 'export'])->name('users.export')->middleware('permission:users.view');
     Route::put('users/{user}/address', [AdminUserController::class, 'updateAddress'])->name('users.update-address')->middleware('permission:users.view');
     Route::delete('users/{user}/address', [AdminUserController::class, 'destroyAddress'])->name('users.destroy-address')->middleware('permission:users.view');
 
@@ -145,6 +153,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     // Products
     Route::middleware('permission:products.view')->group(function () {
         Route::resource('products', AdminProductController::class)->except(['show']);
+        Route::get('products-export', [AdminProductController::class, 'export'])->name('products.export');
         Route::get('products/{product}/specifications', [AdminProductController::class, 'specifications'])->name('products.specifications');
         Route::put('products/{product}/specifications', [AdminProductController::class, 'updateSpecifications'])->name('products.specifications.update');
         Route::get('products/{product}/images', [AdminProductImageController::class, 'index'])->name('products.images.index');
@@ -156,6 +165,16 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
     // Suppliers
     Route::resource('suppliers', AdminSupplierController::class)->except(['show'])->middleware('permission:suppliers.view');
+    Route::get('suppliers-export', [AdminSupplierController::class, 'export'])->name('suppliers.export')->middleware('permission:suppliers.view');
+
+    // Shipping Agencies
+    Route::middleware('permission:settings.view')->group(function () {
+        Route::resource('shipping-agencies', AdminShippingAgencyController::class)->except(['show']);
+        Route::get('shipping-agencies/{shipping_agency}/addresses', [AdminShippingAgencyController::class, 'addresses'])->name('shipping-agencies.addresses');
+        Route::post('shipping-agencies/{shipping_agency}/addresses', [AdminShippingAgencyController::class, 'storeAddress'])->name('shipping-agencies.addresses.store');
+        Route::put('shipping-agency-addresses/{address}/toggle', [AdminShippingAgencyController::class, 'toggleAddress'])->name('shipping-agency-addresses.toggle');
+        Route::delete('shipping-agency-addresses/{address}', [AdminShippingAgencyController::class, 'destroyAddress'])->name('shipping-agency-addresses.destroy');
+    });
 
     // Orders (Sales)
     Route::middleware('permission:orders.view')->group(function () {
@@ -242,6 +261,15 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::get('settings', [AdminSiteSettingController::class, 'index'])->name('settings.index');
         Route::put('settings', [AdminSiteSettingController::class, 'update'])->name('settings.update');
     });
+
+    // Notificaciones
+    Route::get('notifications', [AdminNotificationController::class, 'index'])->name('notifications.index');
+    Route::get('notifications/count', [AdminNotificationController::class, 'unreadCount'])->name('notifications.count');
+    Route::post('notifications/read', [AdminNotificationController::class, 'markAsRead'])->name('notifications.read');
+
+    // Push subscriptions
+    Route::post('push-subscription', [AdminPushSubscriptionController::class, 'store'])->name('push.store');
+    Route::delete('push-subscription', [AdminPushSubscriptionController::class, 'destroy'])->name('push.destroy');
 
     // Roles y Permisos
     Route::middleware('permission:roles.view')->group(function () {

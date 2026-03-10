@@ -68,6 +68,42 @@ class EloquentProductRepository implements ProductRepositoryInterface
         return $query->latest()->paginate($perPage)->withQueryString();
     }
 
+    public function exportQuery(array $filters): mixed
+    {
+        $query = Product::with(['category']);
+
+        if (!empty($filters['search'])) {
+            $search = $filters['search'];
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('sku', 'like', "%{$search}%");
+            });
+        }
+
+        if (!empty($filters['category'])) {
+            $query->where('category_id', $filters['category']);
+        }
+
+        if (isset($filters['status']) && $filters['status'] !== null) {
+            $query->where('is_active', $filters['status']);
+        }
+
+        if (isset($filters['featured']) && $filters['featured'] !== null) {
+            $query->where('is_featured', $filters['featured']);
+        }
+
+        if (!empty($filters['stock'])) {
+            match ($filters['stock']) {
+                'out' => $query->where('stock', 0),
+                'low' => $query->whereBetween('stock', [1, 5]),
+                'in' => $query->where('stock', '>', 5),
+                default => null,
+            };
+        }
+
+        return $query->latest();
+    }
+
     public function getStats(): object
     {
         return DB::selectOne("

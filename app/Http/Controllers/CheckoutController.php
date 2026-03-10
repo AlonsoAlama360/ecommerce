@@ -7,6 +7,7 @@ use App\Application\Order\DTOs\CreateOrderDTO;
 use App\Application\Order\UseCases\CreateOrder;
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\SiteSetting;
 use Culqi\Culqi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -31,6 +32,8 @@ class CheckoutController extends Controller
             'totalItems' => $cart['totalItems'],
             'user' => $user,
             'culqiPublicKey' => config('culqi.public_key'),
+            'shippingAgencies' => \App\Models\ShippingAgency::where('is_active', true)->with(['addresses' => fn($q) => $q->where('is_active', true)->orderBy('address')])->orderBy('name')->get(),
+            'shippingMode' => \App\Models\SiteSetting::get('shipping_mode', 'agency'),
         ]);
     }
 
@@ -95,13 +98,20 @@ class CheckoutController extends Controller
 
     public function process(Request $request, CreateOrder $createOrder)
     {
+        $shippingMode = SiteSetting::get('shipping_mode', 'agency');
+        $method = $shippingMode === 'both' ? $request->input('shipping_method', 'agency') : $shippingMode;
+        $wantsAgency = $method === 'agency';
+
         $validated = $request->validate([
             'token' => 'required|string',
             'culqi_order_id' => 'nullable|string',
             'customer_name' => 'required|string|max:255',
             'customer_email' => 'required|email|max:255',
             'customer_phone' => 'required|string|max:20',
-            'shipping_address' => 'required|string|max:1000',
+            'shipping_address' => ($wantsAgency ? 'nullable' : 'required') . '|string|max:1000',
+            'shipping_agency' => ($wantsAgency ? 'required' : 'nullable') . '|string|max:255',
+            'shipping_agency_address' => ($wantsAgency ? 'required' : 'nullable') . '|string|max:500',
+            'shipping_method' => $shippingMode === 'both' ? 'required|in:agency,address' : 'nullable',
             'customer_notes' => 'nullable|string|max:2000',
         ]);
 
@@ -193,12 +203,19 @@ class CheckoutController extends Controller
 
     public function processYape(Request $request, CreateOrder $createOrder)
     {
+        $shippingMode = SiteSetting::get('shipping_mode', 'agency');
+        $method = $shippingMode === 'both' ? $request->input('shipping_method', 'agency') : $shippingMode;
+        $wantsAgency = $method === 'agency';
+
         $validated = $request->validate([
             'culqi_order_id' => 'required|string',
             'customer_name' => 'required|string|max:255',
             'customer_email' => 'required|email|max:255',
             'customer_phone' => 'required|string|max:20',
-            'shipping_address' => 'required|string|max:1000',
+            'shipping_address' => ($wantsAgency ? 'nullable' : 'required') . '|string|max:1000',
+            'shipping_agency' => ($wantsAgency ? 'required' : 'nullable') . '|string|max:255',
+            'shipping_agency_address' => ($wantsAgency ? 'required' : 'nullable') . '|string|max:500',
+            'shipping_method' => $shippingMode === 'both' ? 'required|in:agency,address' : 'nullable',
             'customer_notes' => 'nullable|string|max:2000',
         ]);
 
@@ -270,6 +287,8 @@ class CheckoutController extends Controller
             customerEmail: $validated['customer_email'],
             customerPhone: $validated['customer_phone'],
             shippingAddress: $validated['shipping_address'],
+            shippingAgency: $validated['shipping_agency'],
+            shippingAgencyAddress: $validated['shipping_agency_address'],
             createdBy: 0,
             source: 'web',
             paymentReference: $paymentReference,

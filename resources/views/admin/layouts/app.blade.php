@@ -115,6 +115,35 @@
         .sidebar-dropdown.open .dropdown-arrow {
             transform: rotate(180deg);
         }
+
+        /* Notification dropdown */
+        #notifDropdown.open {
+            opacity: 1;
+            visibility: visible;
+            transform: scale(1);
+        }
+        .notif-item { transition: background 0.15s; }
+        .notif-item:hover { background: #f8fafc; }
+        .notif-item.unread { background: #f0f4ff; }
+        .notif-item.unread:hover { background: #e8edff; }
+
+        #notifList::-webkit-scrollbar { width: 4px; }
+        #notifList::-webkit-scrollbar-track { background: transparent; }
+        #notifList::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 4px; }
+
+        /* Search modal */
+        .search-backdrop { animation: fadeIn .15s ease-out; }
+        .search-panel { animation: slideDown .2s cubic-bezier(.16,1,.3,1); }
+        @keyframes fadeIn { from { opacity:0 } to { opacity:1 } }
+        @keyframes slideDown { from { opacity:0; transform:translateY(-8px) scale(.98) } to { opacity:1; transform:none } }
+        #globalSearchList::-webkit-scrollbar { width: 4px; }
+        #globalSearchList::-webkit-scrollbar-track { background: transparent; }
+        #globalSearchList::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 99px; }
+        .search-item { transition: background .1s; }
+        .search-item:hover, .search-item.active { background: #eef2ff; }
+        .search-item.active { box-shadow: inset 3px 0 0 #6366f1; }
+        .search-arrow { opacity: 0; transition: all .15s; }
+        .search-item:hover .search-arrow, .search-item.active .search-arrow { opacity: 1; color: #6366f1; }
     </style>
     @yield('styles')
 </head>
@@ -203,6 +232,16 @@
                     <i class="fas fa-truck-field text-xs {{ request()->routeIs('admin.suppliers.*') ? 'text-indigo-400' : 'text-slate-500' }}"></i>
                 </div>
                 <span>Proveedores</span>
+            </a>
+            @endif
+
+            @if(Auth::user()->hasPermission('settings.view'))
+            <a href="{{ route('admin.shipping-agencies.index') }}"
+                class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium mb-0.5 {{ request()->routeIs('admin.shipping-agencies.*') ? 'active' : 'text-slate-400' }}">
+                <div class="w-8 h-8 rounded-lg {{ request()->routeIs('admin.shipping-agencies.*') ? 'bg-indigo-500/20' : 'bg-white/5' }} flex items-center justify-center transition">
+                    <i class="fas fa-shipping-fast text-xs {{ request()->routeIs('admin.shipping-agencies.*') ? 'text-indigo-400' : 'text-slate-500' }}"></i>
+                </div>
+                <span>Agencias de Envío</span>
             </a>
             @endif
 
@@ -443,18 +482,42 @@
 
                 <!-- Right: Actions -->
                 <div class="flex items-center gap-2">
-                    {{-- Search --}}
-                    <div class="hidden md:block relative">
-                        <i class="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
-                        <input type="text" placeholder="Buscar..."
-                            class="w-52 pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300 focus:w-72 transition-all">
-                    </div>
-
-                    {{-- Notifications placeholder --}}
-                    <button class="w-9 h-9 rounded-xl bg-gray-50 hover:bg-gray-100 flex items-center justify-center transition relative" aria-label="Notificaciones">
-                        <i class="fas fa-bell text-gray-500 text-sm"></i>
-                        <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
+                    {{-- Global Search: Trigger --}}
+                    <button type="button" onclick="openSearchModal()" class="group flex items-center gap-2 h-9 px-2.5 bg-gray-50 hover:bg-white border border-gray-200 hover:border-gray-300 rounded-xl transition-all cursor-pointer hover:shadow-sm" aria-label="Buscar">
+                        <i class="fas fa-search text-gray-400 text-xs group-hover:text-indigo-500 transition-colors"></i>
+                        <span class="hidden md:inline text-sm text-gray-400 group-hover:text-gray-500">Buscar...</span>
+                        <kbd class="hidden md:inline text-[10px] text-gray-400 bg-gray-100 border border-gray-200 rounded px-1.5 py-0.5 font-mono ml-3" id="globalSearchKbd">⌘K</kbd>
                     </button>
+
+                    {{-- Notifications --}}
+                    <div class="relative" id="notifWrapper">
+                        <button id="notifBtn" class="w-9 h-9 rounded-xl bg-gray-50 hover:bg-gray-100 flex items-center justify-center transition relative" aria-label="Notificaciones">
+                            <i class="fas fa-bell text-gray-500 text-sm"></i>
+                            <span id="notifBadge" class="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white hidden"></span>
+                        </button>
+
+                        {{-- Dropdown --}}
+                        <div id="notifDropdown" class="fixed sm:absolute right-0 left-0 sm:left-auto top-[56px] sm:top-full sm:mt-2 w-full sm:w-[360px] max-h-[calc(100vh-56px)] sm:max-h-[480px] bg-white sm:rounded-2xl shadow-2xl border border-gray-100 opacity-0 invisible transition-all duration-200 origin-top-right scale-95 z-50 flex flex-col">
+                            {{-- Header --}}
+                            <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+                                <h3 class="text-sm font-bold text-gray-800">Notificaciones</h3>
+                                <div class="flex items-center gap-2">
+                                    <button id="notifPushToggle" class="text-[11px] text-gray-400 hover:text-indigo-500 transition" title="Activar notificaciones push">
+                                        <i class="fas fa-mobile-screen text-xs"></i>
+                                    </button>
+                                    <button id="notifMarkAll" class="text-[11px] text-indigo-500 hover:text-indigo-700 font-medium transition">
+                                        Marcar todas leídas
+                                    </button>
+                                </div>
+                            </div>
+                            {{-- List --}}
+                            <div id="notifList" class="flex-1 overflow-y-auto divide-y divide-gray-50" style="max-height: 380px;">
+                                <div class="flex items-center justify-center py-8 text-gray-400 text-sm">
+                                    <i class="fas fa-spinner fa-spin mr-2"></i> Cargando...
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                     {{-- Divider --}}
                     <div class="w-px h-7 bg-gray-200 mx-1 hidden sm:block"></div>
@@ -629,6 +692,461 @@
             btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1.5 text-xs"></i> ' + loadingText;
         }, 0);
     }
+    </script>
+
+    {{-- Notification System --}}
+    <script>
+    (function() {
+        const VAPID_PUBLIC = @json(config('webpush.vapid.public_key'));
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+        const notifBtn = document.getElementById('notifBtn');
+        const notifDropdown = document.getElementById('notifDropdown');
+        const notifBadge = document.getElementById('notifBadge');
+        const notifList = document.getElementById('notifList');
+        const notifMarkAll = document.getElementById('notifMarkAll');
+        const notifPushToggle = document.getElementById('notifPushToggle');
+        let dropdownOpen = false;
+
+        const colorMap = {
+            green: 'bg-emerald-50 text-emerald-600',
+            red: 'bg-red-50 text-red-600',
+            blue: 'bg-blue-50 text-blue-600',
+            orange: 'bg-amber-50 text-amber-600',
+            yellow: 'bg-yellow-50 text-yellow-600',
+            gray: 'bg-gray-50 text-gray-500',
+        };
+
+        // Toggle dropdown
+        notifBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            dropdownOpen = !dropdownOpen;
+            notifDropdown.classList.toggle('open', dropdownOpen);
+            if (dropdownOpen) loadNotifications();
+        });
+
+        document.addEventListener('click', function(e) {
+            if (!document.getElementById('notifWrapper').contains(e.target)) {
+                dropdownOpen = false;
+                notifDropdown.classList.remove('open');
+            }
+        });
+
+        // Load notifications
+        function loadNotifications() {
+            fetch('{{ route("admin.notifications.index") }}', {
+                headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(r => r.json())
+            .then(items => {
+                if (!items.length) {
+                    notifList.innerHTML = '<div class="flex flex-col items-center justify-center py-10 text-gray-400"><i class="fas fa-bell-slash text-2xl mb-2"></i><p class="text-sm">Sin notificaciones</p></div>';
+                    return;
+                }
+                notifList.innerHTML = items.map(n => {
+                    const colors = colorMap[n.color] || colorMap.gray;
+                    return `<a href="${n.url}" class="notif-item flex items-start gap-3 px-4 py-3 cursor-pointer ${n.read ? '' : 'unread'}" data-id="${n.id}">
+                        <div class="w-8 h-8 rounded-lg ${colors} flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <i class="fas ${n.icon} text-xs"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-[13px] font-semibold text-gray-800 ${n.read ? '' : ''}">${n.title}</p>
+                            <p class="text-[12px] text-gray-500 truncate">${n.message}</p>
+                            <p class="text-[11px] text-gray-400 mt-0.5">${n.time}</p>
+                        </div>
+                        ${n.read ? '' : '<div class="w-2 h-2 rounded-full bg-indigo-500 flex-shrink-0 mt-2"></div>'}
+                    </a>`;
+                }).join('');
+
+                // Click on notification -> mark as read + navigate
+                notifList.querySelectorAll('.notif-item').forEach(el => {
+                    el.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const id = this.dataset.id;
+                        const url = this.getAttribute('href');
+                        fetch('{{ route("admin.notifications.read") }}', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'X-Requested-With': 'XMLHttpRequest' },
+                            body: JSON.stringify({ id: id })
+                        }).finally(() => {
+                            window.location.href = url;
+                        });
+                    });
+                });
+            })
+            .catch(() => {
+                notifList.innerHTML = '<div class="flex items-center justify-center py-8 text-red-400 text-sm">Error al cargar</div>';
+            });
+        }
+
+        // Mark all as read
+        notifMarkAll.addEventListener('click', function() {
+            fetch('{{ route("admin.notifications.read") }}', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'X-Requested-With': 'XMLHttpRequest' },
+                body: JSON.stringify({})
+            }).then(() => {
+                notifList.querySelectorAll('.unread').forEach(el => {
+                    el.classList.remove('unread');
+                    const dot = el.querySelector('.bg-indigo-500');
+                    if (dot) dot.remove();
+                });
+                notifBadge.classList.add('hidden');
+            });
+        });
+
+        // Poll unread count every 30s
+        function pollCount() {
+            fetch('{{ route("admin.notifications.count") }}', {
+                headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.count > 0) {
+                    notifBadge.classList.remove('hidden');
+                } else {
+                    notifBadge.classList.add('hidden');
+                }
+            })
+            .catch(() => {});
+        }
+        pollCount();
+        setInterval(pollCount, 30000);
+
+        // Push subscription
+        function urlBase64ToUint8Array(base64String) {
+            const padding = '='.repeat((4 - base64String.length % 4) % 4);
+            const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+            const rawData = window.atob(base64);
+            const outputArray = new Uint8Array(rawData.length);
+            for (let i = 0; i < rawData.length; ++i) {
+                outputArray[i] = rawData.charCodeAt(i);
+            }
+            return outputArray;
+        }
+
+        async function isPushSubscribed() {
+            if (!('serviceWorker' in navigator) || !('PushManager' in window)) return false;
+            const reg = await navigator.serviceWorker.getRegistration('/sw.js');
+            if (!reg) return false;
+            const sub = await reg.pushManager.getSubscription();
+            return !!sub;
+        }
+
+        async function updatePushButton() {
+            if (!('PushManager' in window)) {
+                notifPushToggle.style.display = 'none';
+                return;
+            }
+            const subscribed = await isPushSubscribed();
+            notifPushToggle.innerHTML = subscribed
+                ? '<i class="fas fa-bell-slash text-xs"></i>'
+                : '<i class="fas fa-mobile-screen text-xs"></i>';
+            notifPushToggle.title = subscribed ? 'Desactivar push' : 'Activar push en este dispositivo';
+            notifPushToggle.classList.toggle('text-indigo-500', subscribed);
+        }
+
+        notifPushToggle.addEventListener('click', async function() {
+            if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+                showToast('Tu navegador no soporta notificaciones push', 'warning');
+                return;
+            }
+
+            const subscribed = await isPushSubscribed();
+
+            if (subscribed) {
+                // Unsubscribe
+                const reg = await navigator.serviceWorker.getRegistration('/sw.js');
+                const sub = await reg.pushManager.getSubscription();
+                if (sub) {
+                    await fetch('{{ route("admin.push.destroy") }}', {
+                        method: 'DELETE',
+                        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+                        body: JSON.stringify({ endpoint: sub.endpoint })
+                    });
+                    await sub.unsubscribe();
+                    showToast('Push desactivado en este dispositivo', 'success');
+                }
+            } else {
+                // Subscribe
+                try {
+                    const permission = await Notification.requestPermission();
+                    if (permission !== 'granted') {
+                        showToast('Permiso de notificaciones denegado', 'warning');
+                        return;
+                    }
+                    const reg = await navigator.serviceWorker.register('/sw.js');
+                    await navigator.serviceWorker.ready;
+                    const sub = await reg.pushManager.subscribe({
+                        userVisibleOnly: true,
+                        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC)
+                    });
+                    const subJson = sub.toJSON();
+                    await fetch('{{ route("admin.push.store") }}', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+                        body: JSON.stringify({
+                            endpoint: subJson.endpoint,
+                            keys: { p256dh: subJson.keys.p256dh, auth: subJson.keys.auth }
+                        })
+                    });
+                    showToast('Push activado — recibirás alertas en este dispositivo', 'success');
+                } catch (err) {
+                    console.error('Push subscription error:', err);
+                    if (window.location.protocol === 'http:' && window.location.hostname !== 'localhost') {
+                        showToast('Push requiere HTTPS. Usa tu dominio con SSL.', 'error');
+                    } else {
+                        showToast('No se pudo activar push. Intenta de nuevo.', 'error');
+                    }
+                    return;
+                }
+            }
+            updatePushButton();
+        });
+
+        updatePushButton();
+    })();
+    </script>
+
+    {{-- Search Modal --}}
+    <div id="searchModal" class="hidden fixed inset-0 z-[100]" role="dialog" aria-modal="true">
+        <div class="search-backdrop absolute inset-0 bg-black/25" id="searchBackdrop"></div>
+        <div class="relative w-full h-full sm:h-auto sm:max-w-lg sm:mx-auto sm:mt-[15vh] sm:px-4">
+            <div class="search-panel bg-white h-full sm:h-auto sm:rounded-2xl sm:shadow-2xl sm:ring-1 sm:ring-black/5 flex flex-col sm:max-h-[70vh] overflow-hidden">
+                {{-- Input --}}
+                <div class="flex items-center gap-3 px-4 h-14 border-b border-gray-200/60 flex-shrink-0">
+                    <i class="fas fa-search text-gray-400 text-sm" id="searchIcon"></i>
+                    <i class="fas fa-circle-notch fa-spin text-indigo-500 text-sm hidden" id="searchSpinner"></i>
+                    <input type="text" id="globalSearchInput"
+                        placeholder="Buscar..."
+                        autocomplete="off"
+                        class="flex-1 text-base sm:text-[15px] bg-transparent outline-none text-gray-900 placeholder-gray-400">
+                    <button type="button" onclick="closeSearchModal()" class="sm:hidden text-sm text-gray-500 font-medium px-1">Cerrar</button>
+                    <kbd class="hidden sm:block text-[10px] text-gray-400 bg-gray-100 border border-gray-200 rounded px-1.5 py-0.5 font-mono cursor-pointer hover:bg-gray-200 transition" onclick="closeSearchModal()">ESC</kbd>
+                </div>
+
+                {{-- Body --}}
+                <div class="flex-1 min-h-0 overflow-hidden">
+                    {{-- Hint --}}
+                    <div id="globalSearchHint" class="flex flex-col items-center justify-center py-12 px-6 text-center">
+                        <div class="w-12 h-12 rounded-full bg-indigo-50 flex items-center justify-center mb-3">
+                            <i class="fas fa-magnifying-glass text-indigo-400"></i>
+                        </div>
+                        <p class="text-sm text-gray-500">Busca ventas, productos, usuarios y más</p>
+                        <p class="text-xs text-gray-400 mt-1 hidden sm:block">Usa <kbd class="bg-gray-100 border border-gray-200 rounded px-1 font-mono text-[10px]">↑</kbd><kbd class="bg-gray-100 border border-gray-200 rounded px-1 font-mono text-[10px]">↓</kbd> para navegar, <kbd class="bg-gray-100 border border-gray-200 rounded px-1 font-mono text-[10px]">↵</kbd> para abrir</p>
+                    </div>
+
+                    {{-- Loading --}}
+                    <div id="globalSearchLoading" class="hidden flex flex-col items-center justify-center py-12">
+                        <div class="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center mb-2">
+                            <i class="fas fa-circle-notch fa-spin text-indigo-400"></i>
+                        </div>
+                        <p class="text-sm text-gray-400">Buscando...</p>
+                    </div>
+
+                    {{-- Empty --}}
+                    <div id="globalSearchEmpty" class="hidden flex flex-col items-center justify-center py-12 px-6 text-center">
+                        <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center mb-2">
+                            <i class="fas fa-search text-gray-300"></i>
+                        </div>
+                        <p class="text-sm text-gray-500 font-medium">Sin resultados</p>
+                        <p class="text-xs text-gray-400 mt-0.5">Intenta con otro término</p>
+                    </div>
+
+                    {{-- Results --}}
+                    <div id="globalSearchList" class="overflow-y-auto overscroll-contain h-full"></div>
+                </div>
+
+                {{-- Footer desktop --}}
+                <div id="globalSearchFooter" class="hidden border-t border-gray-100 bg-gray-50/80 px-4 py-2 flex-shrink-0">
+                    <div class="flex items-center gap-4 text-[11px] text-gray-400">
+                        <span><kbd class="bg-white border border-gray-200 rounded px-1 py-0.5 font-mono text-[10px] shadow-sm">↑↓</kbd> navegar</span>
+                        <span><kbd class="bg-white border border-gray-200 rounded px-1 py-0.5 font-mono text-[10px] shadow-sm">↵</kbd> abrir</span>
+                        <span><kbd class="bg-white border border-gray-200 rounded px-1 py-0.5 font-mono text-[10px] shadow-sm">esc</kbd> cerrar</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Global Search Script --}}
+    <script>
+    (function() {
+        const modal    = document.getElementById('searchModal');
+        const backdrop = document.getElementById('searchBackdrop');
+        const input    = document.getElementById('globalSearchInput');
+        const listEl   = document.getElementById('globalSearchList');
+        const loadingEl = document.getElementById('globalSearchLoading');
+        const emptyEl  = document.getElementById('globalSearchEmpty');
+        const hintEl   = document.getElementById('globalSearchHint');
+        const footerEl = document.getElementById('globalSearchFooter');
+        const kbdEl    = document.getElementById('globalSearchKbd');
+        const iconEl   = document.getElementById('searchIcon');
+        const spinEl   = document.getElementById('searchSpinner');
+
+        if (!modal || !input) return;
+
+        // OS shortcut label
+        const isMac = /Mac|iPhone|iPad/.test(navigator.userAgent);
+        if (kbdEl && !isMac) kbdEl.textContent = 'Ctrl K';
+
+        let timer = null, abort = null, idx = -1, items = [];
+
+        const colors = {
+            'fa-receipt':       { bg: 'bg-indigo-50',  tx: 'text-indigo-500' },
+            'fa-box':           { bg: 'bg-amber-50',   tx: 'text-amber-500' },
+            'fa-users':         { bg: 'bg-emerald-50', tx: 'text-emerald-500' },
+            'fa-truck-field':   { bg: 'bg-sky-50',     tx: 'text-sky-500' },
+            'fa-cart-shopping': { bg: 'bg-violet-50',  tx: 'text-violet-500' },
+        };
+
+        function spin(on) {
+            iconEl.classList.toggle('hidden', on);
+            spinEl.classList.toggle('hidden', !on);
+        }
+
+        function reset() {
+            loadingEl.classList.add('hidden');
+            emptyEl.classList.add('hidden');
+            hintEl.classList.add('hidden');
+        }
+
+        function showFooter(show) {
+            footerEl.style.display = show ? '' : 'none';
+        }
+
+        // ---- Open / Close ----
+        window.openSearchModal = function() {
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            hintEl.classList.remove('hidden');
+            showFooter(false);
+            setTimeout(() => input.focus(), 60);
+        };
+
+        window.closeSearchModal = function() {
+            modal.classList.add('hidden');
+            document.body.style.overflow = '';
+            input.value = '';
+            listEl.innerHTML = '';
+            reset();
+            hintEl.classList.remove('hidden');
+            showFooter(false);
+            spin(false);
+            idx = -1;
+            items = [];
+            if (abort) { abort.abort(); abort = null; }
+        };
+
+        // Close on backdrop click
+        backdrop.addEventListener('click', closeSearchModal);
+
+        // ---- ESC global + Ctrl+K ----
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+                e.preventDefault();
+                e.stopPropagation();
+                closeSearchModal();
+                return;
+            }
+            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                e.preventDefault();
+                modal.classList.contains('hidden') ? openSearchModal() : closeSearchModal();
+            }
+        });
+
+        // ---- Render ----
+        function esc(t) { const d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
+
+        function render(groups) {
+            listEl.innerHTML = '';
+            reset();
+            spin(false);
+            items = [];
+            idx = -1;
+
+            if (!groups.length) { emptyEl.classList.remove('hidden'); showFooter(false); return; }
+
+            showFooter(true);
+
+            groups.forEach(g => {
+                const c = colors[g.icon] || { bg: 'bg-gray-50', tx: 'text-gray-400' };
+
+                const hdr = document.createElement('div');
+                hdr.className = 'search-group sticky top-0 z-10 flex items-center gap-2 px-4 py-2 bg-gray-50/95 backdrop-blur-sm border-b border-gray-100';
+                hdr.innerHTML = `<i class="fas ${g.icon} text-[10px] ${c.tx} w-4 text-center"></i>`
+                    + `<span class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">${g.group}</span>`
+                    + `<span class="ml-auto text-[10px] text-gray-300">${g.items.length}</span>`;
+                listEl.appendChild(hdr);
+
+                g.items.forEach(item => {
+                    const a = document.createElement('a');
+                    a.href = item.url;
+                    a.className = 'search-item flex items-center gap-3 px-4 py-2.5 cursor-pointer';
+                    a.innerHTML = `<div class="w-9 h-9 rounded-lg ${c.bg} flex items-center justify-center flex-shrink-0">`
+                        + `<i class="fas ${g.icon} text-[11px] ${c.tx}"></i></div>`
+                        + `<div class="min-w-0 flex-1">`
+                        + `<p class="text-sm font-medium text-gray-700 truncate">${esc(item.title)}</p>`
+                        + `<p class="text-[11px] text-gray-400 truncate">${esc(item.subtitle || '')}</p>`
+                        + `</div>`
+                        + `<i class="fas fa-arrow-right text-[10px] text-gray-300 search-arrow flex-shrink-0"></i>`;
+                    listEl.appendChild(a);
+                    items.push(a);
+                });
+            });
+
+            highlight(0);
+        }
+
+        function highlight(i) {
+            items.forEach((el, n) => el.classList.toggle('active', n === i));
+            idx = i;
+            if (items[i]) items[i].scrollIntoView({ block: 'nearest' });
+        }
+
+        // ---- Search ----
+        function doSearch(q) {
+            if (q.length < 2) {
+                listEl.innerHTML = ''; reset(); hintEl.classList.remove('hidden');
+                spin(false); showFooter(false);
+                return;
+            }
+
+            if (abort) abort.abort();
+            abort = new AbortController();
+
+            reset(); spin(true);
+            loadingEl.classList.remove('hidden');
+            listEl.innerHTML = '';
+
+            fetch('{{ route("admin.search") }}?q=' + encodeURIComponent(q), {
+                headers: { 'Accept': 'application/json' },
+                signal: abort.signal
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (input.value.trim().length < 2) return;
+                render(data);
+            })
+            .catch(e => {
+                if (e.name === 'AbortError') return;
+                spin(false); reset();
+                emptyEl.classList.remove('hidden');
+            });
+        }
+
+        input.addEventListener('input', function() {
+            clearTimeout(timer);
+            timer = setTimeout(() => doSearch(this.value.trim()), 400);
+        });
+
+        // ---- Keyboard nav ----
+        input.addEventListener('keydown', function(e) {
+            if (!items.length) return;
+            if (e.key === 'ArrowDown') { e.preventDefault(); highlight(idx < items.length - 1 ? idx + 1 : 0); }
+            else if (e.key === 'ArrowUp') { e.preventDefault(); highlight(idx > 0 ? idx - 1 : items.length - 1); }
+            else if (e.key === 'Enter' && idx >= 0) { e.preventDefault(); items[idx].click(); }
+        });
+    })();
     </script>
 
     @yield('scripts')
