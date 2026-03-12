@@ -13,12 +13,16 @@ return new class extends Migration
             $table->string('payment_reference')->nullable()->after('payment_status');
         });
 
-        DB::statement("ALTER TABLE orders MODIFY COLUMN payment_method ENUM('efectivo','transferencia','yape_plin','tarjeta','culqi') DEFAULT 'efectivo'");
+        if (DB::getDriverName() !== 'sqlite') {
+            DB::statement("ALTER TABLE orders MODIFY COLUMN payment_method ENUM('efectivo','transferencia','yape_plin','tarjeta','culqi') DEFAULT 'efectivo'");
+        }
     }
 
     public function down(): void
     {
-        DB::statement("ALTER TABLE orders MODIFY COLUMN payment_method ENUM('efectivo','transferencia','yape_plin','tarjeta') DEFAULT 'efectivo'");
+        if (DB::getDriverName() !== 'sqlite') {
+            DB::statement("ALTER TABLE orders MODIFY COLUMN payment_method ENUM('efectivo','transferencia','yape_plin','tarjeta') DEFAULT 'efectivo'");
+        }
 
         Schema::table('orders', function (Blueprint $table) {
             $table->dropColumn('payment_reference');
