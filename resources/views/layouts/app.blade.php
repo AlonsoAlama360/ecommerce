@@ -176,6 +176,12 @@
                         <i class="fas fa-heart text-lg text-[#D4A574]"></i>
                         <span>Lista de Deseos</span>
                     </a>
+                    @if(!Auth::user()->isCliente())
+                        <a href="{{ url('/admin') }}" class="flex items-center gap-3 py-3 px-4 text-gray-700 hover:bg-gray-50 rounded-lg transition">
+                            <i class="fas fa-shield-halved text-lg text-[#D4A574]"></i>
+                            <span>Administrador</span>
+                        </a>
+                    @endif
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
                         <button type="submit" class="flex items-center gap-3 py-3 px-4 text-red-600 hover:bg-red-50 rounded-lg transition w-full">
@@ -290,6 +296,12 @@
                                         <i class="fas fa-heart w-5 text-center text-[#D4A574]"></i>
                                         <span>Lista de Deseos</span>
                                     </a>
+                                    @if(!Auth::user()->isCliente())
+                                        <a href="{{ url('/admin') }}" class="flex items-center gap-3 px-5 py-3 text-gray-700 hover:bg-gray-50 transition">
+                                            <i class="fas fa-shield-halved w-5 text-center text-[#D4A574]"></i>
+                                            <span>Administrador</span>
+                                        </a>
+                                    @endif
                                 </div>
                                 <div class="border-t border-gray-100 py-2">
                                     <form method="POST" action="{{ route('logout') }}">
@@ -402,14 +414,12 @@
         </div>
     </div>
 
-    {{-- Mensajes Flash --}}
+    {{-- Flash Toasts --}}
     @if(session('success'))
-        <div class="bg-green-50 border-b border-green-200 px-4 py-3">
-            <div class="max-w-7xl mx-auto flex items-center justify-between">
-                <p class="text-green-800 font-medium"><i class="fas fa-check-circle mr-2"></i>{{ session('success') }}</p>
-                <button onclick="this.parentElement.parentElement.remove()" class="text-green-600 hover:text-green-800" aria-label="Cerrar notificación"><i class="fas fa-times"></i></button>
-            </div>
-        </div>
+        <template id="flashSuccess" data-message="{{ session('success') }}"></template>
+    @endif
+    @if(session('error'))
+        <template id="flashError" data-message="{{ session('error') }}"></template>
     @endif
 
     <!-- Contenido Principal -->
@@ -481,6 +491,25 @@
     </footer>
 
     @yield('scripts')
+
+    {{-- Flash toast triggers --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var s = document.getElementById('flashSuccess');
+            if (s) {
+                setTimeout(function() {
+                    if (typeof showSuccessToast === 'function') showSuccessToast('Listo', s.dataset.message);
+                    else if (typeof showToast === 'function') showToast(s.dataset.message);
+                }, 300);
+            }
+            var e = document.getElementById('flashError');
+            if (e) {
+                setTimeout(function() {
+                    if (typeof showErrorToast === 'function') showErrorToast('Error', e.dataset.message);
+                }, 300);
+            }
+        });
+    </script>
 
     <!-- Cart Sidebar -->
     <div class="cart-sidebar-overlay" id="cartOverlay"></div>

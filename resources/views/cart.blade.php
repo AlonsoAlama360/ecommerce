@@ -151,18 +151,6 @@
     <div class="bg-[#FAF8F5] min-h-screen">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-10">
 
-            @if(session('error'))
-                <div class="mb-6 bg-red-50 border border-red-200 rounded-2xl px-5 py-4 flex items-center gap-3 animate-fade-up">
-                    <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
-                        <i class="fas fa-exclamation-circle text-red-500 text-sm"></i>
-                    </div>
-                    <p class="text-red-700 text-sm font-medium">{{ session('error') }}</p>
-                    <button onclick="this.parentElement.remove()" class="ml-auto text-red-400 hover:text-red-600 transition">
-                        <i class="fas fa-times text-xs"></i>
-                    </button>
-                </div>
-            @endif
-
             @if(empty($cartItems))
                 {{-- Empty Cart --}}
                 <div class="text-center py-20 animate-fade-up">
@@ -361,22 +349,27 @@
                                 <div class="mt-5 space-y-3">
                                     @auth
                                         <a href="{{ route('checkout') }}" class="checkout-btn w-full text-white py-4 rounded-xl font-semibold flex items-center justify-center gap-2.5 text-[15px]">
-                                            <i class="fas fa-lock text-xs relative z-10"></i>
-                                            <span class="relative z-10">Proceder al Pago</span>
+                                            <i class="fas fa-credit-card text-xs relative z-10"></i>
+                                            <span class="relative z-10">Compra online</span>
                                         </a>
                                     @else
                                         <a href="{{ route('login') }}?redirect={{ urlencode(route('checkout')) }}" class="checkout-btn w-full text-white py-4 rounded-xl font-semibold flex items-center justify-center gap-2.5 text-[15px]">
                                             <i class="fas fa-lock text-xs relative z-10"></i>
-                                            <span class="relative z-10">Iniciar sesión para pagar</span>
+                                            <span class="relative z-10">Iniciar sesión para comprar</span>
                                         </a>
                                     @endauth
 
-                                    <button type="button"
-                                            id="whatsappCartBtn"
-                                            class="w-full bg-[#25D366] text-white py-3.5 rounded-xl font-semibold hover:bg-[#20bd5a] transition-all hover:shadow-lg hover:shadow-[#25D366]/20 flex items-center justify-center gap-2">
-                                        <i class="fab fa-whatsapp text-lg"></i>
-                                        Pedir por WhatsApp
-                                    </button>
+                                    @auth
+                                        <a href="{{ route('checkout.advisor') }}" class="w-full bg-gradient-to-r from-[#D4A574] to-[#C39563] text-white py-3.5 rounded-xl font-semibold hover:shadow-lg hover:shadow-[#D4A574]/25 transition-all flex items-center justify-center gap-2">
+                                            <i class="fas fa-headset text-sm"></i>
+                                            Compra con asesor
+                                        </a>
+                                    @else
+                                        <a href="{{ route('login') }}?redirect={{ urlencode(route('checkout.advisor')) }}" class="w-full bg-gradient-to-r from-[#D4A574] to-[#C39563] text-white py-3.5 rounded-xl font-semibold hover:shadow-lg hover:shadow-[#D4A574]/25 transition-all flex items-center justify-center gap-2">
+                                            <i class="fas fa-headset text-sm"></i>
+                                            Compra con asesor
+                                        </a>
+                                    @endauth
                                 </div>
 
                                 {{-- Payment Methods --}}
@@ -404,6 +397,21 @@
                                             <span class="text-[10px] font-bold text-green-600">Plin</span>
                                         </div>
                                     </div>
+                                </div>
+
+                                {{-- WhatsApp --}}
+                                <div class="mt-4">
+                                    <button type="button" id="whatsappCartBtn"
+                                        class="group w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-white border border-gray-100 hover:border-[#25D366]/30 hover:shadow-md hover:shadow-[#25D366]/10 transition-all duration-300">
+                                        <div class="w-9 h-9 rounded-full bg-[#25D366] flex items-center justify-center flex-shrink-0 shadow-sm shadow-[#25D366]/25">
+                                            <i class="fab fa-whatsapp text-white text-base"></i>
+                                        </div>
+                                        <div class="flex-1 text-left">
+                                            <p class="text-[13px] font-semibold text-gray-700 leading-tight">Consultar por WhatsApp</p>
+                                            <p class="text-[10px] text-gray-400 leading-tight mt-0.5">Atención inmediata</p>
+                                        </div>
+                                        <i class="fas fa-chevron-right text-[9px] text-gray-300 group-hover:text-[#25D366] transition-colors"></i>
+                                    </button>
                                 </div>
 
                                 <p class="text-center text-[11px] text-gray-400 mt-4 flex items-center justify-center gap-1.5">

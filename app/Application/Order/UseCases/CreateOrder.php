@@ -28,7 +28,9 @@ class CreateOrder
 
     public function execute(CreateOrderDTO $dto): Order
     {
-        return DB::transaction(function () use ($dto) {
+        $newUser = null;
+
+        $order = DB::transaction(function () use ($dto, &$newUser) {
             $user = null;
             if (!empty($dto->customerEmail)) {
                 $user = User::where('email', $dto->customerEmail)->first();
@@ -48,7 +50,7 @@ class CreateOrder
                     'auth_provider' => 'form',
                 ])->save();
 
-                Mail::to($user)->queue(new WelcomeMail($user));
+                $newUser = $user;
             }
 
             $subtotal = 0;
@@ -77,7 +79,7 @@ class CreateOrder
             $order = $this->orderRepository->create([
                 'user_id' => $user?->id,
                 'source' => $dto->source,
-                'status' => 'confirmado',
+                'status' => $dto->paymentMethod === 'asesor' ? 'pendiente' : 'confirmado',
                 'payment_method' => $dto->paymentMethod,
                 'payment_status' => $dto->paymentStatus,
                 'payment_reference' => $dto->paymentReference,
@@ -120,18 +122,32 @@ class CreateOrder
                     ->update(['recovered_at' => now()]);
             }
 
-            if ($order->customer_email) {
-                try {
-                    Mail::to($order->customer_email)->queue(new OrderConfirmationMail($order->load('items')));
-                } catch (\Exception $e) {
-                    \Log::warning("No se pudo enviar email de confirmación para {$order->order_number}: " . $e->getMessage());
-                }
-            }
-
-            AdminNotificationService::send('notify_new_order', new NewOrderNotificationMail($order->load('items')));
-            AdminNotificationService::notify(new NewOrderNotification($order));
-
             return $order;
         });
+
+        // Enviar correos después del commit para que el worker pueda encontrar la orden
+        if ($newUser) {
+            try {
+                Mail::to($newUser)->queue(new WelcomeMail($newUser));
+            } catch (\Exception $e) {
+                \Log::warning("No se pudo enviar email de bienvenida: " . $e->getMessage());
+            }
+        }
+
+        if ($order->customer_email) {
+            try {
+                $mailable = $order->payment_method === 'asesor'
+                    ? new \App\Mail\AdvisorOrderMail($order->load('items'))
+                    : new OrderConfirmationMail($order->load('items'));
+                Mail::to($order->customer_email)->queue($mailable);
+            } catch (\Exception $e) {
+                \Log::warning("No se pudo enviar email de confirmación para {$order->order_number}: " . $e->getMessage());
+            }
+        }
+
+        AdminNotificationService::send('notify_new_order', new NewOrderNotificationMail($order->load('items')));
+        AdminNotificationService::notify(new NewOrderNotification($order));
+
+        return $order;
     }
 }

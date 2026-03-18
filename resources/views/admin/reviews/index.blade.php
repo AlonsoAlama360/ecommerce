@@ -66,38 +66,65 @@
 </div>
 
 {{-- ==================== FILTERS ==================== --}}
-<div class="bg-white rounded-xl border border-gray-100 shadow-sm mb-6">
-    <div class="p-4 flex flex-col sm:flex-row gap-3">
-        <form method="GET" class="flex flex-col sm:flex-row gap-3 flex-1 flex-wrap">
-            <div class="relative flex-1 min-w-[200px]">
-                <i class="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
-                <input type="text" name="search" value="{{ request('search') }}" placeholder="Buscar por usuario, producto o comentario..."
-                    class="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400">
-            </div>
-            <select name="status" class="px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 bg-white">
-                <option value="">Todos los estados</option>
-                <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Aprobadas</option>
-                <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pendientes</option>
-            </select>
-            <select name="rating" class="px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 bg-white">
-                <option value="">Todas las estrellas</option>
-                @for($i = 5; $i >= 1; $i--)
-                    <option value="{{ $i }}" {{ request('rating') == $i ? 'selected' : '' }}>{{ $i }} estrella{{ $i > 1 ? 's' : '' }}</option>
-                @endfor
-            </select>
-            <label class="flex items-center gap-2 px-4 py-2.5 border border-gray-200 rounded-lg text-sm cursor-pointer hover:bg-gray-50 transition {{ request('featured') ? 'bg-purple-50 border-purple-300' : '' }}">
-                <input type="checkbox" name="featured" value="1" {{ request('featured') ? 'checked' : '' }} class="w-4 h-4 text-purple-500 border-gray-300 rounded focus:ring-purple-400">
-                <span class="font-medium text-gray-700"><i class="fas fa-home text-purple-500 mr-1"></i> En Inicio</span>
-            </label>
-            <button type="submit" class="px-5 py-2.5 bg-indigo-500 text-white rounded-lg text-sm font-medium hover:bg-indigo-600 transition">
-                <i class="fas fa-filter mr-1"></i> Filtrar
-            </button>
-            @if(request()->hasAny(['search', 'status', 'rating', 'featured']))
-                <a href="{{ route('admin.reviews.index') }}" class="px-5 py-2.5 bg-gray-100 text-gray-600 rounded-lg text-sm font-medium hover:bg-gray-200 transition text-center">
-                    Limpiar
-                </a>
+@php
+    $hasFilters = request()->hasAny(['search', 'status', 'rating', 'featured']);
+    $filterCount = collect(['search','status','rating','featured'])->filter(fn($f) => request($f))->count();
+@endphp
+<div class="filter-collapsible bg-white rounded-xl border border-gray-200 mb-6">
+    <button type="button" onclick="this.closest('.filter-collapsible').classList.toggle('open')"
+        class="w-full flex items-center justify-between px-4 py-2.5 hover:bg-gray-50/50 transition-all group cursor-pointer">
+        <div class="flex items-center gap-2.5">
+            <i class="fas fa-sliders text-indigo-400 text-sm"></i>
+            <span class="text-sm font-semibold text-gray-600">Filtros</span>
+            @if($filterCount)
+                <span class="bg-indigo-500 text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full">{{ $filterCount }}</span>
             @endif
-        </form>
+        </div>
+        <i class="fas fa-chevron-down text-gray-300 text-[10px] filter-chevron"></i>
+    </button>
+    <div class="filter-panel">
+        <div class="border-t border-gray-100 mx-4"></div>
+        <div class="p-4">
+            <form method="GET">
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                    <div class="filter-field col-span-2">
+                        <label>Buscar</label>
+                        <input type="text" name="search" value="{{ request('search') }}" placeholder="Usuario, producto o comentario...">
+                    </div>
+                    <div class="filter-field">
+                        <label>Estado</label>
+                        <select name="status">
+                            <option value="">Todos</option>
+                            <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Aprobadas</option>
+                            <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pendientes</option>
+                        </select>
+                    </div>
+                    <div class="filter-field">
+                        <label>Estrellas</label>
+                        <select name="rating">
+                            <option value="">Todas</option>
+                            @for($i = 5; $i >= 1; $i--)
+                                <option value="{{ $i }}" {{ request('rating') == $i ? 'selected' : '' }}>{{ $i }} estrella{{ $i > 1 ? 's' : '' }}</option>
+                            @endfor
+                        </select>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3 mt-3">
+                    <label class="flex items-center gap-2 px-3 py-2 border border-gray-200 rounded-lg text-xs cursor-pointer hover:bg-gray-50 transition {{ request('featured') ? 'bg-purple-50 border-purple-300' : '' }}">
+                        <input type="checkbox" name="featured" value="1" {{ request('featured') ? 'checked' : '' }} class="w-3.5 h-3.5 text-purple-500 border-gray-300 rounded focus:ring-purple-400">
+                        <span class="font-medium text-gray-700"><i class="fas fa-home text-purple-500 mr-1"></i> En Inicio</span>
+                    </label>
+                    <button type="submit" class="px-4 py-2 bg-indigo-500 text-white rounded-lg text-xs font-semibold hover:bg-indigo-600 transition">
+                        <i class="fas fa-filter mr-1"></i> Filtrar
+                    </button>
+                    @if($hasFilters)
+                    <a href="{{ route('admin.reviews.index') }}" class="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold text-red-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition">
+                        <i class="fas fa-xmark"></i> Limpiar
+                    </a>
+                    @endif
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 

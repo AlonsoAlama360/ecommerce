@@ -49,56 +49,66 @@
 {{-- ==================== SEARCH FILTERS CARD ==================== --}}
 @php
     $selectStyle = "background-image: url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%236b7280'%3E%3Cpath fill-rule='evenodd' d='M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z' clip-rule='evenodd'/%3E%3C/svg%3E\"); background-position: right 0.75rem center; background-repeat: no-repeat; background-size: 1rem;";
-    $selectClass = "w-full px-3.5 py-2.5 bg-white border border-gray-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 cursor-pointer transition appearance-none";
-    $inputClass = "w-full px-3.5 py-2.5 bg-white border border-gray-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition";
     $hasFilters = request('product_id') || request('type') || request('date_from') || request('date_to');
+    $filterCount = collect(['product_id','type','date_from','date_to'])->filter(fn($f) => request($f))->count();
 @endphp
-<div class="bg-white rounded-xl border border-gray-100 shadow-sm mb-6">
-    <div class="px-5 pt-5 pb-2">
-        <h3 class="text-base font-semibold text-gray-800">Filtros de búsqueda</h3>
-    </div>
-    <div class="px-5 pb-5 mt-3">
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="relative" id="productSearchWrapper">
-                <label class="block text-xs font-medium text-gray-500 mb-1.5">Producto</label>
-                <div class="relative">
-                    <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
-                    <input type="text" id="productSearchInput" placeholder="Buscar producto..."
-                        autocomplete="off"
-                        class="{{ $inputClass }} pl-9 pr-8"
-                        value="{{ $selectedProduct?->name ?? '' }}">
-                    <button type="button" id="productSearchClear" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition {{ request('product_id') ? '' : 'hidden' }}" onclick="clearProductFilter()">
-                        <i class="fas fa-times text-xs"></i>
-                    </button>
+<div class="filter-collapsible bg-white rounded-xl border border-gray-200 mb-6">
+    <button type="button" onclick="this.closest('.filter-collapsible').classList.toggle('open')"
+        class="w-full flex items-center justify-between px-4 py-2.5 hover:bg-gray-50/50 transition-all group cursor-pointer">
+        <div class="flex items-center gap-2.5">
+            <i class="fas fa-sliders text-indigo-400 text-sm"></i>
+            <span class="text-sm font-semibold text-gray-600">Filtros</span>
+            @if($filterCount)
+                <span class="bg-indigo-500 text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full">{{ $filterCount }}</span>
+            @endif
+        </div>
+        <i class="fas fa-chevron-down text-gray-300 text-[10px] filter-chevron"></i>
+    </button>
+    <div class="filter-panel">
+        <div class="border-t border-gray-100 mx-4"></div>
+        <div class="p-4">
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                <div class="filter-field relative" id="productSearchWrapper">
+                    <label>Producto</label>
+                    <div class="relative">
+                        <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs z-10"></i>
+                        <input type="text" id="productSearchInput" placeholder="Buscar producto..."
+                            autocomplete="off"
+                            style="padding-left: 2.25rem; padding-right: 2rem;"
+                            value="{{ $selectedProduct?->name ?? '' }}">
+                        <button type="button" id="productSearchClear" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition {{ request('product_id') ? '' : 'hidden' }}" onclick="clearProductFilter()">
+                            <i class="fas fa-times text-xs"></i>
+                        </button>
+                    </div>
+                    <input type="hidden" id="filter_product_id" value="{{ request('product_id') }}">
+                    <div id="productSearchResults" class="absolute left-0 right-0 top-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg z-50 max-h-60 overflow-y-auto hidden"></div>
                 </div>
-                <input type="hidden" id="filter_product_id" value="{{ request('product_id') }}">
-                <div id="productSearchResults" class="absolute left-0 right-0 top-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg z-50 max-h-60 overflow-y-auto hidden"></div>
+                <div class="filter-field">
+                    <label>Tipo</label>
+                    <select id="filter_type" onchange="applyFilters()">
+                        <option value="">Todos</option>
+                        @foreach(\App\Models\StockMovement::TYPE_LABELS as $val => $label)
+                        <option value="{{ $val }}" {{ request('type') === $val ? 'selected' : '' }}>{{ $label }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="filter-field">
+                    <label>Desde</label>
+                    <input type="date" id="filter_date_from" value="{{ request('date_from') }}" onchange="applyFilters()">
+                </div>
+                <div class="filter-field">
+                    <label>Hasta</label>
+                    <input type="date" id="filter_date_to" value="{{ request('date_to') }}" onchange="applyFilters()">
+                </div>
             </div>
-            <div>
-                <label class="block text-xs font-medium text-gray-500 mb-1.5">Tipo</label>
-                <select id="filter_type" onchange="applyFilters()" class="{{ $selectClass }}" style="{{ $selectStyle }}">
-                    <option value="">Todos los tipos</option>
-                    @foreach(\App\Models\StockMovement::TYPE_LABELS as $val => $label)
-                    <option value="{{ $val }}" {{ request('type') === $val ? 'selected' : '' }}>{{ $label }}</option>
-                    @endforeach
-                </select>
+            @if($hasFilters)
+            <div class="mt-3">
+                <a href="{{ route('admin.kardex.index') }}" class="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold text-red-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition">
+                    <i class="fas fa-xmark"></i> Limpiar filtros
+                </a>
             </div>
-            <div>
-                <label class="block text-xs font-medium text-gray-500 mb-1.5">Desde</label>
-                <input type="date" id="filter_date_from" value="{{ request('date_from') }}" onchange="applyFilters()" class="{{ $inputClass }}">
-            </div>
-            <div>
-                <label class="block text-xs font-medium text-gray-500 mb-1.5">Hasta</label>
-                <input type="date" id="filter_date_to" value="{{ request('date_to') }}" onchange="applyFilters()" class="{{ $inputClass }}">
-            </div>
+            @endif
         </div>
-        @if($hasFilters)
-        <div class="mt-4">
-            <a href="{{ route('admin.kardex.index') }}" class="inline-flex items-center gap-2 px-4 py-2.5 text-sm text-gray-500 hover:text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-50 transition">
-                <i class="fas fa-rotate-left text-xs"></i> Limpiar filtros
-            </a>
-        </div>
-        @endif
     </div>
 </div>
 

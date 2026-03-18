@@ -1,0 +1,19 @@
+{
+    "name": "Arixna Admin",
+    "short_name": "Arixna",
+    "description": "Panel de Administración Arixna",
+    "start_url": "/admin",
+    "scope": "/",
+    "display": "standalone",
+    "orientation": "any",
+    "background_color": "#0f172a",
+    "theme_color": "#0f172a",
+    "icons": [
+        {
+            "src": "/images/logo_arixna.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ]
+}

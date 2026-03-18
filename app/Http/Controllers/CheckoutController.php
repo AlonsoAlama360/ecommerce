@@ -269,6 +269,90 @@ class CheckoutController extends Controller
         ]);
     }
 
+    public function advisorIndex(GetCart $getCart)
+    {
+        $cart = $getCart->execute();
+
+        if (empty($cart['cartItems'])) {
+            return redirect()->route('cart')->with('error', 'Tu carrito está vacío.');
+        }
+
+        $user = auth()->user();
+
+        return view('checkout-advisor', [
+            'cartItems' => $cart['cartItems'],
+            'subtotal' => $cart['subtotal'],
+            'totalDiscount' => $cart['totalDiscount'],
+            'total' => $cart['total'],
+            'totalItems' => $cart['totalItems'],
+            'user' => $user,
+            'shippingAgencies' => \App\Models\ShippingAgency::where('is_active', true)
+                ->with(['addresses' => fn($q) => $q->where('is_active', true)->orderBy('address')])
+                ->orderBy('name')->get(),
+            'shippingMode' => SiteSetting::get('shipping_mode', 'agency'),
+        ]);
+    }
+
+    public function processAdvisor(Request $request, CreateOrder $createOrder)
+    {
+        $shippingMode = SiteSetting::get('shipping_mode', 'agency');
+        $method = $shippingMode === 'both' ? $request->input('shipping_method', 'agency') : $shippingMode;
+        $wantsAgency = $method === 'agency';
+
+        $validated = $request->validate([
+            'customer_name' => 'required|string|max:255',
+            'customer_email' => 'required|email|max:255',
+            'customer_phone' => 'required|string|max:20',
+            'shipping_address' => ($wantsAgency ? 'nullable' : 'required') . '|string|max:1000',
+            'shipping_agency' => ($wantsAgency ? 'required' : 'nullable') . '|string|max:255',
+            'shipping_agency_address' => ($wantsAgency ? 'required' : 'nullable') . '|string|max:500',
+            'shipping_method' => $shippingMode === 'both' ? 'required|in:agency,address' : 'nullable',
+            'customer_notes' => 'nullable|string|max:2000',
+        ]);
+
+        $cart = app(GetCart::class)->execute();
+
+        if (empty($cart['cartItems'])) {
+            return back()->with('error', 'Tu carrito está vacío.');
+        }
+
+        $stockErrors = $this->validateStock($cart['cartItems']);
+        if (!empty($stockErrors)) {
+            return back()->withInput()->with('error', implode(' ', $stockErrors));
+        }
+
+        $items = [];
+        foreach ($cart['cartItems'] as $cartItem) {
+            $items[] = [
+                'product_id' => $cartItem['product']->id,
+                'quantity' => $cartItem['quantity'],
+            ];
+        }
+
+        $dto = new CreateOrderDTO(
+            customerName: $validated['customer_name'],
+            paymentMethod: 'asesor',
+            paymentStatus: 'pendiente',
+            items: $items,
+            customerEmail: $validated['customer_email'],
+            customerPhone: $validated['customer_phone'],
+            shippingAddress: $validated['shipping_address'] ?? null,
+            shippingAgency: $validated['shipping_agency'] ?? null,
+            shippingAgencyAddress: $validated['shipping_agency_address'] ?? null,
+            createdBy: 0,
+            source: 'web',
+            paymentReference: null,
+            customerNotes: $validated['customer_notes'] ?? null,
+        );
+
+        $order = $createOrder->execute($dto);
+
+        session()->forget('cart');
+
+        return redirect()->route('orders.show', $order)
+            ->with('advisor_success', true);
+    }
+
     private function createLocalOrder(array $validated, array $cart, ?string $paymentReference, CreateOrder $createOrder)
     {
         $items = [];

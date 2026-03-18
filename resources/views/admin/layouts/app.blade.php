@@ -7,6 +7,12 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Admin') - Panel de Administración</title>
     <link rel="icon" href="{{ !empty($settings['site_favicon']) ? asset('storage/' . $settings['site_favicon']) : asset('images/logo_arixna1024512_min.webp') }}">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#0f172a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Arixna Admin">
+    <link rel="apple-touch-icon" href="/images/logo_arixna.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -114,6 +120,58 @@
         }
         .sidebar-dropdown.open .dropdown-arrow {
             transform: rotate(180deg);
+        }
+
+        /* Collapsible Filters */
+        .filter-collapsible .filter-panel {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .filter-collapsible.open .filter-panel {
+            max-height: 500px;
+        }
+        .filter-collapsible .filter-chevron {
+            transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .filter-collapsible.open .filter-chevron {
+            transform: rotate(180deg);
+        }
+
+        /* Filter field styling */
+        .filter-field select,
+        .filter-field input[type="date"],
+        .filter-field input[type="text"] {
+            width: 100%;
+            padding: 9px 14px;
+            background: #f9fafb;
+            border: 1.5px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 13px;
+            color: #374151;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+        .filter-field select { padding-right: 36px; }
+        .filter-field select:hover,
+        .filter-field input:hover {
+            border-color: #c7d2fe;
+            background: #fff;
+        }
+        .filter-field select:focus,
+        .filter-field input:focus {
+            border-color: #818cf8;
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+        }
+        .filter-field label {
+            display: block;
+            font-size: 11px;
+            font-weight: 600;
+            color: #9ca3af;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
         }
 
         /* Notification dropdown */
@@ -833,8 +891,10 @@
         }
 
         async function updatePushButton() {
-            if (!('PushManager' in window)) {
-                notifPushToggle.style.display = 'none';
+            if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+                notifPushToggle.innerHTML = '<i class="fas fa-mobile-screen text-xs"></i>';
+                notifPushToggle.title = 'Push no disponible en este navegador';
+                notifPushToggle.classList.add('text-gray-300');
                 return;
             }
             const subscribed = await isPushSubscribed();
@@ -847,7 +907,12 @@
 
         notifPushToggle.addEventListener('click', async function() {
             if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
-                showToast('Tu navegador no soporta notificaciones push', 'warning');
+                const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+                if (isIOS) {
+                    showToast('En iPhone/iPad, agrega esta web a la pantalla de inicio para activar notificaciones push', 'warning');
+                } else {
+                    showToast('Tu navegador no soporta notificaciones push. Prueba con Chrome o Edge.', 'warning');
+                }
                 return;
             }
 

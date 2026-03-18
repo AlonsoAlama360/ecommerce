@@ -102,52 +102,63 @@
 </div>
 
 {{-- ==================== SEARCH FILTERS CARD ==================== --}}
-<div class="bg-white rounded-xl border border-gray-100 shadow-sm mb-6">
-    <div class="px-5 pt-5 pb-2">
-        <h3 class="text-base font-semibold text-gray-800">Filtros de búsqueda</h3>
-    </div>
-    <form method="GET" action="{{ route('admin.users.index') }}" id="filterForm" class="px-5 pb-5">
-        @php
-            $selectStyle = "background-image: url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 20 20%22 fill=%22%236b7280%22><path fill-rule=%22evenodd%22 d=%22M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z%22 clip-rule=%22evenodd%22/></svg>'); background-position: right 0.75rem center; background-repeat: no-repeat; background-size: 1rem;";
-            $selectClass = "w-full px-3.5 py-2.5 bg-white border border-gray-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 cursor-pointer transition appearance-none";
-            $inputClass = "w-full px-3.5 py-2.5 bg-white border border-gray-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition";
-            $hasFilters = request('role') || (request('status') !== null && request('status') !== '') || request('search') || request('date_from') || request('date_to');
-        @endphp
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-3">
-            <div>
-                <label class="block text-xs font-medium text-gray-500 mb-1.5">Rol</label>
-                <select name="role" onchange="this.form.submit()" class="{{ $selectClass }}" style="{{ $selectStyle }}">
-                    <option value="">Seleccionar rol</option>
-                    @foreach($roles as $roleOption)
-                    <option value="{{ $roleOption->name }}" {{ request('role') === $roleOption->name ? 'selected' : '' }}>{{ $roleOption->display_name }}</option>
-                    @endforeach
-                </select>
-            </div>
-            <div>
-                <label class="block text-xs font-medium text-gray-500 mb-1.5">Estado</label>
-                <select name="status" onchange="this.form.submit()" class="{{ $selectClass }}" style="{{ $selectStyle }}">
-                    <option value="">Seleccionar estado</option>
-                    <option value="1" {{ request('status') === '1' ? 'selected' : '' }}>Activo</option>
-                    <option value="0" {{ request('status') === '0' ? 'selected' : '' }}>Inactivo</option>
-                </select>
-            </div>
-            <div>
-                <label class="block text-xs font-medium text-gray-500 mb-1.5">Fecha desde</label>
-                <input type="date" name="date_from" value="{{ request('date_from') }}" onchange="this.form.submit()" class="{{ $inputClass }}">
-            </div>
-            <div>
-                <label class="block text-xs font-medium text-gray-500 mb-1.5">Fecha hasta</label>
-                <input type="date" name="date_to" value="{{ request('date_to') }}" onchange="this.form.submit()" class="{{ $inputClass }}">
-            </div>
+@php
+    $hasFilters = request('role') || (request('status') !== null && request('status') !== '') || request('search') || request('date_from') || request('date_to');
+    $filterCount = collect(['role','status','date_from','date_to'])->filter(fn($f) => request($f) !== null && request($f) !== '')->count();
+@endphp
+<div class="filter-collapsible bg-white rounded-xl border border-gray-200 mb-6">
+    <button type="button" onclick="this.closest('.filter-collapsible').classList.toggle('open')"
+        class="w-full flex items-center justify-between px-4 py-2.5 hover:bg-gray-50/50 transition-all group cursor-pointer">
+        <div class="flex items-center gap-2.5">
+            <i class="fas fa-sliders text-indigo-400 text-sm"></i>
+            <span class="text-sm font-semibold text-gray-600">Filtros</span>
+            @if($filterCount)
+                <span class="bg-indigo-500 text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full">{{ $filterCount }}</span>
+            @endif
         </div>
-        @if($hasFilters)
-            <div class="mt-3">
-                <a href="{{ route('admin.users.index') }}" class="inline-flex items-center gap-2 px-4 py-2 text-sm text-gray-500 hover:text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-50 transition">
-                    <i class="fas fa-rotate-left text-xs"></i> Limpiar filtros
-                </a>
-            </div>
-        @endif
-    </form>
+        <i class="fas fa-chevron-down text-gray-300 text-[10px] filter-chevron"></i>
+    </button>
+    <div class="filter-panel">
+        <div class="border-t border-gray-100 mx-4"></div>
+        <div class="p-4">
+            <form method="GET" action="{{ route('admin.users.index') }}" id="filterForm">
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                    <div class="filter-field">
+                        <label>Rol</label>
+                        <select name="role" onchange="this.form.submit()">
+                            <option value="">Todos</option>
+                            @foreach($roles as $roleOption)
+                            <option value="{{ $roleOption->name }}" {{ request('role') === $roleOption->name ? 'selected' : '' }}>{{ $roleOption->display_name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="filter-field">
+                        <label>Estado</label>
+                        <select name="status" onchange="this.form.submit()">
+                            <option value="">Todos</option>
+                            <option value="1" {{ request('status') === '1' ? 'selected' : '' }}>Activo</option>
+                            <option value="0" {{ request('status') === '0' ? 'selected' : '' }}>Inactivo</option>
+                        </select>
+                    </div>
+                    <div class="filter-field">
+                        <label>Desde</label>
+                        <input type="date" name="date_from" value="{{ request('date_from') }}" onchange="this.form.submit()">
+                    </div>
+                    <div class="filter-field">
+                        <label>Hasta</label>
+                        <input type="date" name="date_to" value="{{ request('date_to') }}" onchange="this.form.submit()">
+                    </div>
+                </div>
+                @if($hasFilters)
+                <div class="mt-3">
+                    <a href="{{ route('admin.users.index') }}" class="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold text-red-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition">
+                        <i class="fas fa-xmark"></i> Limpiar filtros
+                    </a>
+                </div>
+                @endif
+            </form>
+        </div>
+    </div>
 </div>
 
 {{-- ==================== TABLE CARD ==================== --}}

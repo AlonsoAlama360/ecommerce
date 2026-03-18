@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Checkout - ' . ($settings['business_name'] ?? 'Arixna'))
+@section('title', 'Compra con asesor - ' . ($settings['business_name'] ?? 'Arixna'))
 
 @section('styles')
     @keyframes fadeInUp {
@@ -10,10 +10,6 @@
     @keyframes shimmer {
         0% { background-position: -200% center; }
         100% { background-position: 200% center; }
-    }
-    @keyframes pulse-subtle {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.7; }
     }
     .animate-fade-up {
         opacity: 0;
@@ -47,24 +43,24 @@
         background: linear-gradient(135deg, rgba(212,165,116,0.04), rgba(232,180,184,0.04));
     }
 
-    .pay-btn {
-        background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+    .advisor-btn {
+        background: linear-gradient(135deg, #D4A574 0%, #C39563 100%);
         transition: all 0.3s ease;
         position: relative;
         overflow: hidden;
     }
-    .pay-btn:hover:not(:disabled) {
+    .advisor-btn:hover:not(:disabled) {
         transform: translateY(-1px);
-        box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        box-shadow: 0 8px 25px rgba(212,165,116,0.35);
     }
-    .pay-btn:active:not(:disabled) {
+    .advisor-btn:active:not(:disabled) {
         transform: translateY(0);
     }
-    .pay-btn::after {
+    .advisor-btn::after {
         content: '';
         position: absolute;
         top: 0; left: 0; right: 0; bottom: 0;
-        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
         background-size: 200% 100%;
         animation: shimmer 3s ease infinite;
     }
@@ -83,16 +79,14 @@
 @endsection
 
 @section('content')
-    {{-- ═══════════ HEADER CON BREADCRUMB Y STEPS ═══════════ --}}
+    {{-- Header --}}
     <section class="relative bg-gradient-to-br from-[#F5E6D3] via-[#FAF8F5] to-[#E8D4C0] overflow-hidden">
-        {{-- Decoraciones --}}
         <div class="absolute inset-0 overflow-hidden pointer-events-none">
             <div class="absolute top-8 right-16 w-48 h-48 bg-[#D4A574]/10 rounded-full blur-3xl"></div>
             <div class="absolute bottom-4 left-8 w-32 h-32 bg-[#E8B4B8]/10 rounded-full blur-3xl"></div>
         </div>
 
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-10 relative z-10">
-            {{-- Breadcrumb --}}
             <div class="flex items-center gap-2 text-sm text-gray-500 mb-6 animate-fade-up">
                 <a href="{{ route('home') }}" class="hover:text-[#D4A574] transition">
                     <i class="fas fa-home text-xs"></i> Inicio
@@ -100,15 +94,13 @@
                 <i class="fas fa-chevron-right text-[8px]"></i>
                 <a href="{{ route('cart') }}" class="hover:text-[#D4A574] transition">Carrito</a>
                 <i class="fas fa-chevron-right text-[8px]"></i>
-                <span class="text-gray-900 font-medium">Checkout</span>
+                <span class="text-gray-900 font-medium">Compra con asesor</span>
             </div>
 
-            {{-- Title --}}
-            <h1 class="font-serif text-3xl md:text-4xl font-bold text-gray-900 mb-8 animate-fade-up delay-1">Finalizar Compra</h1>
+            <h1 class="font-serif text-3xl md:text-4xl font-bold text-gray-900 mb-8 animate-fade-up delay-1">Compra con asesor</h1>
 
             {{-- Steps indicator --}}
             <div class="flex items-center justify-center gap-0 mb-2 animate-fade-up delay-2">
-                {{-- Step 1: Carrito (completado) --}}
                 <div class="flex items-center gap-2.5">
                     <div class="w-10 h-10 rounded-full bg-[#D4A574] flex items-center justify-center shadow-md shadow-[#D4A574]/20">
                         <i class="fas fa-check text-white text-xs"></i>
@@ -116,21 +108,17 @@
                     <span class="text-sm font-semibold text-[#D4A574] hidden sm:inline">Carrito</span>
                 </div>
 
-                {{-- Línea 1 --}}
                 <div class="w-12 sm:w-20 h-0.5 mx-2 sm:mx-3 rounded-full step-line"></div>
 
-                {{-- Step 2: Checkout (activo) --}}
                 <div class="flex items-center gap-2.5 relative">
                     <div class="w-10 h-10 rounded-full bg-gradient-to-br from-[#D4A574] to-[#C39563] flex items-center justify-center shadow-lg shadow-[#D4A574]/30" style="box-shadow: 0 0 0 4px rgba(212,165,116,0.15), 0 10px 15px -3px rgba(212,165,116,0.3)">
-                        <i class="fas fa-credit-card text-white text-xs"></i>
+                        <i class="fas fa-headset text-white text-xs"></i>
                     </div>
-                    <span class="text-sm font-bold text-gray-900 hidden sm:inline">Pago</span>
+                    <span class="text-sm font-bold text-gray-900 hidden sm:inline">Datos</span>
                 </div>
 
-                {{-- Línea 2 --}}
                 <div class="w-12 sm:w-20 h-0.5 mx-2 sm:mx-3 rounded-full bg-gray-200"></div>
 
-                {{-- Step 3: Confirmación --}}
                 <div class="flex items-center gap-2.5">
                     <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center border-2 border-gray-200">
                         <i class="fas fa-box-open text-gray-400 text-xs"></i>
@@ -141,22 +129,20 @@
         </div>
     </section>
 
-    {{-- ═══════════ CONTENIDO PRINCIPAL ═══════════ --}}
+    {{-- Main content --}}
     <div class="bg-[#FAF8F5] min-h-screen">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-10">
 
-            <form id="checkoutForm" method="POST" action="{{ route('checkout.process') }}">
+            <form id="advisorForm" method="POST" action="{{ route('checkout.advisor.process') }}">
                 @csrf
-                <input type="hidden" name="token" id="culqiToken">
-                <input type="hidden" name="culqi_order_id" id="culqiOrderId">
                 <input type="hidden" name="shipping_method" id="shippingMethodHidden" value="{{ $shippingMode === 'both' ? 'agency' : $shippingMode }}">
 
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
 
-                    {{-- ═══════════ COLUMNA IZQUIERDA: DATOS ═══════════ --}}
+                    {{-- Left column: form --}}
                     <div class="lg:col-span-7 space-y-6">
 
-                        {{-- Datos de contacto --}}
+                        {{-- Contact info --}}
                         <div class="checkout-card bg-white rounded-2xl p-6 sm:p-7 animate-fade-up delay-1">
                             <div class="flex items-center gap-3 mb-6">
                                 <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-[#D4A574] to-[#C39563] flex items-center justify-center shadow-sm">
@@ -164,7 +150,7 @@
                                 </div>
                                 <div>
                                     <h2 class="text-lg font-bold text-gray-900">Datos de contacto</h2>
-                                    <p class="text-xs text-gray-400">Información para tu pedido</p>
+                                    <p class="text-xs text-gray-400">Para que el asesor pueda contactarte</p>
                                 </div>
                             </div>
 
@@ -214,7 +200,7 @@
                             </div>
                         </div>
 
-                        {{-- Dirección de envío --}}
+                        {{-- Shipping address --}}
                         <div class="checkout-card bg-white rounded-2xl p-6 sm:p-7 animate-fade-up delay-2">
                             <div class="flex items-center gap-3 mb-6">
                                 <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-[#E8B4B8] to-[#D4A574] flex items-center justify-center shadow-sm">
@@ -228,7 +214,6 @@
 
                             <div class="space-y-4">
                                 @if($shippingMode === 'both')
-                                {{-- Selector de método de envío --}}
                                 <div>
                                     <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Método de envío</label>
                                     <div class="grid grid-cols-2 gap-3">
@@ -256,7 +241,7 @@
                                 </div>
                                 @endif
 
-                                {{-- Campos de agencia --}}
+                                {{-- Agency fields --}}
                                 <div id="agencyFields" class="{{ $shippingMode === 'address' ? 'hidden' : '' }}">
                                     <div class="space-y-4">
                                         <div>
@@ -295,7 +280,7 @@
                                     </div>
                                 </div>
 
-                                {{-- Campo de dirección (courier) --}}
+                                {{-- Address fields --}}
                                 <div id="addressFields" class="{{ $shippingMode === 'agency' ? 'hidden' : '' }}">
                                     <div>
                                         <label for="shipping_address" class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Dirección completa</label>
@@ -328,11 +313,11 @@
                         {{-- Trust badges --}}
                         <div class="grid grid-cols-3 gap-3 animate-fade-up delay-3">
                             <div class="trust-badge bg-white rounded-xl p-4 text-center border border-gray-50">
-                                <div class="w-9 h-9 rounded-lg bg-emerald-50 flex items-center justify-center mx-auto mb-2">
-                                    <i class="fas fa-shield-alt text-emerald-500 text-sm"></i>
+                                <div class="w-9 h-9 rounded-lg bg-[#D4A574]/10 flex items-center justify-center mx-auto mb-2">
+                                    <i class="fas fa-headset text-[#D4A574] text-sm"></i>
                                 </div>
-                                <p class="text-[11px] font-semibold text-gray-700">Pago seguro</p>
-                                <p class="text-[10px] text-gray-400">SSL 256-bit</p>
+                                <p class="text-[11px] font-semibold text-gray-700">Asesor personal</p>
+                                <p class="text-[10px] text-gray-400">Te contactamos</p>
                             </div>
                             <div class="trust-badge bg-white rounded-xl p-4 text-center border border-gray-50">
                                 <div class="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center mx-auto mb-2">
@@ -351,25 +336,25 @@
                         </div>
                     </div>
 
-                    {{-- ═══════════ COLUMNA DERECHA: RESUMEN ═══════════ --}}
+                    {{-- Right column: summary --}}
                     <div class="lg:col-span-5">
                         <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden sticky top-24 animate-fade-up delay-2">
 
-                            {{-- Header del resumen --}}
-                            <div class="bg-gradient-to-r from-[#1a1a1a] to-[#2d2d2d] px-6 py-5">
+                            {{-- Summary header --}}
+                            <div class="bg-gradient-to-r from-[#D4A574] to-[#C39563] px-6 py-5">
                                 <div class="flex items-center justify-between">
                                     <div class="flex items-center gap-3">
-                                        <div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
+                                        <div class="w-8 h-8 rounded-lg bg-white/15 flex items-center justify-center">
                                             <i class="fas fa-shopping-bag text-white text-xs"></i>
                                         </div>
                                         <h2 class="text-base font-bold text-white">Resumen del pedido</h2>
                                     </div>
-                                    <span class="text-xs text-white/50">{{ $totalItems }} {{ $totalItems === 1 ? 'artículo' : 'artículos' }}</span>
+                                    <span class="text-xs text-white/60">{{ $totalItems }} {{ $totalItems === 1 ? 'artículo' : 'artículos' }}</span>
                                 </div>
                             </div>
 
                             <div class="p-6">
-                                {{-- Productos --}}
+                                {{-- Products --}}
                                 <div class="space-y-0 mb-5 max-h-72 overflow-y-auto">
                                     @foreach($cartItems as $item)
                                         @php $product = $item['product']; @endphp
@@ -393,7 +378,7 @@
                                     @endforeach
                                 </div>
 
-                                {{-- Totales --}}
+                                {{-- Totals --}}
                                 <div class="border-t border-dashed border-gray-200 pt-4 space-y-3 text-sm">
                                     <div class="flex justify-between">
                                         <span class="text-gray-500">Subtotal</span>
@@ -416,51 +401,32 @@
                                 {{-- Total --}}
                                 <div class="mt-4 bg-gradient-to-r from-[#FAF8F5] to-[#F5E6D3] rounded-xl p-4">
                                     <div class="flex justify-between items-center">
-                                        <span class="text-gray-700 font-semibold">Total a pagar</span>
+                                        <span class="text-gray-700 font-semibold">Total del pedido</span>
                                         <span class="text-2xl font-bold text-gray-900 font-serif">S/ {{ number_format($total, 2) }}</span>
                                     </div>
                                 </div>
 
-                                {{-- Botón de pago --}}
-                                <button type="button" id="payWithCulqi"
-                                    class="pay-btn w-full mt-5 text-white py-4 rounded-xl font-semibold flex items-center justify-center gap-2.5 text-[15px] disabled:opacity-50 disabled:cursor-not-allowed">
-                                    <i class="fas fa-lock text-xs relative z-10"></i>
-                                    <span id="payBtnText" class="relative z-10">Pagar S/ {{ number_format($total, 2) }}</span>
-                                    <div id="payBtnSpinner" class="hidden relative z-10">
-                                        <i class="fas fa-spinner fa-spin"></i>
-                                    </div>
+                                {{-- Submit button --}}
+                                <button type="submit" id="advisorSubmitBtn"
+                                    class="advisor-btn w-full mt-5 text-white py-4 rounded-xl font-semibold flex items-center justify-center gap-2.5 text-[15px] disabled:opacity-50 disabled:cursor-not-allowed">
+                                    <i class="fas fa-shopping-bag text-sm relative z-10"></i>
+                                    <span id="advisorBtnText" class="relative z-10">Realizar pedido</span>
                                 </button>
 
-                                {{-- Métodos de pago --}}
+                                {{-- Advisor info --}}
                                 <div class="mt-5 pt-4 border-t border-gray-100">
-                                    <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider text-center mb-3">Métodos de pago aceptados</p>
-                                    <div class="flex items-center justify-center gap-2">
-                                        <div class="w-12 h-8 bg-gray-50 rounded-md flex items-center justify-center border border-gray-100">
-                                            <i class="fab fa-cc-visa text-xl text-gray-400"></i>
+                                    <div class="bg-gradient-to-r from-[#D4A574]/5 to-[#E8B4B8]/5 rounded-xl p-4 text-center">
+                                        <div class="w-10 h-10 bg-[#D4A574]/10 rounded-full flex items-center justify-center mx-auto mb-2">
+                                            <i class="fas fa-comments text-[#D4A574]"></i>
                                         </div>
-                                        <div class="w-12 h-8 bg-gray-50 rounded-md flex items-center justify-center border border-gray-100">
-                                            <i class="fab fa-cc-mastercard text-xl text-gray-400"></i>
-                                        </div>
-                                        <div class="w-12 h-8 bg-gray-50 rounded-md flex items-center justify-center border border-gray-100">
-                                            <i class="fab fa-cc-amex text-xl text-gray-400"></i>
-                                        </div>
-                                        <div class="w-12 h-8 bg-gray-50 rounded-md flex items-center justify-center border border-gray-100">
-                                            <i class="fab fa-cc-diners-club text-xl text-gray-400"></i>
-                                        </div>
-                                        <div class="h-8 px-2.5 bg-purple-50 rounded-md flex items-center justify-center border border-purple-100 gap-1">
-                                            <i class="fas fa-mobile-alt text-purple-500 text-[10px]"></i>
-                                            <span class="text-[10px] font-bold text-purple-600">Yape</span>
-                                        </div>
-                                        <div class="h-8 px-2.5 bg-green-50 rounded-md flex items-center justify-center border border-green-100 gap-1">
-                                            <i class="fas fa-mobile-alt text-green-500 text-[10px]"></i>
-                                            <span class="text-[10px] font-bold text-green-600">Plin</span>
-                                        </div>
+                                        <p class="text-sm font-semibold text-gray-700 mb-1">Sin pago en este momento</p>
+                                        <p class="text-xs text-gray-500 leading-relaxed">Un asesor de venta te contactará por email o WhatsApp para coordinar el pago y envío de tu pedido.</p>
                                     </div>
                                 </div>
 
                                 <p class="text-center text-[11px] text-gray-400 mt-4 flex items-center justify-center gap-1.5">
-                                    <i class="fas fa-lock text-[9px]"></i>
-                                    Pago seguro procesado por Culqi
+                                    <i class="fas fa-headset text-[9px]"></i>
+                                    Atención personalizada para tu compra
                                 </p>
                             </div>
                         </div>
@@ -472,22 +438,14 @@
 @endsection
 
 @section('scripts')
-<script src="https://checkout.culqi.com/js/v4"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        var payBtn = document.getElementById('payWithCulqi');
-        var payBtnText = document.getElementById('payBtnText');
-        var payBtnSpinner = document.getElementById('payBtnSpinner');
-        var checkoutForm = document.getElementById('checkoutForm');
-        var culqiTokenInput = document.getElementById('culqiToken');
-        var isProcessing = false;
-        var currentCulqiOrderId = null;
-        var csrfToken = document.querySelector('meta[name="csrf-token"]').content;
-
-        // Shipping mode config
+        var advisorForm = document.getElementById('advisorForm');
+        var submitBtn = document.getElementById('advisorSubmitBtn');
+        var btnText = document.getElementById('advisorBtnText');
         var shippingMode = '{{ $shippingMode }}';
 
-        // Agencias y sus direcciones
+        // Agency data and elements
         var agenciesData = @json($shippingAgencies->mapWithKeys(fn($a) => [$a->name => $a->addresses->pluck('address')]));
         var agencySelect = document.getElementById('shipping_agency');
         var agencyAddressInput = document.getElementById('shipping_agency_address');
@@ -515,7 +473,7 @@
             updateAgencyAddresses();
         }
 
-        // Toggle shipping method (only in "both" mode)
+        // Toggle shipping method
         window.toggleShippingMethod = function() {
             var selected = document.querySelector('input[name="shipping_method"]:checked');
             if (!selected) return;
@@ -539,186 +497,11 @@
         };
         if (shippingMode === 'both') toggleShippingMethod();
 
-        function validateForm() {
-            var name = document.getElementById('customer_name').value.trim();
-            var email = document.getElementById('customer_email').value.trim();
-            var phone = document.getElementById('customer_phone').value.trim();
-
-            if (!name || !email || !phone) {
-                checkoutForm.reportValidity();
-                return false;
-            }
-
-            var currentMethod = document.getElementById('shippingMethodHidden').value;
-            if (currentMethod === 'agency') {
-                var agency = document.getElementById('shipping_agency');
-                var agencyAddr = document.getElementById('shipping_agency_address');
-                if (agency && !agency.value) { checkoutForm.reportValidity(); return false; }
-                if (agencyAddr && !agencyAddr.value.trim()) { checkoutForm.reportValidity(); return false; }
-            } else {
-                var address = document.getElementById('shipping_address');
-                if (address && !address.value.trim()) { checkoutForm.reportValidity(); return false; }
-            }
-            return true;
-        }
-
-        function setLoading(loading) {
-            payBtn.disabled = loading;
-            payBtnText.textContent = loading ? 'Preparando pago...' : 'Pagar S/ {{ number_format($total, 2) }}';
-            if (loading) {
-                payBtnSpinner.classList.remove('hidden');
-            } else {
-                payBtnSpinner.classList.add('hidden');
-            }
-        }
-
-        function setProcessing() {
-            isProcessing = true;
-            payBtn.disabled = true;
-            payBtnText.textContent = 'Procesando pago...';
-            payBtnSpinner.classList.remove('hidden');
-        }
-
-        // Configure Culqi
-        Culqi.publicKey = '{{ $culqiPublicKey }}';
-
-        Culqi.options({
-            lang: 'auto',
-            style: {
-                logo: '{{ asset("images/logo_arixna.png") }}',
-                bannerColor: '#1a1a1a',
-                buttonBackground: '#D4A574',
-                buttonText: 'Pagar',
-                buttonTextColor: '#ffffff',
-                menuColor: '#D4A574',
-                linksColor: '#D4A574',
-                priceColor: '#1a1a1a',
-            }
+        // Form submit with loading state
+        advisorForm.addEventListener('submit', function() {
+            submitBtn.disabled = true;
+            btnText.innerHTML = '<i class="fas fa-spinner fa-spin text-sm mr-1"></i> Procesando...';
         });
-
-        payBtn.addEventListener('click', function () {
-            if (isProcessing) return;
-            if (!validateForm()) return;
-
-            setLoading(true);
-
-            // Create Culqi order first (required for Yape support)
-            fetch('{{ route("checkout.culqi-order") }}', {
-                method: 'POST',
-                credentials: 'same-origin',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken,
-                    'Accept': 'application/json',
-                },
-                body: JSON.stringify({
-                    customer_name: document.getElementById('customer_name').value.trim(),
-                    customer_email: document.getElementById('customer_email').value.trim(),
-                    customer_phone: document.getElementById('customer_phone').value.trim(),
-                })
-            })
-            .then(function(r) {
-                if (!r.ok) {
-                    return r.text().then(function(t) {
-                        console.error('Server response:', r.status, t);
-                        throw new Error('Error del servidor: ' + r.status);
-                    });
-                }
-                return r.json();
-            })
-            .then(function(data) {
-                if (!data || data.error) {
-                    setLoading(false);
-                    alert(data ? data.error : 'Error desconocido');
-                    return;
-                }
-
-                if (!data.order_id) {
-                    setLoading(false);
-                    console.error('No order_id in response:', data);
-                    alert('No se pudo crear la orden de pago.');
-                    return;
-                }
-
-                currentCulqiOrderId = data.order_id;
-
-                Culqi.settings({
-                    title: '{{ $settings["business_name"] ?? "Arixna" }}',
-                    currency: 'PEN',
-                    amount: {{ (int) round($total * 100) }},
-                    order: currentCulqiOrderId,
-                });
-
-                setLoading(false);
-                Culqi.open();
-            })
-            .catch(function(err) {
-                console.error('Error creating Culqi order:', err);
-                setLoading(false);
-                alert('Error al iniciar el pago. Intenta nuevamente.');
-            });
-        });
-
-        // Culqi callback
-        window.culqi = function () {
-            // Card payment — token generated
-            if (Culqi.token) {
-                setProcessing();
-                culqiTokenInput.value = Culqi.token.id;
-                document.getElementById('culqiOrderId').value = currentCulqiOrderId || '';
-                checkoutForm.submit();
-                return;
-            }
-
-            // Yape/wallet payment — order is paid directly
-            if (Culqi.order) {
-                var state = Culqi.order.state || Culqi.order.status;
-                if (state === 'paid') {
-                    setProcessing();
-
-                    fetch('{{ route("checkout.process-yape") }}', {
-                        method: 'POST',
-                        credentials: 'same-origin',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': csrfToken,
-                            'Accept': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            culqi_order_id: currentCulqiOrderId,
-                            customer_name: document.getElementById('customer_name').value.trim(),
-                            customer_email: document.getElementById('customer_email').value.trim(),
-                            customer_phone: document.getElementById('customer_phone').value.trim(),
-                            shipping_address: document.getElementById('shipping_address') ? document.getElementById('shipping_address').value.trim() : '',
-                            shipping_agency: document.getElementById('shipping_agency') ? document.getElementById('shipping_agency').value : '',
-                            shipping_agency_address: document.getElementById('shipping_agency_address') ? document.getElementById('shipping_agency_address').value.trim() : '',
-                            shipping_method: document.querySelector('input[name="shipping_method"]:checked') ? document.querySelector('input[name="shipping_method"]:checked').value : shippingMode,
-                            customer_notes: document.getElementById('customer_notes').value.trim(),
-                        })
-                    })
-                    .then(function(r) { return r.json(); })
-                    .then(function(data) {
-                        if (data.success) {
-                            window.location.href = data.redirect;
-                        } else {
-                            isProcessing = false;
-                            setLoading(false);
-                            alert(data.error || 'Error al procesar el pago.');
-                        }
-                    })
-                    .catch(function() {
-                        isProcessing = false;
-                        setLoading(false);
-                        alert('Error al procesar el pago. Contacta soporte.');
-                    });
-                }
-                return;
-            }
-
-            if (Culqi.error) {
-                console.error('Culqi error:', Culqi.error);
-            }
-        };
     });
 </script>
 @endsection

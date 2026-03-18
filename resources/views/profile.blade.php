@@ -73,19 +73,6 @@
     <section class="py-8 lg:py-10">
         <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
 
-            <!-- Toast Notifications -->
-            @if(session('success'))
-            <div id="toast-success" class="mb-6 bg-emerald-50 border border-emerald-200 rounded-2xl p-4 flex items-center gap-3 animate-slide-down">
-                <div class="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <i class="fas fa-check text-emerald-600"></i>
-                </div>
-                <p class="text-emerald-700 font-medium text-sm flex-1">{{ session('success') }}</p>
-                <button onclick="document.getElementById('toast-success').remove()" class="text-emerald-400 hover:text-emerald-600 transition p-1" aria-label="Cerrar notificación">
-                    <i class="fas fa-times text-sm"></i>
-                </button>
-            </div>
-            @endif
-
             {{-- ==================== TAB: DATOS PERSONALES ==================== --}}
             <div id="panel-personal" class="tab-panel">
                 <form method="POST" action="{{ route('profile.update') }}">

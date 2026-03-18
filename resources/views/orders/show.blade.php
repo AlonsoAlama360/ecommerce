@@ -117,8 +117,56 @@
         ];
     @endphp
 
-    {{-- Thank You Section (only after successful payment) --}}
-    @if($isPaymentSuccess)
+    {{-- Thank You Section --}}
+    @php $isAdvisorSuccess = session('advisor_success'); @endphp
+    @if($isAdvisorSuccess)
+        <div class="relative bg-gradient-to-br from-[#FDF6F0] via-white to-[#F5E6D3] overflow-hidden" id="thankYouSection">
+            <div class="absolute inset-0 overflow-hidden pointer-events-none">
+                <div class="absolute -top-10 -right-10 w-60 h-60 bg-[#D4A574]/20 rounded-full blur-3xl"></div>
+                <div class="absolute -bottom-10 -left-10 w-48 h-48 bg-[#E8B4B8]/15 rounded-full blur-3xl"></div>
+            </div>
+
+            <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 relative text-center">
+                <div class="mb-6 inline-flex items-center justify-center" style="animation: thankYouPop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;">
+                    <div class="relative">
+                        <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-br from-[#D4A574] to-[#C39563] flex items-center justify-center shadow-xl shadow-[#D4A574]/30">
+                            <i class="fas fa-headset text-white text-3xl sm:text-4xl" style="animation: thankYouCheck 0.4s 0.4s ease both;"></i>
+                        </div>
+                        <div class="absolute inset-0 w-20 h-20 sm:w-24 sm:h-24 rounded-full border-4 border-[#D4A574]/30 animate-ping opacity-20"></div>
+                    </div>
+                </div>
+
+                <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2" style="animation: fadeInUp 0.5s 0.2s ease both;">
+                    &iexcl;Gracias por tu pedido!
+                </h2>
+                <p class="text-gray-500 text-sm sm:text-base mb-4 max-w-md mx-auto" style="animation: fadeInUp 0.5s 0.35s ease both;">
+                    Pronto un asesor de venta se pondr&aacute; en contacto contigo para coordinar el pago y env&iacute;o
+                </p>
+
+                <div class="inline-flex items-center gap-2 bg-white rounded-full px-5 py-2.5 shadow-sm border border-gray-100 mb-6" style="animation: fadeInUp 0.5s 0.5s ease both;">
+                    <i class="fas fa-receipt text-[#D4A574] text-sm"></i>
+                    <span class="text-sm font-semibold text-gray-700">Pedido</span>
+                    <span class="text-sm font-bold text-[#D4A574]">{{ $order->order_number }}</span>
+                </div>
+
+                <p class="text-xs text-gray-400 mb-6" style="animation: fadeInUp 0.5s 0.6s ease both;">
+                    <i class="fas fa-envelope mr-1"></i>
+                    Recibir&aacute;s una confirmaci&oacute;n en <strong class="text-gray-500">{{ $order->customer_email }}</strong>
+                </p>
+
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-3 px-4 sm:px-0" style="animation: fadeInUp 0.5s 0.7s ease both;">
+                    <a href="{{ route('catalog') }}" class="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-[#D4A574] to-[#C39563] text-white px-6 py-3 rounded-xl text-sm font-semibold hover:shadow-lg hover:shadow-[#D4A574]/25 transition-all w-full sm:w-auto">
+                        <i class="fas fa-shopping-bag text-xs"></i>
+                        Seguir comprando
+                    </a>
+                    <a href="{{ route('orders.index') }}" class="inline-flex items-center justify-center gap-2 bg-white text-gray-600 px-6 py-3 rounded-xl text-sm font-semibold border border-gray-200 hover:border-gray-300 hover:text-gray-800 transition-all w-full sm:w-auto">
+                        <i class="fas fa-list text-xs"></i>
+                        Mis pedidos
+                    </a>
+                </div>
+            </div>
+        </div>
+    @elseif($isPaymentSuccess)
         <div class="relative bg-gradient-to-br from-emerald-50 via-white to-[#FDF6F0] overflow-hidden" id="thankYouSection">
             <div class="absolute inset-0 overflow-hidden pointer-events-none">
                 <div class="absolute -top-10 -right-10 w-60 h-60 bg-emerald-100/40 rounded-full blur-3xl"></div>
@@ -500,6 +548,8 @@
                                 'transferencia' => 'fa-building-columns',
                                 'yape_plin' => 'fa-mobile-screen',
                                 'tarjeta' => 'fa-credit-card',
+                                'culqi' => 'fa-credit-card',
+                                'asesor' => 'fa-headset',
                             ];
                             $paymentColors = [
                                 'pendiente' => ['bg' => 'bg-amber-50', 'text' => 'text-amber-600', 'dot' => 'bg-amber-400'],

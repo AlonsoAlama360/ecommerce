@@ -65,6 +65,7 @@ class Order extends Model
         'yape_plin' => 'Yape / Plin',
         'tarjeta' => 'Tarjeta',
         'culqi' => 'Culqi',
+        'asesor' => 'Asesor de venta',
     ];
 
     public const PAYMENT_STATUS_LABELS = [

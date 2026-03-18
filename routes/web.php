@@ -131,6 +131,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/checkout/process', [CheckoutController::class, 'process'])->middleware('throttle:5,1')->name('checkout.process');
     Route::post('/checkout/process-yape', [CheckoutController::class, 'processYape'])->middleware('throttle:5,1')->name('checkout.process-yape');
 
+    Route::get('/checkout/asesor', [CheckoutController::class, 'advisorIndex'])->name('checkout.advisor');
+    Route::post('/checkout/asesor', [CheckoutController::class, 'processAdvisor'])->middleware('throttle:5,1')->name('checkout.advisor.process');
+
     Route::post('/producto/{product}/review', [ReviewController::class, 'store'])->middleware('throttle:reviews')->name('reviews.store');
 });
 
