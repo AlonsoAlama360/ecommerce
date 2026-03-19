@@ -539,7 +539,7 @@
                         <label class="block text-xs font-medium text-gray-500 mb-1.5">Método de pago <span class="text-red-400">*</span></label>
                         <select name="payment_method" class="{{ $drawerSelectClass }}" style="{{ $selectStyle }}">
                             @foreach(\App\Models\Order::PAYMENT_METHODS as $val => $label)
-                            <option value="{{ $val }}">{{ $label }}</option>
+                            <option value="{{ $val }}" {{ $val === 'yape_plin' ? 'selected' : '' }}>{{ $label }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -547,7 +547,7 @@
                         <label class="block text-xs font-medium text-gray-500 mb-1.5">Estado de pago <span class="text-red-400">*</span></label>
                         <select name="payment_status" class="{{ $drawerSelectClass }}" style="{{ $selectStyle }}">
                             @foreach(\App\Models\Order::PAYMENT_STATUS_LABELS as $val => $label)
-                            <option value="{{ $val }}">{{ $label }}</option>
+                            <option value="{{ $val }}" {{ $val === 'pagado' ? 'selected' : '' }}>{{ $label }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -1145,35 +1145,37 @@
             const lineTotal = item.price * item.quantity;
             total += lineTotal;
             return `
-                <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                    ${item.image
-                        ? `<img src="${item.image}" class="w-10 h-10 rounded-lg object-cover border border-gray-100 flex-shrink-0">`
-                        : `<div class="w-10 h-10 rounded-lg bg-gray-200 flex items-center justify-center flex-shrink-0"><i class="fas fa-image text-gray-400 text-xs"></i></div>`
-                    }
-                    <div class="flex-1 min-w-0">
-                        <p class="text-sm font-medium text-gray-700 truncate">${item.name}</p>
-                        <p class="text-xs text-gray-400">S/ ${item.price.toFixed(2)} c/u</p>
-                    </div>
-                    <div class="flex items-center gap-1.5">
-                        <button type="button" onclick="updateItemQty(${item.idx}, ${item.quantity - 1})"
-                            class="w-7 h-7 rounded-md bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-100 transition text-xs" aria-label="Disminuir cantidad">
-                            <i class="fas fa-minus"></i>
-                        </button>
-                        <input type="number" value="${item.quantity}" min="1" max="${item.stock}"
-                            onchange="updateItemQty(${item.idx}, this.value)"
-                            class="w-12 text-center text-sm border border-gray-200 rounded-md py-1 outline-none focus:ring-1 focus:ring-indigo-400">
-                        <button type="button" onclick="updateItemQty(${item.idx}, ${item.quantity + 1})"
-                            class="w-7 h-7 rounded-md bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-100 transition text-xs" aria-label="Aumentar cantidad">
-                            <i class="fas fa-plus"></i>
+                <div class="p-3 bg-gray-50 rounded-lg">
+                    <div class="flex items-center gap-3">
+                        ${item.image
+                            ? `<img src="${item.image}" class="w-10 h-10 rounded-lg object-cover border border-gray-100 flex-shrink-0">`
+                            : `<div class="w-10 h-10 rounded-lg bg-gray-200 flex items-center justify-center flex-shrink-0"><i class="fas fa-image text-gray-400 text-xs"></i></div>`
+                        }
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-medium text-gray-700 leading-snug">${item.name}</p>
+                            <p class="text-xs text-gray-400 mt-0.5">S/ ${item.price.toFixed(2)} c/u</p>
+                        </div>
+                        <button type="button" onclick="removeOrderItem(${item.idx})"
+                            class="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-md transition flex-shrink-0" aria-label="Eliminar producto">
+                            <i class="fas fa-times text-xs"></i>
                         </button>
                     </div>
-                    <div class="text-right flex-shrink-0 w-20">
+                    <div class="flex items-center justify-between mt-2.5 pl-[52px]">
+                        <div class="flex items-center gap-1.5">
+                            <button type="button" onclick="updateItemQty(${item.idx}, ${item.quantity - 1})"
+                                class="w-7 h-7 rounded-md bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-100 transition text-xs" aria-label="Disminuir cantidad">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <input type="number" value="${item.quantity}" min="1" max="${item.stock}"
+                                onchange="updateItemQty(${item.idx}, this.value)"
+                                class="w-12 text-center text-sm border border-gray-200 rounded-md py-1 outline-none focus:ring-1 focus:ring-indigo-400">
+                            <button type="button" onclick="updateItemQty(${item.idx}, ${item.quantity + 1})"
+                                class="w-7 h-7 rounded-md bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-100 transition text-xs" aria-label="Aumentar cantidad">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
                         <p class="text-sm font-bold text-gray-800">S/ ${lineTotal.toFixed(2)}</p>
                     </div>
-                    <button type="button" onclick="removeOrderItem(${item.idx})"
-                        class="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-md transition flex-shrink-0" aria-label="Eliminar producto">
-                        <i class="fas fa-times text-xs"></i>
-                    </button>
                     <input type="hidden" name="items[${item.idx}][product_id]" value="${item.product_id}" form="createOrderForm">
                     <input type="hidden" name="items[${item.idx}][quantity]" value="${item.quantity}" form="createOrderForm">
                 </div>
