@@ -40,8 +40,8 @@ class NewComplaintNotification extends Notification implements ShouldQueue
     {
         return (new WebPushMessage)
             ->title('Nuevo reclamo registrado')
-            ->icon('/images/logo_arixna.png')
-            ->badge('/images/logo_arixna.png')
+            ->icon('/images/logo_arixna1024512_min.webp')
+            ->badge('/images/logo_arixna1024512_min.webp')
             ->body("#{$this->complaint->complaint_number} — {$this->complaint->consumer_name}")
             ->data(['url' => "/admin/complaints/{$this->complaint->id}"])
             ->options(['urgency' => 'high', 'TTL' => 86400]);

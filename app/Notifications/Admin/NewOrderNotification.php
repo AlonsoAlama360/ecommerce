@@ -26,23 +26,29 @@ class NewOrderNotification extends Notification implements ShouldQueue
 
     public function toDatabase($notifiable): array
     {
+        $isAsesor = $this->order->payment_method === 'asesor';
+
         return [
             'type' => 'new_order',
-            'title' => 'Nueva venta',
-            'message' => "Pedido {$this->order->order_number} — S/ " . number_format($this->order->total, 2),
+            'title' => $isAsesor ? 'Nuevo pedido' : 'Nueva venta',
+            'message' => "Pedido {$this->order->order_number} — {$this->order->customer_name} — S/ " . number_format($this->order->total, 2),
             'url' => "/admin/orders?view={$this->order->id}",
-            'icon' => 'fa-shopping-bag',
-            'color' => 'green',
+            'icon' => $isAsesor ? 'fa-headset' : 'fa-shopping-bag',
+            'color' => $isAsesor ? 'blue' : 'green',
         ];
     }
 
     public function toWebPush($notifiable, $notification): WebPushMessage
     {
+        $isAsesor = $this->order->payment_method === 'asesor';
+        $title = $isAsesor ? 'Nuevo pedido' : 'Nueva venta recibida';
+        $body = "{$this->order->customer_name} — Pedido {$this->order->order_number} por S/ " . number_format($this->order->total, 2);
+
         return (new WebPushMessage)
-            ->title('Nueva venta recibida')
-            ->icon('/images/logo_arixna.png')
-            ->badge('/images/logo_arixna.png')
-            ->body("Pedido {$this->order->order_number} por S/ " . number_format($this->order->total, 2))
+            ->title($title)
+            ->icon('/images/logo_arixna1024512_min.webp')
+            ->badge('/images/logo_arixna1024512_min.webp')
+            ->body($body)
             ->action('Ver pedido', 'view')
             ->data(['url' => "/admin/orders?view={$this->order->id}"])
             ->options(['urgency' => 'high', 'TTL' => 86400]);

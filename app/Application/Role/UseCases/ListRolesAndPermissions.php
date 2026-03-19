@@ -16,6 +16,7 @@ class ListRolesAndPermissions
             'permissions' => $this->roleRepository->getPermissionsGrouped(),
             'roles' => $this->roleRepository->getAdminRoles(),
             'rolePermissions' => $this->roleRepository->getRolePermissionIds(),
+            'roleNotificationTypes' => $this->roleRepository->getRoleNotificationTypes(),
         ];
     }
 }

@@ -57,7 +57,17 @@ class CreateOrder
             $itemsData = [];
 
             foreach ($dto->items as $item) {
-                $product = Product::findOrFail($item['product_id']);
+                // lockForUpdate evita que dos transacciones lean el mismo stock simultáneamente
+                $product = Product::lockForUpdate()->findOrFail($item['product_id']);
+
+                if ($product->stock < $item['quantity']) {
+                    throw new \App\Exceptions\InsufficientStockException(
+                        $product->stock === 0
+                            ? "\"{$product->name}\" se agotó."
+                            : "\"{$product->name}\" solo tiene {$product->stock} unidades disponibles."
+                    );
+                }
+
                 $price = $product->sale_price ?? $product->price;
                 $lineTotal = $price * $item['quantity'];
                 $subtotal += $lineTotal;
@@ -146,7 +156,7 @@ class CreateOrder
         }
 
         AdminNotificationService::send('notify_new_order', new NewOrderNotificationMail($order->load('items')));
-        AdminNotificationService::notify(new NewOrderNotification($order));
+        AdminNotificationService::notify('new_order', new NewOrderNotification($order));
 
         return $order;
     }

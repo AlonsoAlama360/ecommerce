@@ -40,8 +40,8 @@ class NewReviewNotification extends Notification implements ShouldQueue
     {
         return (new WebPushMessage)
             ->title('Nueva reseña recibida')
-            ->icon('/images/logo_arixna.png')
-            ->badge('/images/logo_arixna.png')
+            ->icon('/images/logo_arixna1024512_min.webp')
+            ->badge('/images/logo_arixna1024512_min.webp')
             ->body("\"{$this->review->title}\" — {$this->review->rating} estrellas")
             ->data(['url' => '/admin/reviews'])
             ->options(['urgency' => 'high', 'TTL' => 86400]);

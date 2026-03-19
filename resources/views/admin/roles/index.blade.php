@@ -379,6 +379,73 @@
             </div>
             @endif
         </form>
+
+        {{-- ==================== NOTIFICACIONES PUSH ==================== --}}
+        @php
+            $notifTypes = [
+                'new_order' => ['label' => 'Nuevas ventas / pedidos', 'icon' => 'fa-shopping-bag', 'color' => 'emerald'],
+                'low_stock' => ['label' => 'Alertas de stock bajo', 'icon' => 'fa-box', 'color' => 'orange'],
+                'new_contact' => ['label' => 'Mensajes de contacto', 'icon' => 'fa-envelope', 'color' => 'blue'],
+                'new_complaint' => ['label' => 'Reclamos', 'icon' => 'fa-exclamation-triangle', 'color' => 'red'],
+                'new_review' => ['label' => 'Reseñas', 'icon' => 'fa-star', 'color' => 'yellow'],
+            ];
+            $roleNotifs = $roleNotificationTypes[$role->name] ?? [];
+        @endphp
+        <form method="POST" action="{{ route('admin.roles.updateNotifications') }}">
+            @csrf
+            @method('PUT')
+            <input type="hidden" name="role" value="{{ $role->name }}">
+
+            <div class="px-6 pt-6 pb-2">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-8 h-8 rounded-lg bg-violet-50 flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-bell text-violet-500 text-xs"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-semibold text-gray-800">Notificaciones Push</h3>
+                        <p class="text-[11px] text-gray-400 mt-0.5">Tipos de notificaciones que recibe este rol en su dispositivo</p>
+                    </div>
+                </div>
+
+                <div class="space-y-2 mb-4">
+                    @foreach($notifTypes as $typeKey => $typeInfo)
+                    @php $notifChecked = $isAdmin || in_array($typeKey, $roleNotifs); @endphp
+                    <label class="flex items-center justify-between px-4 py-3 rounded-xl border transition
+                        {{ $notifChecked ? 'bg-gradient-to-r from-violet-50/50 to-white border-violet-200' : 'border-gray-100 bg-gray-50/30 hover:border-gray-200' }}
+                        {{ $isAdmin ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer' }}">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-lg bg-{{ $typeInfo['color'] }}-50 flex items-center justify-center flex-shrink-0">
+                                <i class="fas {{ $typeInfo['icon'] }} text-{{ $typeInfo['color'] }}-500 text-xs"></i>
+                            </div>
+                            <span class="text-sm font-medium {{ $notifChecked ? 'text-gray-800' : 'text-gray-500' }}">{{ $typeInfo['label'] }}</span>
+                        </div>
+                        <div class="toggle-switch">
+                            <input type="checkbox" name="notification_types[]" value="{{ $typeKey }}"
+                                {{ $notifChecked ? 'checked' : '' }}
+                                {{ $isAdmin ? 'disabled' : '' }}>
+                            <div class="toggle-track"></div>
+                        </div>
+                    </label>
+                    @endforeach
+                </div>
+
+                @if($isAdmin)
+                <div class="px-3 py-2 rounded-lg bg-violet-50/80 border border-violet-100 flex items-center gap-2 mb-4">
+                    <i class="fas fa-infinity text-violet-400 text-xs"></i>
+                    <p class="text-xs text-violet-600 font-medium">El administrador recibe todas las notificaciones push.</p>
+                </div>
+                @endif
+            </div>
+
+            @if(!$isAdmin && Auth::user()->hasPermission('roles.edit'))
+            <div class="px-6 py-4 border-t border-gray-100 bg-gradient-to-r from-gray-50/80 to-white flex items-center justify-end">
+                <button type="submit" onclick="lockBtn(this, 'Guardando...')"
+                    class="inline-flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-violet-500 to-violet-600 text-white rounded-xl hover:from-violet-600 hover:to-violet-700 transition-all text-sm font-semibold shadow-lg shadow-violet-200/50 hover:shadow-violet-300/50 hover:-translate-y-0.5">
+                    <i class="fas fa-bell text-xs"></i> Guardar Notificaciones
+                </button>
+            </div>
+            @endif
+        </form>
     </div>
     @endforeach
 </div>

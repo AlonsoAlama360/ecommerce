@@ -217,17 +217,7 @@
         <!-- Logo -->
         <div class="px-6 py-6 flex items-center justify-between">
             <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 group">
-                @if(!empty($settings['site_logo']))
-                    <img src="{{ asset('storage/' . $settings['site_logo']) }}" alt="Logo" class="h-10 max-w-[160px] object-contain brightness-0 invert">
-                @else
-                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-500/25 group-hover:shadow-indigo-500/40 transition-shadow">
-                        <i class="fas fa-gem text-white text-sm"></i>
-                    </div>
-                    <div>
-                        <h1 class="font-bold text-[15px] text-white leading-tight tracking-tight">Arixna Admin</h1>
-                        <p class="text-[10px] text-slate-500 font-medium tracking-widest uppercase">E-Commerce</p>
-                    </div>
-                @endif
+                <img src="{{ !empty($settings['site_logo']) ? asset('storage/' . $settings['site_logo']) : asset('images/logo_arixna_blanco.webp') }}" alt="Logo" class="h-10 max-w-[160px] object-contain">
             </a>
             <button class="lg:hidden w-8 h-8 rounded-lg hover:bg-white/10 flex items-center justify-center text-slate-400 transition" onclick="closeSidebar()" aria-label="Cerrar menú lateral">
                 <i class="fas fa-times text-sm"></i>

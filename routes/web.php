@@ -279,6 +279,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::get('roles', [RolePermissionController::class, 'index'])->name('roles.index');
         Route::post('roles', [RolePermissionController::class, 'store'])->middleware('permission:roles.edit')->name('roles.store');
         Route::put('roles/permissions', [RolePermissionController::class, 'update'])->middleware('permission:roles.edit')->name('roles.update');
+        Route::put('roles/notifications', [RolePermissionController::class, 'updateNotifications'])->middleware('permission:roles.edit')->name('roles.updateNotifications');
         Route::put('roles/{role}', [RolePermissionController::class, 'updateRole'])->middleware('permission:roles.edit')->name('roles.updateRole');
         Route::delete('roles/{role}', [RolePermissionController::class, 'destroy'])->middleware('permission:roles.edit')->name('roles.destroy');
     });

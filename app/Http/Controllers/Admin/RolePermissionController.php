@@ -7,6 +7,7 @@ use App\Application\Role\UseCases\DeleteRole;
 use App\Application\Role\UseCases\ListRolesAndPermissions;
 use App\Application\Role\UseCases\UpdateRole;
 use App\Application\Role\UseCases\UpdateRolePermissions;
+use App\Domain\Role\Repositories\RoleRepositoryInterface;
 use App\Http\Controllers\Controller;
 use App\Models\Role;
 use Illuminate\Http\Request;
@@ -81,6 +82,28 @@ class RolePermissionController extends Controller
 
         return redirect()->route('admin.roles.index')
             ->with('success', "Rol '{$result->display_name}' actualizado correctamente.");
+    }
+
+    public function updateNotifications(Request $request, RoleRepositoryInterface $roleRepository)
+    {
+        $request->validate([
+            'role' => 'required|string|exists:roles,name',
+            'notification_types' => 'array',
+            'notification_types.*' => 'string|in:new_order,low_stock,new_contact,new_complaint,new_review',
+        ]);
+
+        $roleName = $request->input('role');
+
+        if ($roleName === 'admin') {
+            return redirect()->route('admin.roles.index')
+                ->with('error', 'No se pueden modificar las notificaciones del administrador.');
+        }
+
+        $roleRepository->syncNotificationTypes($roleName, $request->input('notification_types', []));
+
+        $role = Role::where('name', $roleName)->first();
+        return redirect()->route('admin.roles.index')
+            ->with('success', "Notificaciones del rol '{$role->display_name}' actualizadas correctamente.");
     }
 
     public function destroy(Role $role, DeleteRole $deleteRole)

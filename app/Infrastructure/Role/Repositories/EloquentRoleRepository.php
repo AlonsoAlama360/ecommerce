@@ -73,4 +73,27 @@ class EloquentRoleRepository implements RoleRepositoryInterface
     {
         DB::table('role_has_permissions')->where('role', $roleName)->delete();
     }
+
+    public function getRoleNotificationTypes(): array
+    {
+        $roles = $this->getAdminRoles();
+        $result = [];
+        foreach ($roles as $role) {
+            $result[$role->name] = DB::table('role_notification_types')
+                ->where('role', $role->name)
+                ->pluck('notification_type')
+                ->toArray();
+        }
+        return $result;
+    }
+
+    public function syncNotificationTypes(string $roleName, array $types): void
+    {
+        DB::table('role_notification_types')->where('role', $roleName)->delete();
+
+        if (!empty($types)) {
+            $inserts = array_map(fn($type) => ['role' => $roleName, 'notification_type' => $type], $types);
+            DB::table('role_notification_types')->insert($inserts);
+        }
+    }
 }

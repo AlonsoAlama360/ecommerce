@@ -135,6 +135,7 @@
 
             <form id="advisorForm" method="POST" action="{{ route('checkout.advisor.process') }}">
                 @csrf
+                <input type="hidden" name="idempotency_token" value="{{ session()->get('advisor_idempotency_token', \Illuminate\Support\Str::uuid()->toString()) }}">
                 <input type="hidden" name="shipping_method" id="shippingMethodHidden" value="{{ $shippingMode === 'both' ? 'agency' : $shippingMode }}">
 
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">

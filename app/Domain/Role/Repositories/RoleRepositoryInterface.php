@@ -26,4 +26,8 @@ interface RoleRepositoryInterface
     public function syncPermissions(string $roleName, array $permissionIds): void;
 
     public function removeAllPermissions(string $roleName): void;
+
+    public function getRoleNotificationTypes(): array;
+
+    public function syncNotificationTypes(string $roleName, array $types): void;
 }

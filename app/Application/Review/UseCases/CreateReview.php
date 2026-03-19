@@ -34,7 +34,7 @@ class CreateReview
 
         $review->load(['user', 'product']);
         AdminNotificationService::send('notify_new_review', new NewReviewNotificationMail($review));
-        AdminNotificationService::notify(new NewReviewNotification($review));
+        AdminNotificationService::notify('new_review', new NewReviewNotification($review));
 
         return $review;
     }

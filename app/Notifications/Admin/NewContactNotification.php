@@ -40,8 +40,8 @@ class NewContactNotification extends Notification implements ShouldQueue
     {
         return (new WebPushMessage)
             ->title('Nuevo mensaje de contacto')
-            ->icon('/images/logo_arixna.png')
-            ->badge('/images/logo_arixna.png')
+            ->icon('/images/logo_arixna1024512_min.webp')
+            ->badge('/images/logo_arixna1024512_min.webp')
             ->body("De {$this->contact->name}: \"{$this->contact->subject}\"")
             ->data(['url' => '/admin/contact-messages'])
             ->options(['urgency' => 'high', 'TTL' => 86400]);

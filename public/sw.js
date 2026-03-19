@@ -16,8 +16,8 @@ self.addEventListener('push', function(event) {
     const title = data.title || 'Nueva notificación';
     const options = {
         body: data.body || '',
-        icon: data.icon || '/images/logo_arixna.png',
-        badge: '/images/logo_arixna.png',
+        icon: data.icon || '/images/logo_arixna1024512_min.webp',
+        badge: '/images/logo_arixna1024512_min.webp',
         data: data.data || {},
         vibrate: [200, 100, 200],
         requireInteraction: true,

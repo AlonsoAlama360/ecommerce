@@ -48,8 +48,8 @@ class LowStockNotification extends Notification implements ShouldQueue
 
         return (new WebPushMessage)
             ->title('Alerta de stock')
-            ->icon('/images/logo_arixna.png')
-            ->badge('/images/logo_arixna.png')
+            ->icon('/images/logo_arixna1024512_min.webp')
+            ->badge('/images/logo_arixna1024512_min.webp')
             ->body($msg)
             ->data(['url' => "/admin/products/{$this->product->id}/edit"])
             ->options(['urgency' => 'high', 'TTL' => 86400]);

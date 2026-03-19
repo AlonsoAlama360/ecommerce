@@ -5,12 +5,14 @@ namespace App\Http\Controllers;
 use App\Application\Cart\UseCases\GetCart;
 use App\Application\Order\DTOs\CreateOrderDTO;
 use App\Application\Order\UseCases\CreateOrder;
+use App\Exceptions\InsufficientStockException;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\SiteSetting;
 use Culqi\Culqi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class CheckoutController extends Controller
 {
@@ -195,7 +197,11 @@ class CheckoutController extends Controller
             }
         }
 
-        $order = $this->createLocalOrder($validated, $cart, $chargeId, $createOrder);
+        try {
+            $order = $this->createLocalOrder($validated, $cart, $chargeId, $createOrder);
+        } catch (InsufficientStockException $e) {
+            return back()->withInput()->with('error', $e->getMessage());
+        }
 
         return redirect()->route('orders.show', $order)
             ->with('success', "¡Pago exitoso! Tu pedido {$order->order_number} ha sido confirmado.");
@@ -261,7 +267,11 @@ class CheckoutController extends Controller
             return response()->json(['error' => 'No se pudo verificar el pago.'], 500);
         }
 
-        $order = $this->createLocalOrder($validated, $cart, $orderId, $createOrder);
+        try {
+            $order = $this->createLocalOrder($validated, $cart, $orderId, $createOrder);
+        } catch (InsufficientStockException $e) {
+            return response()->json(['error' => $e->getMessage()], 422);
+        }
 
         return response()->json([
             'success' => true,
@@ -279,6 +289,9 @@ class CheckoutController extends Controller
 
         $user = auth()->user();
 
+        // Generar token de idempotencia para evitar doble submit
+        session()->put('advisor_idempotency_token', Str::uuid()->toString());
+
         return view('checkout-advisor', [
             'cartItems' => $cart['cartItems'],
             'subtotal' => $cart['subtotal'],
@@ -295,6 +308,15 @@ class CheckoutController extends Controller
 
     public function processAdvisor(Request $request, CreateOrder $createOrder)
     {
+        // Idempotencia: verificar token para prevenir doble submit
+        $token = $request->input('idempotency_token');
+        $sessionToken = session()->pull('advisor_idempotency_token');
+
+        if (!$token || $token !== $sessionToken) {
+            return redirect()->route('cart')
+                ->with('error', 'Este pedido ya fue procesado. Revisa tus pedidos.');
+        }
+
         $shippingMode = SiteSetting::get('shipping_mode', 'agency');
         $method = $shippingMode === 'both' ? $request->input('shipping_method', 'agency') : $shippingMode;
         $wantsAgency = $method === 'agency';
@@ -345,7 +367,13 @@ class CheckoutController extends Controller
             customerNotes: $validated['customer_notes'] ?? null,
         );
 
-        $order = $createOrder->execute($dto);
+        try {
+            $order = $createOrder->execute($dto);
+        } catch (InsufficientStockException $e) {
+            // Regenerar token para que pueda reintentar
+            session()->put('advisor_idempotency_token', Str::uuid()->toString());
+            return back()->withInput()->with('error', $e->getMessage());
+        }
 
         session()->forget('cart');
 

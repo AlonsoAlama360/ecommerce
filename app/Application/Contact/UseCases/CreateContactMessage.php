@@ -28,7 +28,7 @@ class CreateContactMessage
         $contact = $this->contactRepository->create($data);
 
         AdminNotificationService::send('notify_new_contact', new NewContactNotificationMail($contact));
-        AdminNotificationService::notify(new NewContactNotification($contact));
+        AdminNotificationService::notify('new_contact', new NewContactNotification($contact));
 
         return $contact;
     }

@@ -38,7 +38,7 @@ class CreateComplaint
         $complaint = $this->complaintRepository->create($data);
 
         AdminNotificationService::send('notify_new_complaint', new NewComplaintNotificationMail($complaint));
-        AdminNotificationService::notify(new NewComplaintNotification($complaint));
+        AdminNotificationService::notify('new_complaint', new NewComplaintNotification($complaint));
 
         return $complaint;
     }

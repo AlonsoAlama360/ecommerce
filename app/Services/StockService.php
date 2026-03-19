@@ -112,7 +112,7 @@ class StockService
                 'notify_low_stock',
                 new LowStockImmediateAlertMail($product, $threshold)
             );
-            AdminNotificationService::notify(new LowStockNotification($product));
+            AdminNotificationService::notify('low_stock', new LowStockNotification($product));
         }
     }
 }
