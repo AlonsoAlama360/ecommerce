@@ -114,40 +114,45 @@
 
 @section('content')
     <!-- Breadcrumb -->
-    <div class="bg-white border-b border-gray-200">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            <div class="flex items-center gap-2 text-sm text-gray-600">
-                <a href="{{ route('home') }}" class="hover:text-gray-900 transition">Inicio</a>
-                <i class="fas fa-chevron-right text-xs"></i>
-                <a href="{{ route('catalog') }}" class="hover:text-gray-900 transition">Catálogo</a>
-                <i class="fas fa-chevron-right text-xs"></i>
-                <a href="{{ route('catalog', ['categories' => [$product->category->slug]]) }}" class="hover:text-gray-900 transition">{{ $product->category->name }}</a>
-                <i class="fas fa-chevron-right text-xs"></i>
-                <span class="text-gray-900 font-medium truncate max-w-[200px]">{{ $product->name }}</span>
+    <div class="bg-white border-b border-gray-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <div class="flex items-center gap-2 text-xs sm:text-sm text-gray-400">
+                <a href="{{ route('home') }}" class="hover:text-[#D4A574] transition"><i class="fas fa-home text-[10px]"></i></a>
+                <i class="fas fa-chevron-right text-[8px]"></i>
+                <a href="{{ route('catalog') }}" class="hover:text-[#D4A574] transition">Catálogo</a>
+                <i class="fas fa-chevron-right text-[8px]"></i>
+                <a href="{{ route('catalog', ['categories' => [$product->category->slug]]) }}" class="hover:text-[#D4A574] transition">{{ $product->category->name }}</a>
+                <i class="fas fa-chevron-right text-[8px]"></i>
+                <span class="text-gray-700 font-medium truncate max-w-[180px]">{{ $product->name }}</span>
             </div>
         </div>
     </div>
 
     <!-- Product Detail -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-10">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-14">
 
             <!-- Product Images -->
-            <div class="space-y-4">
+            <div class="space-y-3">
                 <!-- Main Image -->
-                <div class="aspect-square bg-white rounded-2xl overflow-hidden shadow-lg">
+                <div class="aspect-square bg-gray-50 rounded-2xl overflow-hidden border border-gray-100 relative group">
                     <img id="mainImage"
                          src="{{ $product->images->first()?->image_url ?? 'https://via.placeholder.com/600x600?text=Sin+Imagen' }}"
                          alt="{{ $product->name }}"
-                         class="w-full h-full object-cover">
+                         class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 cursor-zoom-in">
+                    @if($product->discount_percentage)
+                        <div class="absolute top-4 left-4 bg-[#D4A574] text-white px-3 py-1 rounded-full text-xs font-bold tracking-wide">
+                            -{{ $product->discount_percentage }}%
+                        </div>
+                    @endif
                 </div>
 
                 <!-- Thumbnail Images -->
                 @if($product->images->count() > 1)
-                    <div class="grid grid-cols-4 gap-3">
+                    <div class="flex gap-2 overflow-x-auto pb-1">
                         @foreach($product->images as $index => $image)
                             <button type="button"
-                                    class="thumb-btn aspect-square bg-white rounded-lg overflow-hidden border-2 shadow-sm hover:shadow-md transition-all {{ $index === 0 ? 'border-[#D4A574]' : 'border-transparent hover:border-[#D4A574]' }}"
+                                    class="thumb-btn flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 bg-white rounded-xl overflow-hidden border-2 transition-all duration-200 {{ $index === 0 ? 'border-[#D4A574] shadow-sm' : 'border-gray-100 hover:border-[#D4A574]/50' }}"
                                     data-image="{{ $image->image_url }}"
                                     aria-label="Ver imagen {{ $index + 1 }}">
                                 <img src="{{ $image->image_url }}" alt="{{ $image->alt_text ?? $product->name }}" class="w-full h-full object-cover">
@@ -158,128 +163,142 @@
             </div>
 
             <!-- Product Info -->
-            <div class="space-y-6">
-                <!-- Category -->
-                <a href="{{ route('catalog', ['categories' => [$product->category->slug]]) }}" class="inline-block text-sm text-[#D4A574] font-medium hover:underline">
-                    {{ $product->category->name }}
-                </a>
+            <div class="space-y-5">
+                <!-- Category + Wishlist -->
+                <div class="flex items-center justify-between">
+                    <a href="{{ route('catalog', ['categories' => [$product->category->slug]]) }}" class="text-xs text-[#D4A574] font-semibold uppercase tracking-wider hover:underline">
+                        {{ $product->category->name }}
+                    </a>
+                    <button type="button" class="wishlist-btn w-9 h-9 border border-gray-200 rounded-full flex items-center justify-center text-gray-400 hover:bg-rose-50 hover:text-rose-500 hover:border-rose-200 transition-all duration-200" data-product-id="{{ $product->id }}" aria-label="Agregar a lista de deseos">
+                        <i class="far fa-heart text-sm"></i>
+                    </button>
+                </div>
 
                 <!-- Title -->
-                <h1 class="text-3xl lg:text-4xl font-serif font-semibold text-gray-900">{{ $product->name }}</h1>
-                <button type="button" class="wishlist-btn flex-shrink-0 w-11 h-11 border-2 border-gray-200 rounded-full flex items-center justify-center hover:bg-rose-500 hover:text-white hover:border-rose-500 transition-all duration-200" data-product-id="{{ $product->id }}" aria-label="Agregar a lista de deseos">
-                    <i class="far fa-heart text-lg"></i>
-                </button>
+                <h1 class="text-2xl sm:text-3xl lg:text-[2rem] font-serif font-semibold text-gray-900 leading-tight">{{ $product->name }}</h1>
 
                 <!-- Rating & SKU -->
-                <div class="flex items-center gap-4">
+                <div class="flex items-center gap-3 flex-wrap">
                     <button type="button" onclick="document.querySelector('[data-tab=reviews]').click(); document.getElementById('tab-content-reviews').scrollIntoView({behavior:'smooth'})"
-                        class="flex items-center gap-2 hover:opacity-80 transition-opacity">
+                        class="flex items-center gap-1.5 hover:opacity-80 transition-opacity">
                         <div class="flex gap-0.5">
                             @for($s = 1; $s <= 5; $s++)
-                                <i class="fas fa-star {{ $s <= round($reviewStats['average']) ? 'text-amber-400' : 'text-gray-200' }} text-sm"></i>
+                                <i class="fas fa-star {{ $s <= round($reviewStats['average']) ? 'text-amber-400' : 'text-gray-200' }} text-xs"></i>
                             @endfor
                         </div>
-                        <span class="text-sm font-medium text-gray-600">{{ $reviewStats['average'] }} ({{ $reviewStats['total'] }})</span>
+                        <span class="text-xs font-medium text-gray-500">{{ $reviewStats['average'] }} ({{ $reviewStats['total'] }})</span>
                     </button>
-                    <span class="text-gray-300">|</span>
-                    <p class="text-sm text-gray-400">SKU: {{ $product->sku }}</p>
+                    <span class="w-1 h-1 bg-gray-300 rounded-full"></span>
+                    <p class="text-xs text-gray-400">SKU: {{ $product->sku }}</p>
                 </div>
 
                 <!-- Price -->
                 <div class="flex items-baseline gap-3">
-                    <span class="text-3xl lg:text-4xl font-bold text-gray-900">S/ {{ number_format($product->current_price, 2) }}</span>
+                    <span class="text-3xl font-bold text-gray-900">S/ {{ number_format($product->current_price, 2) }}</span>
                     @if($product->discount_percentage)
-                        <span class="text-xl lg:text-2xl text-gray-400 line-through">S/ {{ number_format($product->price, 2) }}</span>
-                        <span class="bg-[#E8B4B8] text-white px-3 py-1 rounded-full text-sm font-semibold">-{{ $product->discount_percentage }}%</span>
+                        <span class="text-base text-gray-400 line-through">S/ {{ number_format($product->price, 2) }}</span>
+                        <span class="bg-[#D4A574]/10 text-[#D4A574] px-2 py-0.5 rounded-md text-xs font-bold">-{{ $product->discount_percentage }}%</span>
                     @endif
                 </div>
 
                 <!-- Description -->
-                <div class="border-t border-b border-gray-200 py-6">
-                    <p class="text-gray-700 leading-relaxed">{{ $product->short_description ?? $product->description }}</p>
-                </div>
+                <p class="text-sm text-gray-600 leading-relaxed border-t border-gray-100 pt-5">{{ $product->short_description ?? Str::limit(strip_tags($product->description), 200) }}</p>
 
                 <!-- Material -->
                 @if($product->material)
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-900 mb-3">Material</label>
-                        <span class="inline-block px-6 py-3 border-2 border-[#D4A574] bg-[#D4A574] text-white rounded-lg font-medium">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Material:</span>
+                        <span class="inline-block px-3 py-1.5 bg-[#D4A574]/10 text-[#D4A574] rounded-lg text-xs font-semibold">
                             {{ $product->material }}
                         </span>
                     </div>
                 @endif
 
-                <!-- Quantity -->
-                <div>
-                    <label class="block text-sm font-semibold text-gray-900 mb-3">Cantidad</label>
-                    <div class="flex items-center gap-4">
-                        <button type="button" id="decreaseQty" class="w-12 h-12 border-2 border-gray-300 rounded-lg flex items-center justify-center hover:border-[#D4A574] hover:text-[#D4A574] transition" aria-label="Disminuir cantidad">
-                            <i class="fas fa-minus"></i>
+                <!-- Quantity + Stock -->
+                <div class="flex items-center gap-4 pt-1">
+                    <div class="flex items-center border border-gray-200 rounded-xl overflow-hidden">
+                        <button type="button" id="decreaseQty" class="w-10 h-10 flex items-center justify-center text-gray-500 hover:bg-gray-50 hover:text-[#D4A574] transition" aria-label="Disminuir cantidad">
+                            <i class="fas fa-minus text-xs"></i>
                         </button>
-                        <input id="quantity" type="text" value="1" readonly class="w-20 h-12 text-center border-2 border-gray-300 rounded-lg font-semibold text-lg" aria-label="Cantidad">
-                        <button type="button" id="increaseQty" class="w-12 h-12 border-2 border-gray-300 rounded-lg flex items-center justify-center hover:border-[#D4A574] hover:text-[#D4A574] transition" aria-label="Aumentar cantidad">
-                            <i class="fas fa-plus"></i>
+                        <input id="quantity" type="text" value="1" readonly class="w-12 h-10 text-center font-semibold text-sm border-x border-gray-200 bg-white" aria-label="Cantidad">
+                        <button type="button" id="increaseQty" class="w-10 h-10 flex items-center justify-center text-gray-500 hover:bg-gray-50 hover:text-[#D4A574] transition" aria-label="Aumentar cantidad">
+                            <i class="fas fa-plus text-xs"></i>
                         </button>
-                        @if($product->stock > 0)
-                            <span class="text-sm text-green-600 font-medium"><i class="fas fa-check-circle mr-1"></i>En stock ({{ $product->stock }})</span>
-                        @else
-                            <span class="text-sm text-red-500 font-medium"><i class="fas fa-times-circle mr-1"></i>Agotado</span>
-                        @endif
                     </div>
+                    @if($product->stock > 0)
+                        <span class="text-xs text-emerald-600 font-medium flex items-center gap-1"><i class="fas fa-circle text-[6px]"></i> En stock ({{ $product->stock }})</span>
+                    @else
+                        <span class="text-xs text-red-500 font-medium flex items-center gap-1"><i class="fas fa-circle text-[6px]"></i> Agotado</span>
+                    @endif
                 </div>
 
                 <!-- Actions -->
-                <div class="space-y-3 pt-4">
-                    <form id="addToCartForm" action="{{ route('cart.add') }}" method="POST">
+                <div class="flex items-center gap-3 pt-2">
+                    <form id="addToCartForm" action="{{ route('cart.add') }}" method="POST" class="flex-1">
                         @csrf
                         <input type="hidden" name="product_id" value="{{ $product->id }}">
                         <input type="hidden" name="quantity" value="1" id="cartQtyInput">
-                        <button type="submit" class="w-full bg-gray-900 text-white py-4 rounded-full font-semibold text-lg hover:bg-gray-800 transition shadow-lg hover:shadow-xl flex items-center justify-center gap-2 {{ $product->stock <= 0 ? 'opacity-50 cursor-not-allowed' : '' }}" {{ $product->stock <= 0 ? 'disabled' : '' }}>
-                            <i class="fas fa-shopping-cart"></i>
+                        <button type="submit" class="w-full bg-gray-900 text-white h-11 rounded-xl font-semibold text-sm hover:bg-gray-800 active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2 {{ $product->stock <= 0 ? 'opacity-50 cursor-not-allowed' : '' }}" {{ $product->stock <= 0 ? 'disabled' : '' }}>
+                            <i class="fas fa-shopping-bag text-xs"></i>
                             Agregar al Carrito
                         </button>
                     </form>
-                    <button type="button" id="whatsappBtn" class="w-full bg-green-500 text-white py-4 rounded-full font-semibold text-lg hover:bg-green-600 transition flex items-center justify-center gap-2">
-                        <i class="fab fa-whatsapp text-xl"></i>
-                        Consultar por WhatsApp
+                    <button type="button" id="whatsappBtn"
+                        class="group h-11 flex items-center gap-3 px-4 rounded-xl bg-white border border-gray-100 hover:border-[#25D366]/30 hover:shadow-md hover:shadow-[#25D366]/10 transition-all duration-300 flex-shrink-0">
+                        <div class="w-8 h-8 rounded-full bg-[#25D366] flex items-center justify-center flex-shrink-0 shadow-sm shadow-[#25D366]/25">
+                            <i class="fab fa-whatsapp text-white text-sm"></i>
+                        </div>
+                        <div class="hidden sm:block text-left">
+                            <p class="text-xs font-semibold text-gray-700 leading-tight">WhatsApp</p>
+                            <p class="text-[9px] text-gray-400 leading-tight">Consultar</p>
+                        </div>
+                        <i class="hidden sm:inline fas fa-chevron-right text-[8px] text-gray-300 group-hover:text-[#25D366] transition-colors"></i>
                     </button>
                 </div>
 
                 <!-- Features -->
-                <div class="grid grid-cols-2 gap-4 pt-4">
-                    <div class="flex items-center gap-3">
-                        <i class="fas fa-shipping-fast text-[#D4A574]"></i>
-                        <span class="text-sm text-gray-700">Envío Gratis</span>
+                <div class="grid grid-cols-2 gap-3 pt-3 border-t border-gray-100">
+                    <div class="flex items-center gap-2.5 p-3 bg-gray-50 rounded-xl">
+                        <div class="w-8 h-8 bg-[#D4A574]/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-truck text-[#D4A574] text-xs"></i>
+                        </div>
+                        <span class="text-xs text-gray-700 font-medium leading-tight">Envío a todo el Perú</span>
                     </div>
-                    <div class="flex items-center gap-3">
-                        <i class="fas fa-shield-alt text-[#D4A574]"></i>
-                        <span class="text-sm text-gray-700">Garantía 1 Año</span>
+                    <div class="flex items-center gap-2.5 p-3 bg-gray-50 rounded-xl">
+                        <div class="w-8 h-8 bg-[#D4A574]/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-shield-alt text-[#D4A574] text-xs"></i>
+                        </div>
+                        <span class="text-xs text-gray-700 font-medium leading-tight">Garantía 1 Año</span>
                     </div>
-                    <div class="flex items-center gap-3">
-                        <i class="fas fa-clock text-[#D4A574]"></i>
-                        <span class="text-sm text-gray-700">Entrega 2-3 días</span>
+                    <div class="flex items-center gap-2.5 p-3 bg-gray-50 rounded-xl">
+                        <div class="w-8 h-8 bg-[#D4A574]/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-clock text-[#D4A574] text-xs"></i>
+                        </div>
+                        <span class="text-xs text-gray-700 font-medium leading-tight">Entrega 2-3 días</span>
                     </div>
-                    <div class="flex items-center gap-3">
-                        <i class="fas fa-credit-card text-[#D4A574]"></i>
-                        <span class="text-sm text-gray-700">Pago Seguro</span>
+                    <div class="flex items-center gap-2.5 p-3 bg-gray-50 rounded-xl">
+                        <div class="w-8 h-8 bg-[#D4A574]/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-lock text-[#D4A574] text-xs"></i>
+                        </div>
+                        <span class="text-xs text-gray-700 font-medium leading-tight">Pago Seguro</span>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Product Details Tabs -->
-        <div class="mt-16">
+        <div class="mt-14">
             <div class="border-b border-gray-200">
                 <div class="flex gap-6 sm:gap-8 overflow-x-auto">
-                    <button type="button" data-tab="description" class="tab-btn pb-4 border-b-2 border-[#D4A574] text-[#D4A574] font-semibold whitespace-nowrap">
+                    <button type="button" data-tab="description" class="tab-btn pb-3 border-b-2 border-[#D4A574] text-[#D4A574] font-semibold text-sm whitespace-nowrap transition-all">
                         Descripción
                     </button>
                     @if($product->specifications)
-                        <button type="button" data-tab="specifications" class="tab-btn pb-4 border-b-2 border-transparent text-gray-600 hover:text-[#D4A574] font-semibold whitespace-nowrap">
+                        <button type="button" data-tab="specifications" class="tab-btn pb-3 border-b-2 border-transparent text-gray-500 hover:text-[#D4A574] font-semibold text-sm whitespace-nowrap transition-all">
                             Especificaciones
                         </button>
                     @endif
-                    <button type="button" data-tab="reviews" class="tab-btn pb-4 border-b-2 border-transparent text-gray-600 hover:text-[#D4A574] font-semibold whitespace-nowrap">
+                    <button type="button" data-tab="reviews" class="tab-btn pb-3 border-b-2 border-transparent text-gray-500 hover:text-[#D4A574] font-semibold text-sm whitespace-nowrap transition-all">
                         Reseñas ({{ $reviewStats['total'] }})
                     </button>
                 </div>
@@ -289,8 +308,8 @@
             <div class="py-8">
                 <!-- Description Tab -->
                 <div id="tab-content-description" class="tab-content space-y-4">
-                    <h2 class="text-2xl font-serif font-semibold text-gray-900">Detalles del Producto</h2>
-                    <div class="text-gray-700 leading-relaxed prose max-w-none">
+                    <h2 class="text-xl font-serif font-semibold text-gray-900">Detalles del Producto</h2>
+                    <div class="text-gray-600 leading-relaxed prose prose-sm max-w-none">
                         {!! nl2br(e($product->description)) !!}
                     </div>
                 </div>
@@ -300,20 +319,20 @@
                     <div id="tab-content-specifications" class="tab-content hidden">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-1">
                             @foreach($product->specifications as $label => $value)
-                                <div class="flex justify-between py-3 border-b border-gray-200">
-                                    <span class="font-semibold text-gray-900">{{ $label }}:</span>
-                                    <span class="text-gray-700">{{ $value }}</span>
+                                <div class="flex justify-between py-3 border-b border-gray-100">
+                                    <span class="font-semibold text-gray-900 text-sm">{{ $label }}:</span>
+                                    <span class="text-gray-600 text-sm">{{ $value }}</span>
                                 </div>
                             @endforeach
                             @if($product->material)
-                                <div class="flex justify-between py-3 border-b border-gray-200">
-                                    <span class="font-semibold text-gray-900">Material:</span>
-                                    <span class="text-gray-700">{{ $product->material }}</span>
+                                <div class="flex justify-between py-3 border-b border-gray-100">
+                                    <span class="font-semibold text-gray-900 text-sm">Material:</span>
+                                    <span class="text-gray-600 text-sm">{{ $product->material }}</span>
                                 </div>
                             @endif
-                            <div class="flex justify-between py-3 border-b border-gray-200">
-                                <span class="font-semibold text-gray-900">SKU:</span>
-                                <span class="text-gray-700">{{ $product->sku }}</span>
+                            <div class="flex justify-between py-3 border-b border-gray-100">
+                                <span class="font-semibold text-gray-900 text-sm">SKU:</span>
+                                <span class="text-gray-600 text-sm">{{ $product->sku }}</span>
                             </div>
                         </div>
                     </div>
@@ -363,12 +382,12 @@
                                             </div>
                                         @else
                                             <button type="button" onclick="document.getElementById('reviewForm').scrollIntoView({behavior:'smooth'})"
-                                                class="w-full bg-gradient-to-r from-[#D4A574] to-[#C39563] text-white py-3 rounded-xl font-semibold hover:shadow-lg transition-all duration-300">
+                                                class="w-full bg-gradient-to-r from-[#D4A574] to-[#C39563] text-white py-3 rounded-xl font-semibold text-sm hover:shadow-lg transition-all duration-300">
                                                 <i class="fas fa-pen mr-2"></i>Escribir Reseña
                                             </button>
                                         @endif
                                     @else
-                                        <a href="{{ route('login') }}" class="block text-center bg-gray-900 text-white py-3 rounded-xl font-semibold hover:bg-gray-800 transition-all">
+                                        <a href="{{ route('login') }}" class="block text-center bg-gray-900 text-white py-3 rounded-xl font-semibold text-sm hover:bg-gray-800 transition-all">
                                             <i class="fas fa-sign-in-alt mr-2"></i>Inicia sesión para opinar
                                         </a>
                                     @endauth
@@ -435,7 +454,7 @@
                                             </div>
 
                                             <button type="submit"
-                                                class="bg-gradient-to-r from-[#D4A574] to-[#C39563] text-white px-8 py-3 rounded-xl font-semibold hover:shadow-lg transition-all duration-300">
+                                                class="bg-gradient-to-r from-[#D4A574] to-[#C39563] text-white px-6 py-2.5 rounded-xl font-semibold text-sm hover:shadow-lg transition-all duration-300">
                                                 Publicar Reseña
                                             </button>
                                         </form>
@@ -502,53 +521,71 @@
             </div>
         </div>
 
-        <!-- Related Products -->
+        <!-- Related Products Slider -->
         @if($relatedProducts->isNotEmpty())
-            <div class="mt-16 pt-10 border-t border-gray-100">
-                <div class="flex items-center gap-3 mb-8">
-                    <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-[#D4A574]/15 to-[#E8B4B8]/10 flex items-center justify-center">
-                        <i class="fas fa-heart text-[#D4A574] text-sm"></i>
+            <div class="mt-14 pt-10 border-t border-gray-100">
+                <div class="flex items-center justify-between mb-8">
+                    <div>
+                        <p class="text-xs font-semibold text-[#D4A574] uppercase tracking-widest mb-1">Descubre más</p>
+                        <h2 class="text-xl sm:text-2xl font-serif font-bold text-gray-900">Productos Relacionados</h2>
                     </div>
-                    <h2 class="text-2xl sm:text-3xl font-serif font-bold text-gray-900">Productos Relacionados</h2>
+                    <div class="flex items-center gap-2">
+                        <button type="button" id="relatedPrev" class="group/arrow w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-400 hover:border-[#D4A574] hover:text-[#D4A574] hover:shadow-md hover:shadow-[#D4A574]/10 active:scale-95 transition-all duration-300 disabled:opacity-30 disabled:pointer-events-none">
+                            <i class="fas fa-chevron-left text-[11px] group-hover/arrow:-translate-x-0.5 transition-transform duration-300"></i>
+                        </button>
+                        <button type="button" id="relatedNext" class="group/arrow w-10 h-10 rounded-full bg-[#D4A574] text-white flex items-center justify-center hover:bg-[#c99660] hover:shadow-md hover:shadow-[#D4A574]/25 active:scale-95 transition-all duration-300 disabled:opacity-30 disabled:pointer-events-none">
+                            <i class="fas fa-chevron-right text-[11px] group-hover/arrow:translate-x-0.5 transition-transform duration-300"></i>
+                        </button>
+                    </div>
                 </div>
-                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
-                    @foreach($relatedProducts as $related)
-                        <div class="bg-white rounded-2xl overflow-hidden border border-gray-100 group hover:shadow-xl hover:shadow-gray-200/50 hover:border-[#D4A574]/15 transition-all duration-500">
-                            <a href="{{ route('product.show', $related->slug) }}" class="block relative overflow-hidden aspect-[4/5]">
-                                <img src="{{ $related->primaryImage?->thumbnail() ?? asset('images/placeholder.png') }}"
-                                     alt="{{ $related->name }}"
-                                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                                     loading="lazy">
-                                <div class="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                @if($related->discount_percentage)
-                                    <div class="absolute top-3 left-3 bg-gradient-to-r from-[#D4A574] to-[#C39563] text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
-                                        -{{ $related->discount_percentage }}%
+                <div class="relative overflow-hidden -mx-2">
+                    <div id="relatedSlider" class="flex transition-transform duration-500 ease-[cubic-bezier(0.25,0.1,0.25,1)]">
+                        @foreach($relatedProducts as $related)
+                            <div class="related-slide flex-shrink-0 w-1/2 sm:w-1/3 lg:w-1/4 px-2">
+                                <div class="bg-white rounded-2xl overflow-hidden border border-gray-100/80 group hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] transition-all duration-500">
+                                    <a href="{{ route('product.show', $related->slug) }}" class="block relative overflow-hidden aspect-square">
+                                        <img src="{{ $related->primaryImage?->thumbnail() ?? asset('images/placeholder.png') }}"
+                                             alt="{{ $related->name }}"
+                                             class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+                                             loading="lazy">
+                                        <div class="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                        @if($related->discount_percentage)
+                                            <div class="absolute top-3 left-3 bg-red-500 text-white px-2 py-0.5 rounded-md text-[10px] font-bold">
+                                                -{{ $related->discount_percentage }}%
+                                            </div>
+                                        @endif
+                                        <div class="absolute bottom-0 left-0 right-0 p-3 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                                            <button type="button"
+                                                    class="add-to-cart-btn w-full bg-white text-gray-900 py-2.5 rounded-xl hover:bg-[#D4A574] hover:text-white active:scale-[0.97] transition-all duration-200 flex items-center justify-center gap-2 font-semibold text-xs shadow-lg backdrop-blur-sm"
+                                                    data-product-id="{{ $related->id }}">
+                                                <i class="fas fa-shopping-bag text-[10px]"></i> Agregar al carrito
+                                            </button>
+                                        </div>
+                                        <button type="button" class="wishlist-btn absolute top-3 right-3 w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all duration-200 shadow-sm opacity-0 group-hover:opacity-100" data-product-id="{{ $related->id }}" aria-label="Agregar a lista de deseos">
+                                            <i class="far fa-heart text-xs"></i>
+                                        </button>
+                                    </a>
+                                    <div class="p-4 flex flex-col">
+                                        <p class="text-[10px] text-[#D4A574] font-semibold uppercase tracking-wider mb-1.5">{{ $related->category?->name }}</p>
+                                        <a href="{{ route('product.show', $related->slug) }}">
+                                            <h3 class="font-medium text-sm mb-2.5 line-clamp-2 group-hover:text-[#D4A574] transition-colors leading-snug min-h-[2.5rem]">{{ $related->name }}</h3>
+                                        </a>
+                                        <div class="mt-auto">
+                                            <div class="flex items-baseline gap-2">
+                                                <span class="text-lg font-bold text-gray-900">S/ {{ number_format($related->current_price, 2) }}</span>
+                                                @if($related->sale_price && $related->sale_price < $related->price)
+                                                    <span class="text-[11px] text-gray-400 line-through">S/ {{ number_format($related->price, 2) }}</span>
+                                                @endif
+                                            </div>
+                                        </div>
                                     </div>
-                                @endif
-                                <button type="button" class="wishlist-btn absolute top-3 right-3 w-9 h-9 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all duration-200 shadow-md" data-product-id="{{ $related->id }}" aria-label="Agregar a lista de deseos">
-                                    <i class="far fa-heart text-xs"></i>
-                                </button>
-                            </a>
-                            <div class="p-4 sm:p-5">
-                                <p class="text-[10px] text-[#D4A574] font-semibold uppercase tracking-wider mb-1">{{ $related->category?->name }}</p>
-                                <a href="{{ route('product.show', $related->slug) }}">
-                                    <h3 class="font-semibold text-sm sm:text-base mb-2 line-clamp-2 group-hover:text-[#D4A574] transition-colors leading-snug min-h-[2.5rem]">{{ $related->name }}</h3>
-                                </a>
-                                <div class="flex items-end gap-2 mb-3">
-                                    <span class="text-lg sm:text-xl font-bold text-gray-900 leading-none">S/ {{ number_format($related->current_price, 2) }}</span>
-                                    @if($related->sale_price && $related->sale_price < $related->price)
-                                        <span class="text-xs text-gray-400 line-through leading-none pb-0.5">S/ {{ number_format($related->price, 2) }}</span>
-                                    @endif
                                 </div>
-                                <button type="button"
-                                        class="add-to-cart-btn w-full bg-gray-900 text-white py-2.5 sm:py-3 rounded-full hover:bg-[#D4A574] active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-2 font-medium text-xs sm:text-sm"
-                                        data-product-id="{{ $related->id }}">
-                                    <i class="fas fa-shopping-bag text-xs"></i> Agregar
-                                </button>
                             </div>
-                        </div>
-                    @endforeach
+                        @endforeach
+                    </div>
                 </div>
+                <!-- Slider dots -->
+                <div id="relatedDots" class="flex items-center justify-center gap-1.5 mt-6"></div>
             </div>
         @endif
     </div>
@@ -564,11 +601,11 @@
         btn.addEventListener('click', function() {
             mainImage.src = this.dataset.image;
             thumbBtns.forEach(b => {
-                b.classList.remove('border-[#D4A574]');
-                b.classList.add('border-transparent');
+                b.classList.remove('border-[#D4A574]', 'shadow-sm');
+                b.classList.add('border-gray-100');
             });
-            this.classList.remove('border-transparent');
-            this.classList.add('border-[#D4A574]');
+            this.classList.remove('border-gray-100');
+            this.classList.add('border-[#D4A574]', 'shadow-sm');
         });
     });
 
@@ -600,7 +637,7 @@
         const btn = form.querySelector('button[type="submit"]');
         const originalHTML = btn.innerHTML;
 
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Agregando...';
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin text-xs"></i> Agregando...';
         btn.disabled = true;
 
         fetch(form.action, {
@@ -617,9 +654,9 @@
         })
         .then(r => r.json())
         .then(data => {
-            btn.innerHTML = '<i class="fas fa-check"></i> ¡Agregado!';
+            btn.innerHTML = '<i class="fas fa-check text-xs"></i> ¡Agregado!';
             btn.classList.remove('bg-gray-900');
-            btn.classList.add('bg-green-600');
+            btn.classList.add('bg-emerald-600');
 
             // Update cart badge
             document.querySelectorAll('.cart-badge').forEach(b => {
@@ -631,7 +668,7 @@
 
             setTimeout(() => {
                 btn.innerHTML = originalHTML;
-                btn.classList.remove('bg-green-600');
+                btn.classList.remove('bg-emerald-600');
                 btn.classList.add('bg-gray-900');
                 btn.disabled = false;
             }, 2000);
@@ -677,11 +714,11 @@
             tabContents.forEach(c => c.classList.add('hidden'));
             tabBtns.forEach(b => {
                 b.classList.remove('border-[#D4A574]', 'text-[#D4A574]');
-                b.classList.add('border-transparent', 'text-gray-600');
+                b.classList.add('border-transparent', 'text-gray-500');
             });
 
             document.getElementById('tab-content-' + target).classList.remove('hidden');
-            this.classList.remove('border-transparent', 'text-gray-600');
+            this.classList.remove('border-transparent', 'text-gray-500');
             this.classList.add('border-[#D4A574]', 'text-[#D4A574]');
         });
     });
@@ -751,5 +788,120 @@
     @if(session('review_success') || session('review_error') || $errors->has('rating') || $errors->has('comment'))
         document.querySelector('[data-tab="reviews"]')?.click();
     @endif
+
+    // ── Related Products Slider ──
+    (function() {
+        const slider = document.getElementById('relatedSlider');
+        const prevBtn = document.getElementById('relatedPrev');
+        const nextBtn = document.getElementById('relatedNext');
+        const dotsContainer = document.getElementById('relatedDots');
+        if (!slider || !prevBtn || !nextBtn) return;
+
+        let currentIndex = 0;
+
+        function getVisibleCount() {
+            if (window.innerWidth >= 1024) return 4;
+            if (window.innerWidth >= 640) return 3;
+            return 2;
+        }
+
+        function getTotalSlides() {
+            return slider.querySelectorAll('.related-slide').length;
+        }
+
+        function getMaxIndex() {
+            return Math.max(0, getTotalSlides() - getVisibleCount());
+        }
+
+        function buildDots() {
+            if (!dotsContainer) return;
+            const maxIdx = getMaxIndex();
+            dotsContainer.innerHTML = '';
+            if (maxIdx <= 0) return;
+            for (let i = 0; i <= maxIdx; i++) {
+                const dot = document.createElement('button');
+                dot.type = 'button';
+                dot.className = 'w-2 h-2 rounded-full transition-all duration-300 ' +
+                    (i === currentIndex ? 'bg-[#D4A574] w-6' : 'bg-gray-300 hover:bg-gray-400');
+                dot.addEventListener('click', () => { currentIndex = i; update(); });
+                dotsContainer.appendChild(dot);
+            }
+        }
+
+        function update() {
+            const slide = slider.querySelector('.related-slide');
+            if (!slide) return;
+            const slideWidth = slide.offsetWidth;
+            slider.style.transform = 'translateX(-' + (currentIndex * slideWidth) + 'px)';
+
+            prevBtn.disabled = currentIndex <= 0;
+            nextBtn.disabled = currentIndex >= getMaxIndex();
+            buildDots();
+        }
+
+        prevBtn.addEventListener('click', () => { if (currentIndex > 0) { currentIndex--; update(); } });
+        nextBtn.addEventListener('click', () => { if (currentIndex < getMaxIndex()) { currentIndex++; update(); } });
+
+        // Touch/swipe
+        let touchX = 0;
+        slider.addEventListener('touchstart', (e) => { touchX = e.changedTouches[0].screenX; }, { passive: true });
+        slider.addEventListener('touchend', (e) => {
+            const diff = touchX - e.changedTouches[0].screenX;
+            if (Math.abs(diff) > 50) {
+                if (diff > 0 && currentIndex < getMaxIndex()) currentIndex++;
+                else if (diff < 0 && currentIndex > 0) currentIndex--;
+                update();
+            }
+        }, { passive: true });
+
+        window.addEventListener('resize', () => { currentIndex = Math.min(currentIndex, getMaxIndex()); update(); });
+        update();
+    })();
+
+    // ── Add to Cart for Related Products ──
+    document.querySelectorAll('.add-to-cart-btn').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            var button = this;
+            var productId = button.dataset.productId;
+            var originalHTML = button.innerHTML;
+
+            button.innerHTML = '<i class="fas fa-spinner fa-spin text-xs"></i>';
+            button.disabled = true;
+
+            fetch('{{ route("cart.add") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify({ product_id: productId, quantity: 1 })
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                button.innerHTML = '<i class="fas fa-check text-xs"></i> ¡Agregado!';
+                button.classList.add('!bg-emerald-500', '!text-white');
+
+                document.querySelectorAll('.cart-badge').forEach(function(b) {
+                    b.textContent = data.cart_count;
+                    b.style.display = data.cart_count > 0 ? 'flex' : 'none';
+                });
+
+                if (typeof openCartSidebar === 'function') openCartSidebar();
+
+                setTimeout(function() {
+                    button.innerHTML = originalHTML;
+                    button.classList.remove('!bg-emerald-500', '!text-white');
+                    button.disabled = false;
+                }, 1800);
+            })
+            .catch(function() {
+                button.innerHTML = originalHTML;
+                button.disabled = false;
+            });
+        });
+    });
 </script>
 @endsection

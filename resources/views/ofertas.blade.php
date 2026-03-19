@@ -94,30 +94,81 @@
         transform: translateY(-3px);
     }
 
-    /* ── Discount Tier Chips ── */
+    /* ── Discount Tier Slider ── */
+    .tier-slider-wrapper {
+        position: relative;
+    }
+    .tier-track {
+        display: flex;
+        gap: .5rem;
+        overflow-x: auto;
+        scroll-behavior: smooth;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+        padding: 4px 2px;
+    }
+    .tier-track::-webkit-scrollbar { display: none; }
+
     .tier-chip {
-        transition: all .3s cubic-bezier(.25,.8,.25,1);
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        gap: .35rem;
+        padding: .45rem .9rem;
+        border-radius: 9999px;
+        font-size: .8rem;
+        font-weight: 500;
+        white-space: nowrap;
+        border: 1px solid #f0f0f0;
+        background: #f9fafb;
+        color: #6b7280;
+        text-decoration: none;
+        transition: all .25s;
         position: relative;
         overflow: hidden;
     }
+    .tier-chip i { font-size: .65rem; }
+    .tier-chip span, .tier-chip i { position: relative; z-index: 1; }
     .tier-chip::before {
-        content:'';
-        position:absolute; inset:0;
+        content: '';
+        position: absolute; inset: 0;
         background: linear-gradient(135deg, #D4A574, #C39563);
-        opacity:0;
-        transition: opacity .3s ease;
+        opacity: 0;
+        transition: opacity .25s;
         border-radius: inherit;
     }
-    .tier-chip:hover::before,
-    .tier-chip.active::before { opacity:1; }
-    .tier-chip:hover,
+    .tier-chip:hover { transform: translateY(-1px); box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+    .tier-chip.active::before { opacity: 1; }
     .tier-chip.active {
-        color:white;
-        border-color:transparent;
-        box-shadow: 0 4px 15px rgba(212,165,116,.3);
-        transform: translateY(-2px);
+        color: #fff;
+        border-color: transparent;
+        box-shadow: 0 3px 12px rgba(212,165,116,.25);
     }
-    .tier-chip span, .tier-chip i { position:relative; z-index:1; }
+
+    .tier-arrow {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 10;
+        width: 28px; height: 28px;
+        border-radius: 50%;
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 2px 8px rgba(0,0,0,.08);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        color: #9ca3af;
+        opacity: 0;
+        pointer-events: none;
+        transition: all .2s;
+    }
+    .tier-arrow:hover { color: #D4A574; border-color: #D4A574; }
+    .tier-arrow.visible { opacity: 1; pointer-events: auto; }
+    .tier-arrow--left { left: -6px; }
+    .tier-arrow--right { right: -6px; }
+    @media(max-width:640px) { .tier-arrow { display: none; } }
 
     /* ── Filter Sidebar ── */
     .filter-sidebar { scrollbar-width:thin; scrollbar-color:#D4A574 transparent; }
@@ -220,41 +271,41 @@
 @section('content')
 
     {{-- ═══════════════════ HERO BANNER ═══════════════════ --}}
-    <section class="offers-hero py-14 md:py-20 text-white">
+    <section class="offers-hero py-10 sm:py-14 md:py-20 text-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             {{-- Breadcrumb --}}
-            <div class="flex items-center gap-2 text-sm text-gray-400 mb-8 anim-fade-up">
+            <div class="flex items-center gap-2 text-xs sm:text-sm text-gray-400 mb-5 sm:mb-8 anim-fade-up">
                 <a href="{{ route('home') }}" class="hover:text-[#D4A574] transition"><i class="fas fa-home text-xs"></i> Inicio</a>
                 <i class="fas fa-chevron-right text-[8px]"></i>
                 <span class="text-white font-medium">Ofertas</span>
             </div>
 
-            <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-10">
-                <div class="space-y-5 max-w-xl anim-fade-up-2">
-                    <div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full border border-white/10">
+            <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 sm:gap-10">
+                <div class="space-y-3 sm:space-y-5 max-w-xl anim-fade-up-2">
+                    <div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 py-1.5 sm:px-4 sm:py-2 rounded-full border border-white/10">
                         <span class="w-2 h-2 bg-rose-400 rounded-full animate-pulse"></span>
-                        <span class="text-sm font-semibold text-rose-300">Ofertas Activas</span>
+                        <span class="text-xs sm:text-sm font-semibold text-rose-300">Ofertas Activas</span>
                     </div>
-                    <h1 class="font-serif text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
+                    <h1 class="font-serif text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
                         Hasta <span class="bg-gradient-to-r from-[#D4A574] to-[#e0b88a] bg-clip-text text-transparent">{{ $stats->max_discount ?? 0 }}%</span> OFF
                     </h1>
-                    <p class="text-gray-300 text-lg leading-relaxed">
-                        Aprovecha nuestras ofertas exclusivas en <strong class="text-white">{{ $stats->total_offers ?? 0 }} productos</strong> seleccionados. Precios especiales por tiempo limitado.
+                    <p class="text-gray-300 text-sm sm:text-lg leading-relaxed">
+                        Ofertas exclusivas en <strong class="text-white">{{ $stats->total_offers ?? 0 }} productos</strong> seleccionados.
                     </p>
                 </div>
 
-                <div class="grid grid-cols-3 gap-3 md:gap-4 w-full lg:w-auto anim-fade-up-3">
-                    <div class="hero-stat rounded-2xl p-5 md:p-6 text-center">
-                        <p class="text-2xl md:text-3xl font-bold text-[#D4A574] mb-1">{{ $stats->total_offers ?? 0 }}</p>
-                        <p class="text-xs text-gray-400 font-medium">Productos</p>
+                <div class="flex gap-2 sm:gap-3 md:gap-4 w-full lg:w-auto anim-fade-up-3">
+                    <div class="hero-stat rounded-xl sm:rounded-2xl px-3 py-3 sm:p-5 md:p-6 text-center flex-1">
+                        <p class="text-lg sm:text-2xl md:text-3xl font-bold text-[#D4A574] mb-0.5 sm:mb-1">{{ $stats->total_offers ?? 0 }}</p>
+                        <p class="text-[10px] sm:text-xs text-gray-400 font-medium">Productos</p>
                     </div>
-                    <div class="hero-stat rounded-2xl p-5 md:p-6 text-center">
-                        <p class="text-2xl md:text-3xl font-bold text-rose-400 mb-1">{{ $stats->max_discount ?? 0 }}%</p>
-                        <p class="text-xs text-gray-400 font-medium">Descuento Max</p>
+                    <div class="hero-stat rounded-xl sm:rounded-2xl px-3 py-3 sm:p-5 md:p-6 text-center flex-1">
+                        <p class="text-lg sm:text-2xl md:text-3xl font-bold text-rose-400 mb-0.5 sm:mb-1">{{ $stats->max_discount ?? 0 }}%</p>
+                        <p class="text-[10px] sm:text-xs text-gray-400 font-medium">Dto. Max</p>
                     </div>
-                    <div class="hero-stat rounded-2xl p-5 md:p-6 text-center">
-                        <p class="text-2xl md:text-3xl font-bold text-emerald-400 mb-1">S/ {{ number_format($stats->min_price ?? 0, 0) }}</p>
-                        <p class="text-xs text-gray-400 font-medium">Desde</p>
+                    <div class="hero-stat rounded-xl sm:rounded-2xl px-3 py-3 sm:p-5 md:p-6 text-center flex-1">
+                        <p class="text-lg sm:text-2xl md:text-3xl font-bold text-emerald-400 mb-0.5 sm:mb-1">S/{{ number_format($stats->min_price ?? 0, 0) }}</p>
+                        <p class="text-[10px] sm:text-xs text-gray-400 font-medium">Desde</p>
                     </div>
                 </div>
             </div>
@@ -262,38 +313,45 @@
     </section>
 
     {{-- ═══════════════════ DISCOUNT TIERS ═══════════════════ --}}
-    <section class="bg-white border-b border-gray-100 py-4 sticky top-20 z-20 shadow-sm">
+    <section class="bg-white border-b border-gray-100 py-2.5 sm:py-3 sticky top-20 z-20 shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center gap-3 overflow-x-auto pb-1 scrollbar-hide">
-                <span class="text-xs text-gray-400 font-bold uppercase tracking-widest whitespace-nowrap">Descuento:</span>
-                <a href="{{ route('ofertas', request()->except(['discount_min', 'discount_max', 'page'])) }}"
-                   class="tier-chip px-4 py-2 border border-gray-200 rounded-full text-sm font-medium whitespace-nowrap {{ !request()->filled('discount_min') ? 'active' : '' }}">
-                    <span>Todos ({{ $stats->total_offers ?? 0 }})</span>
-                </a>
-                @if(($discountTiers['50+'] ?? 0) > 0)
-                    <a href="{{ route('ofertas', array_merge(request()->except(['discount_min', 'discount_max', 'page']), ['discount_min' => 50])) }}"
-                       class="tier-chip px-4 py-2 border border-gray-200 rounded-full text-sm font-medium whitespace-nowrap {{ request('discount_min') == 50 && !request()->filled('discount_max') ? 'active' : '' }}">
-                        <i class="fas fa-fire text-rose-500 mr-1"></i><span>50%+ ({{ $discountTiers['50+'] }})</span>
+            <div class="tier-slider-wrapper">
+                <button type="button" class="tier-arrow tier-arrow--left" id="tierArrowLeft" aria-label="Anterior">
+                    <i class="fas fa-chevron-left text-[9px]"></i>
+                </button>
+                <button type="button" class="tier-arrow tier-arrow--right" id="tierArrowRight" aria-label="Siguiente">
+                    <i class="fas fa-chevron-right text-[9px]"></i>
+                </button>
+                <div class="tier-track" id="tierTrack">
+                    <a href="{{ route('ofertas', request()->except(['discount_min', 'discount_max', 'page'])) }}"
+                       class="tier-chip {{ !request()->filled('discount_min') ? 'active' : '' }}">
+                        <span>Todos ({{ $stats->total_offers ?? 0 }})</span>
                     </a>
-                @endif
-                @if(($discountTiers['30-49'] ?? 0) > 0)
-                    <a href="{{ route('ofertas', array_merge(request()->except(['discount_min', 'discount_max', 'page']), ['discount_min' => 30, 'discount_max' => 49])) }}"
-                       class="tier-chip px-4 py-2 border border-gray-200 rounded-full text-sm font-medium whitespace-nowrap {{ request('discount_min') == 30 ? 'active' : '' }}">
-                        <span>30-49% ({{ $discountTiers['30-49'] }})</span>
-                    </a>
-                @endif
-                @if(($discountTiers['15-29'] ?? 0) > 0)
-                    <a href="{{ route('ofertas', array_merge(request()->except(['discount_min', 'discount_max', 'page']), ['discount_min' => 15, 'discount_max' => 29])) }}"
-                       class="tier-chip px-4 py-2 border border-gray-200 rounded-full text-sm font-medium whitespace-nowrap {{ request('discount_min') == 15 ? 'active' : '' }}">
-                        <span>15-29% ({{ $discountTiers['15-29'] }})</span>
-                    </a>
-                @endif
-                @if(($discountTiers['1-14'] ?? 0) > 0)
-                    <a href="{{ route('ofertas', array_merge(request()->except(['discount_min', 'discount_max', 'page']), ['discount_min' => 1, 'discount_max' => 14])) }}"
-                       class="tier-chip px-4 py-2 border border-gray-200 rounded-full text-sm font-medium whitespace-nowrap {{ request('discount_min') == 1 && request('discount_max') == 14 ? 'active' : '' }}">
-                        <span>Hasta 14% ({{ $discountTiers['1-14'] }})</span>
-                    </a>
-                @endif
+                    @if(($discountTiers['50+'] ?? 0) > 0)
+                        <a href="{{ route('ofertas', array_merge(request()->except(['discount_min', 'discount_max', 'page']), ['discount_min' => 50])) }}"
+                           class="tier-chip {{ request('discount_min') == 50 && !request()->filled('discount_max') ? 'active' : '' }}">
+                            <i class="fas fa-fire text-rose-500"></i><span>50%+ ({{ $discountTiers['50+'] }})</span>
+                        </a>
+                    @endif
+                    @if(($discountTiers['30-49'] ?? 0) > 0)
+                        <a href="{{ route('ofertas', array_merge(request()->except(['discount_min', 'discount_max', 'page']), ['discount_min' => 30, 'discount_max' => 49])) }}"
+                           class="tier-chip {{ request('discount_min') == 30 ? 'active' : '' }}">
+                            <span>30-49% ({{ $discountTiers['30-49'] }})</span>
+                        </a>
+                    @endif
+                    @if(($discountTiers['15-29'] ?? 0) > 0)
+                        <a href="{{ route('ofertas', array_merge(request()->except(['discount_min', 'discount_max', 'page']), ['discount_min' => 15, 'discount_max' => 29])) }}"
+                           class="tier-chip {{ request('discount_min') == 15 ? 'active' : '' }}">
+                            <span>15-29% ({{ $discountTiers['15-29'] }})</span>
+                        </a>
+                    @endif
+                    @if(($discountTiers['1-14'] ?? 0) > 0)
+                        <a href="{{ route('ofertas', array_merge(request()->except(['discount_min', 'discount_max', 'page']), ['discount_min' => 1, 'discount_max' => 14])) }}"
+                           class="tier-chip {{ request('discount_min') == 1 && request('discount_max') == 14 ? 'active' : '' }}">
+                            <span>Hasta 14% ({{ $discountTiers['1-14'] }})</span>
+                        </a>
+                    @endif
+                </div>
             </div>
         </div>
     </section>
@@ -497,8 +555,8 @@
                             {{-- Products Grid --}}
                             <div class="grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 mb-12">
                                 @foreach($products as $index => $product)
-                                    <div class="product-card-offer bg-white rounded-2xl overflow-hidden border border-gray-100/80 group hover:shadow-xl hover:shadow-gray-200/50 hover:border-[#D4A574]/15 transition-all duration-500 reveal-offer" style="transition-delay: {{ min($index * 50, 300) }}ms">
-                                        <a href="{{ route('product.show', $product->slug) }}" class="block relative overflow-hidden aspect-[4/5]">
+                                    <div class="product-card-offer bg-white rounded-2xl overflow-hidden border border-gray-100/80 group hover:shadow-xl hover:shadow-gray-200/50 hover:border-[#D4A574]/15 transition-all duration-500 reveal-offer flex flex-col" style="transition-delay: {{ min($index * 50, 300) }}ms">
+                                        <a href="{{ route('product.show', $product->slug) }}" class="block relative overflow-hidden aspect-square">
                                             <img src="{{ $product->primaryImage?->thumbnail() ?? asset('images/placeholder.png') }}"
                                                  alt="{{ $product->primaryImage?->alt_text ?? $product->name }}"
                                                  class="product-img w-full h-full object-cover"
@@ -508,26 +566,20 @@
 
                                             {{-- Discount Badge --}}
                                             <div class="absolute top-3 left-3">
-                                                <div class="discount-badge text-white px-3 py-1.5 rounded-xl text-sm font-bold shadow-lg flex items-center gap-1">
-                                                    <i class="fas fa-arrow-down text-[10px]"></i>
+                                                <div class="discount-badge text-white px-2.5 py-1 rounded-lg text-xs font-bold shadow-lg">
                                                     -{{ $product->discount_percentage }}%
                                                 </div>
                                             </div>
 
-                                            {{-- Savings Badge --}}
-                                            <div class="absolute top-3 right-3 savings-badge text-white px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-semibold shadow-md">
-                                                Ahorras S/ {{ number_format($product->price - $product->sale_price, 2) }}
-                                            </div>
-
                                             {{-- Wishlist --}}
-                                            <button type="button" class="wishlist-btn absolute top-12 right-3 sm:top-14 sm:right-3 w-9 h-9 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all duration-200 shadow-md" data-product-id="{{ $product->id }}" aria-label="Agregar a lista de deseos">
+                                            <button type="button" class="wishlist-btn absolute top-3 right-3 w-8 h-8 sm:w-9 sm:h-9 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all duration-200 shadow-md" data-product-id="{{ $product->id }}" aria-label="Agregar a lista de deseos">
                                                 <i class="far fa-heart text-xs"></i>
                                             </button>
 
                                             {{-- Low Stock --}}
                                             @if($product->stock <= 5 && $product->stock > 0)
-                                                <div class="absolute bottom-3 left-3 bg-amber-500/90 backdrop-blur-sm text-white px-3 py-1 rounded-full text-[10px] sm:text-xs font-semibold flex items-center gap-1">
-                                                    <i class="fas fa-bolt text-[9px]"></i> ¡Últimas {{ $product->stock }} uds!
+                                                <div class="absolute bottom-3 left-3 bg-amber-500/90 backdrop-blur-sm text-white px-2.5 py-1 rounded-full text-[10px] font-semibold flex items-center gap-1">
+                                                    <i class="fas fa-bolt text-[9px]"></i> ¡Últimas {{ $product->stock }}!
                                                 </div>
                                             @endif
 
@@ -541,30 +593,26 @@
                                             </div>
                                         </a>
 
-                                        <div class="p-4 sm:p-5">
-                                            <p class="text-[10px] sm:text-xs text-[#D4A574] font-semibold uppercase tracking-wider mb-1">{{ $product->category?->name }}</p>
-                                            <a href="{{ route('product.show', $product->slug) }}" class="block">
-                                                <h3 class="font-semibold text-sm sm:text-base mb-2 line-clamp-2 group-hover:text-[#D4A574] transition-colors duration-200 leading-snug min-h-[2.5rem]">{{ $product->name }}</h3>
+                                        <div class="p-3.5 sm:p-5 flex flex-col flex-1">
+                                            <a href="{{ route('product.show', $product->slug) }}" class="block mb-3 sm:mb-4">
+                                                <p class="text-[10px] text-gray-400 font-medium uppercase tracking-wider mb-1">{{ $product->category?->name }}</p>
+                                                <h3 class="font-semibold text-[13px] sm:text-sm line-clamp-2 group-hover:text-[#D4A574] transition-colors duration-200 leading-snug">{{ $product->name }}</h3>
                                             </a>
-                                            <div class="flex items-end gap-2 mb-1">
-                                                <span class="text-lg sm:text-xl font-bold text-gray-900 leading-none">S/ {{ number_format($product->sale_price, 2) }}</span>
-                                                <span class="text-xs text-gray-400 line-through leading-none pb-0.5">S/ {{ number_format($product->price, 2) }}</span>
-                                            </div>
-                                            <p class="text-xs text-emerald-600 font-semibold mb-3 sm:mb-4 flex items-center gap-1">
-                                                <i class="fas fa-piggy-bank text-[10px]"></i>
-                                                Ahorras S/ {{ number_format($product->price - $product->sale_price, 2) }}
-                                            </p>
 
-                                            <button type="button"
-                                                    class="add-to-cart-btn sm:hidden w-full bg-gray-900 text-white py-2.5 rounded-full hover:bg-[#D4A574] active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-2 font-medium text-xs"
-                                                    data-product-id="{{ $product->id }}">
-                                                <i class="fas fa-shopping-bag text-xs"></i> Agregar
-                                            </button>
-                                            <button type="button"
-                                                    class="add-to-cart-btn hidden sm:flex w-full bg-gray-900 text-white py-2.5 sm:py-3 rounded-full hover:bg-[#D4A574] active:scale-[0.98] transition-all duration-300 items-center justify-center gap-2 font-medium text-sm"
-                                                    data-product-id="{{ $product->id }}">
-                                                <i class="fas fa-shopping-bag text-xs"></i> Agregar al Carrito
-                                            </button>
+                                            <div class="mt-auto">
+                                                <div class="flex items-baseline gap-2 mb-3 sm:mb-4">
+                                                    <span class="text-base sm:text-lg font-bold text-gray-900">S/ {{ number_format($product->sale_price, 2) }}</span>
+                                                    <span class="text-[11px] sm:text-xs text-gray-400 line-through">S/ {{ number_format($product->price, 2) }}</span>
+                                                </div>
+
+                                                <button type="button"
+                                                        class="add-to-cart-btn w-full bg-gray-900 text-white py-2.5 sm:py-3 rounded-xl hover:bg-[#D4A574] active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-2 font-medium text-xs sm:text-sm"
+                                                        data-product-id="{{ $product->id }}">
+                                                    <i class="fas fa-shopping-bag text-xs"></i>
+                                                    <span class="sm:hidden">Agregar</span>
+                                                    <span class="hidden sm:inline">Agregar al Carrito</span>
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 @endforeach
@@ -744,5 +792,24 @@
             });
         });
     });
+
+    // ── Tier Slider Arrows ──
+    (function() {
+        var track = document.getElementById('tierTrack');
+        var left = document.getElementById('tierArrowLeft');
+        var right = document.getElementById('tierArrowRight');
+        if (!track || !left || !right) return;
+
+        function updateArrows() {
+            left.classList.toggle('visible', track.scrollLeft > 4);
+            right.classList.toggle('visible', track.scrollLeft < track.scrollWidth - track.clientWidth - 4);
+        }
+        track.addEventListener('scroll', updateArrows);
+        window.addEventListener('resize', updateArrows);
+        updateArrows();
+
+        left.addEventListener('click', function() { track.scrollBy({ left: -160, behavior: 'smooth' }); });
+        right.addEventListener('click', function() { track.scrollBy({ left: 160, behavior: 'smooth' }); });
+    })();
 </script>
 @endsection

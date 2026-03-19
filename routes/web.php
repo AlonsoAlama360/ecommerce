@@ -171,7 +171,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('suppliers-export', [AdminSupplierController::class, 'export'])->name('suppliers.export')->middleware('permission:suppliers.view');
 
     // Shipping Agencies
-    Route::middleware('permission:settings.view')->group(function () {
+    Route::middleware('permission:shipping_agencies.view')->group(function () {
         Route::resource('shipping-agencies', AdminShippingAgencyController::class)->except(['show']);
         Route::get('shipping-agencies/{shipping_agency}/addresses', [AdminShippingAgencyController::class, 'addresses'])->name('shipping-agencies.addresses');
         Route::post('shipping-agencies/{shipping_agency}/addresses', [AdminShippingAgencyController::class, 'storeAddress'])->name('shipping-agencies.addresses.store');

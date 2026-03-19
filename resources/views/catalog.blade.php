@@ -135,24 +135,11 @@
     .product-card-catalog {
         transition: all .4s cubic-bezier(.25,.8,.25,1);
     }
-    .product-card-catalog:hover {
-        transform: translateY(-6px);
-        box-shadow: 0 20px 50px rgba(0,0,0,.1);
-    }
     .product-card-catalog .product-img {
         transition: transform .7s cubic-bezier(.25,.8,.25,1);
     }
     .product-card-catalog:hover .product-img {
-        transform: scale(1.08);
-    }
-    .product-card-catalog .quick-actions {
-        opacity: 0;
-        transform: translateY(10px);
-        transition: all .3s ease;
-    }
-    .product-card-catalog:hover .quick-actions {
-        opacity: 1;
-        transform: translateY(0);
+        transform: scale(1.10);
     }
 
     /* ── Sort Dropdown ── */
@@ -468,74 +455,55 @@
                             {{-- Products Grid --}}
                             <div class="grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 mb-12" id="productsGrid">
                                 @foreach($products as $index => $product)
-                                    <div class="product-card-catalog bg-white rounded-2xl overflow-hidden border border-gray-100/80 group hover:shadow-xl hover:shadow-gray-200/50 hover:border-[#D4A574]/15 transition-all duration-500 reveal-catalog" style="transition-delay: {{ min($index * 50, 300) }}ms">
-                                        <a href="{{ route('product.show', $product->slug) }}" class="block relative overflow-hidden aspect-[4/5]">
+                                    <div class="product-card-catalog bg-white rounded-2xl overflow-hidden border border-gray-100/80 group hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] hover:border-[#D4A574]/15 transition-all duration-500 reveal-catalog" style="transition-delay: {{ min($index * 50, 300) }}ms">
+                                        <a href="{{ route('product.show', $product->slug) }}" class="block relative overflow-hidden aspect-square">
                                             <img src="{{ $product->primaryImage?->thumbnail() ?? asset('images/placeholder.png') }}"
                                                  alt="{{ $product->primaryImage?->alt_text ?? $product->name }}"
                                                  class="product-img w-full h-full object-cover"
                                                  loading="lazy">
 
                                             {{-- Overlay --}}
-                                            <div class="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                                            <div class="absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 
                                             {{-- Badges --}}
                                             @if($product->discount_percentage)
-                                                <div class="absolute top-3 left-3 bg-gradient-to-r from-[#D4A574] to-[#C39563] text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
+                                                <div class="absolute top-3 left-3 bg-red-500 text-white px-2.5 py-0.5 rounded-md text-[10px] font-bold">
                                                     -{{ $product->discount_percentage }}%
                                                 </div>
                                             @endif
 
                                             {{-- Wishlist --}}
-                                            <button type="button" class="wishlist-btn absolute top-3 right-3 w-9 h-9 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all duration-200 shadow-md" data-product-id="{{ $product->id }}" aria-label="Agregar a lista de deseos">
+                                            <button type="button" class="wishlist-btn absolute top-3 right-3 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all duration-200 shadow-sm" data-product-id="{{ $product->id }}" aria-label="Agregar a lista de deseos">
                                                 <i class="far fa-heart text-xs"></i>
                                             </button>
 
                                             {{-- Low Stock --}}
                                             @if($product->stock <= 5 && $product->stock > 0)
-                                                <div class="absolute bottom-3 left-3 bg-amber-500/90 backdrop-blur-sm text-white px-3 py-1 rounded-full text-[10px] sm:text-xs font-semibold flex items-center gap-1">
-                                                    <i class="fas fa-fire text-[9px]"></i> ¡Últimas {{ $product->stock }} uds!
+                                                <div class="absolute bottom-12 left-3 bg-amber-500/90 backdrop-blur-sm text-white px-2.5 py-1 rounded-lg text-[10px] font-semibold flex items-center gap-1">
+                                                    <i class="fas fa-fire text-[9px]"></i> ¡Últimas {{ $product->stock }}!
                                                 </div>
                                             @endif
 
-                                            {{-- Quick Actions (desktop hover) --}}
-                                            <div class="quick-actions absolute bottom-3 right-3 hidden sm:flex gap-1.5">
-                                                <button type="button"
-                                                        class="add-to-cart-btn bg-white/95 backdrop-blur-sm text-gray-900 hover:bg-[#D4A574] hover:text-white w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition-all duration-300"
-                                                        data-product-id="{{ $product->id }}"
-                                                        title="Agregar al carrito"
-                                                        aria-label="Agregar al carrito">
-                                                    <i class="fas fa-shopping-bag text-sm"></i>
-                                                </button>
-                                            </div>
                                         </a>
 
-                                        <div class="p-4 sm:p-5">
-                                            <div class="flex items-center gap-2 mb-1.5">
-                                                <p class="text-[10px] sm:text-xs text-[#D4A574] font-semibold uppercase tracking-wider">{{ $product->category?->name }}</p>
-                                                @if($product->sale_price && $product->sale_price < $product->price)
-                                                    <span class="text-[10px] bg-rose-50 text-rose-500 px-1.5 py-0.5 rounded font-bold">OFERTA</span>
-                                                @endif
-                                            </div>
+                                        <div class="p-3 sm:p-4 flex flex-col">
+                                            <p class="text-[9px] sm:text-[10px] text-[#D4A574] font-semibold uppercase tracking-wider mb-1">{{ $product->category?->name }}</p>
                                             <a href="{{ route('product.show', $product->slug) }}" class="block">
-                                                <h3 class="font-semibold text-sm sm:text-base mb-2 line-clamp-2 group-hover:text-[#D4A574] transition-colors duration-200 leading-snug min-h-[2.5rem]">{{ $product->name }}</h3>
+                                                <h3 class="font-medium text-xs sm:text-sm mb-2 line-clamp-2 group-hover:text-[#D4A574] transition-colors duration-200 leading-snug min-h-[2rem] sm:min-h-[2.5rem]">{{ $product->name }}</h3>
                                             </a>
-                                            <div class="flex items-end gap-2 mb-3 sm:mb-4">
-                                                <span class="text-lg sm:text-xl font-bold text-gray-900 leading-none">S/ {{ number_format($product->current_price, 2) }}</span>
-                                                @if($product->sale_price && $product->sale_price < $product->price)
-                                                    <span class="text-xs text-gray-400 line-through leading-none pb-0.5">S/ {{ number_format($product->price, 2) }}</span>
-                                                @endif
+                                            <div class="mt-auto">
+                                                <div class="flex items-baseline gap-1.5 sm:gap-2 mb-2.5 sm:mb-3">
+                                                    <span class="text-sm sm:text-lg font-bold text-gray-900">S/ {{ number_format($product->current_price, 2) }}</span>
+                                                    @if($product->sale_price && $product->sale_price < $product->price)
+                                                        <span class="text-[10px] sm:text-[11px] text-gray-400 line-through">S/ {{ number_format($product->price, 2) }}</span>
+                                                    @endif
+                                                </div>
+                                                <button type="button"
+                                                        class="add-to-cart-btn w-full bg-gray-900 text-white py-2 sm:py-2.5 rounded-full hover:bg-[#D4A574] active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-1.5 sm:gap-2 font-medium text-[11px] sm:text-xs"
+                                                        data-product-id="{{ $product->id }}">
+                                                    <i class="fas fa-shopping-bag text-[10px]"></i> <span class="sm:hidden">Agregar</span><span class="hidden sm:inline">Agregar al Carrito</span>
+                                                </button>
                                             </div>
-
-                                            <button type="button"
-                                                    class="add-to-cart-btn sm:hidden w-full bg-gray-900 text-white py-2.5 rounded-full hover:bg-[#D4A574] active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-2 font-medium text-xs"
-                                                    data-product-id="{{ $product->id }}">
-                                                <i class="fas fa-shopping-bag text-xs"></i> Agregar
-                                            </button>
-                                            <button type="button"
-                                                    class="add-to-cart-btn hidden sm:flex w-full bg-gray-900 text-white py-2.5 sm:py-3 rounded-full hover:bg-[#D4A574] active:scale-[0.98] transition-all duration-300 items-center justify-center gap-2 font-medium text-sm"
-                                                    data-product-id="{{ $product->id }}">
-                                                <i class="fas fa-shopping-bag text-xs"></i> Agregar al Carrito
-                                            </button>
                                         </div>
                                     </div>
                                 @endforeach
@@ -730,9 +698,8 @@
             })
             .then(function(r) { return r.json(); })
             .then(function(data) {
-                button.innerHTML = '<i class="fas fa-check"></i>';
-                button.classList.remove('bg-gray-900', 'bg-white/95', 'text-gray-900');
-                button.classList.add('bg-green-500', 'text-white');
+                button.innerHTML = '<i class="fas fa-check text-xs"></i> ¡Agregado!';
+                button.classList.add('!bg-emerald-500', '!text-white');
 
                 document.querySelectorAll('.cart-badge').forEach(function(b) {
                     b.textContent = data.cart_count;
@@ -743,8 +710,7 @@
 
                 setTimeout(function() {
                     button.innerHTML = originalHTML;
-                    button.classList.remove('bg-green-500');
-                    button.classList.add('bg-gray-900');
+                    button.classList.remove('!bg-emerald-500', '!text-white');
                     button.disabled = false;
                 }, 1500);
             })

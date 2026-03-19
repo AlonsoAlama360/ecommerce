@@ -106,104 +106,129 @@
     <!-- Toast container -->
     <div class="toast-container" id="toastContainer"></div>
 
-    <!-- Overlay para el menú móvil -->
-    <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
-
-    <!-- Menú móvil lateral -->
-    <div class="mobile-menu" id="mobileMenu">
-        <div class="p-6 border-b border-gray-200 flex items-center justify-between">
-            <div class="flex items-center space-x-2">
-                <img src="{{ !empty($settings['site_logo']) ? asset('storage/' . $settings['site_logo']) : asset('images/logo_arixna.png') }}"
-                    alt="Logo" class="h-10">
-            </div>
-            <button id="closeMobileMenu" class="text-gray-600 hover:text-gray-900" aria-label="Cerrar menú">
-                <i class="fas fa-times text-2xl"></i>
+    <!-- Menú móvil -->
+    <div class="mm-drawer" id="mobileMenu">
+        <!-- Header con glassmorphism -->
+        <div class="mm-head">
+            <img src="{{ !empty($settings['site_logo']) ? asset('storage/' . $settings['site_logo']) : asset('images/logo_arixna.png') }}"
+                alt="Logo" class="h-9">
+            <button id="closeMobileMenu" class="mm-x" aria-label="Cerrar menú">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M15 5L5 15M5 5l10 10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
             </button>
         </div>
 
-        <nav class="p-6">
-            <ul class="space-y-2">
-                <li>
-                    <a href="{{ route('home') }}"
-                        class="block py-3 px-4 text-gray-900 font-medium hover:bg-gray-50 rounded-lg transition">
-                        Inicio
-                    </a>
-                </li>
-                <li>
-                    <a href="{{ route('catalog') }}" class="block py-3 px-4 text-gray-700 hover:bg-gray-50 rounded-lg transition">
-                        Catálogo
-                    </a>
-                </li>
-                <li>
-                    <div>
-                        <button
-                            class="w-full flex items-center justify-between py-3 px-4 text-gray-700 hover:bg-gray-50 rounded-lg transition"
-                            id="mobileCategoriesBtn">
-                            <span>Categorías</span>
-                            <i class="fas fa-chevron-down text-sm transition-transform" id="mobileCategoriesIcon"></i>
-                        </button>
-                        <div class="mobile-category-submenu pl-4" id="mobileCategorySubmenu">
-                            <ul class="space-y-1 mt-2">
-                                @foreach($navCategories as $cat)
-                                    <li><a href="{{ route('catalog', ['categories' => [$cat->slug]]) }}" class="block py-2.5 px-4 text-gray-600 hover:bg-gray-50 rounded-lg transition"><i class="{{ $cat->icon }} mr-2 accent-color"></i>{{ $cat->name }}</a></li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    </div>
-                </li>
-                <li>
-                    <a href="{{ route('ofertas') }}" class="block py-3 px-4 text-gray-700 hover:bg-gray-50 rounded-lg transition">
-                        Ofertas
-                    </a>
-                </li>
-            </ul>
+        <!-- User -->
+        @auth
+        <div class="mm-user">
+            <div class="mm-avatar">{{ strtoupper(substr(Auth::user()->first_name,0,1)) }}</div>
+            <div class="min-w-0 flex-1">
+                <p class="text-sm font-semibold text-gray-800 truncate">Hola, {{ Auth::user()->first_name }}</p>
+                <p class="text-[11px] text-gray-400 truncate">{{ Auth::user()->email }}</p>
+            </div>
+            <a href="{{ route('profile.show') }}" class="mm-user-edit">
+                <i class="fas fa-pen text-[10px]"></i>
+            </a>
+        </div>
+        @endauth
 
-            <div class="mt-8 pt-6 border-t border-gray-200">
+        <!-- Scroll area -->
+        <div class="mm-scroll">
+            <!-- Nav principal -->
+            <nav class="mm-links">
+                <a href="{{ route('home') }}" class="mm-link {{ request()->routeIs('home') ? 'mm-link--on' : '' }}">
+                    <span class="mm-ico"><i class="fas fa-home"></i></span>
+                    <span class="mm-link-text">Inicio</span>
+                    <i class="fas fa-chevron-right mm-chev"></i>
+                </a>
+                <a href="{{ route('catalog') }}" class="mm-link {{ request()->routeIs('catalog') ? 'mm-link--on' : '' }}">
+                    <span class="mm-ico"><i class="fas fa-th-large"></i></span>
+                    <span class="mm-link-text">Catálogo</span>
+                    <i class="fas fa-chevron-right mm-chev"></i>
+                </a>
+                <button class="mm-link" id="mobileCategoriesBtn">
+                    <span class="mm-ico"><i class="fas fa-layer-group"></i></span>
+                    <span class="mm-link-text">Categorías</span>
+                    <i class="fas fa-chevron-down mm-chev transition-transform duration-300" id="mobileCategoriesIcon"></i>
+                </button>
+                <div class="mm-cat-list" id="mobileCategorySubmenu">
+                    @foreach($navCategories as $cat)
+                        <a href="{{ route('catalog', ['categories' => [$cat->slug]]) }}" class="mm-cat-item">
+                            <span class="mm-cat-ico"><i class="{{ $cat->icon }}"></i></span>
+                            <span>{{ $cat->name }}</span>
+                        </a>
+                    @endforeach
+                </div>
+                <a href="{{ route('ofertas') }}" class="mm-link {{ request()->routeIs('ofertas') ? 'mm-link--on' : '' }}">
+                    <span class="mm-ico"><i class="fas fa-tag"></i></span>
+                    <span class="mm-link-text">Ofertas</span>
+                    <span class="mm-hot">HOT</span>
+                    <i class="fas fa-chevron-right mm-chev"></i>
+                </a>
+            </nav>
+
+            <!-- Separador -->
+            <div class="mm-divider"></div>
+
+            <!-- Links de cuenta -->
+            <nav class="mm-links">
+                <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 px-1 pb-1">Mi cuenta</p>
                 @auth
-                    <div class="px-4 py-3">
-                        <p class="font-semibold text-gray-900">{{ Auth::user()->first_name }} {{ Auth::user()->last_name }}</p>
-                        <p class="text-sm text-gray-500">{{ Auth::user()->email }}</p>
-                    </div>
-                    <a href="{{ route('profile.show') }}" class="flex items-center gap-3 py-3 px-4 text-gray-700 hover:bg-gray-50 rounded-lg transition">
-                        <i class="fas fa-user text-lg"></i>
-                        <span>Mi Perfil</span>
+                    <a href="{{ route('wishlist.index') }}" class="mm-link">
+                        <span class="mm-ico"><i class="fas fa-heart"></i></span>
+                        <span class="mm-link-text">Lista de Deseos</span>
+                        <i class="fas fa-chevron-right mm-chev"></i>
                     </a>
-                    <a href="{{ route('orders.index') }}" class="flex items-center gap-3 py-3 px-4 text-gray-700 hover:bg-gray-50 rounded-lg transition">
-                        <i class="fas fa-shopping-bag text-lg"></i>
-                        <span>Mis Pedidos</span>
-                    </a>
-                    <a href="{{ route('wishlist.index') }}" class="flex items-center gap-3 py-3 px-4 text-gray-700 hover:bg-gray-50 rounded-lg transition">
-                        <i class="fas fa-heart text-lg text-[#D4A574]"></i>
-                        <span>Lista de Deseos</span>
+                    <a href="{{ route('orders.index') }}" class="mm-link">
+                        <span class="mm-ico"><i class="fas fa-shopping-bag"></i></span>
+                        <span class="mm-link-text">Mis Pedidos</span>
+                        <i class="fas fa-chevron-right mm-chev"></i>
                     </a>
                     @if(!Auth::user()->isCliente())
-                        <a href="{{ url('/admin') }}" class="flex items-center gap-3 py-3 px-4 text-gray-700 hover:bg-gray-50 rounded-lg transition">
-                            <i class="fas fa-shield-halved text-lg text-[#D4A574]"></i>
-                            <span>Administrador</span>
-                        </a>
-                    @endif
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-                        <button type="submit" class="flex items-center gap-3 py-3 px-4 text-red-600 hover:bg-red-50 rounded-lg transition w-full">
-                            <i class="fas fa-sign-out-alt text-lg"></i>
-                            <span>Cerrar Sesión</span>
-                        </button>
-                    </form>
-                @else
-                    <a href="{{ route('login') }}"
-                        class="flex items-center gap-3 py-3 px-4 text-gray-700 hover:bg-gray-50 rounded-lg transition">
-                        <i class="fas fa-user text-lg"></i>
-                        <span>Iniciar sesión</span>
+                    <a href="{{ url('/admin') }}" class="mm-link">
+                        <span class="mm-ico"><i class="fas fa-shield-halved"></i></span>
+                        <span class="mm-link-text">Administrador</span>
+                        <i class="fas fa-chevron-right mm-chev"></i>
                     </a>
-                    <a href="{{ route('register') }}"
-                        class="flex items-center gap-3 py-3 px-4 text-gray-700 hover:bg-gray-50 rounded-lg transition">
-                        <i class="fas fa-user-plus text-lg"></i>
-                        <span>Crear cuenta</span>
+                    @endif
+                @else
+                    <a href="{{ route('login') }}" class="mm-link">
+                        <span class="mm-ico"><i class="fas fa-right-to-bracket"></i></span>
+                        <span class="mm-link-text">Iniciar sesión</span>
+                        <i class="fas fa-chevron-right mm-chev"></i>
+                    </a>
+                    <a href="{{ route('register') }}" class="mm-link">
+                        <span class="mm-ico"><i class="fas fa-user-plus"></i></span>
+                        <span class="mm-link-text">Crear cuenta</span>
+                        <i class="fas fa-chevron-right mm-chev"></i>
                     </a>
                 @endauth
+            </nav>
+        </div>
+
+        <!-- Footer -->
+        <div class="mm-foot">
+            <div class="mm-foot-social">
+                @if(!empty($settings['instagram_url']))
+                <a href="{{ $settings['instagram_url'] }}" target="_blank"><i class="fab fa-instagram"></i></a>
+                @endif
+                @if(!empty($settings['facebook_url']))
+                <a href="{{ $settings['facebook_url'] }}" target="_blank"><i class="fab fa-facebook-f"></i></a>
+                @endif
+                @if(!empty($settings['tiktok_url']))
+                <a href="{{ $settings['tiktok_url'] }}" target="_blank"><i class="fab fa-tiktok"></i></a>
+                @endif
             </div>
-        </nav>
+            @auth
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <button type="submit" class="mm-sign-out">
+                    <i class="fas fa-arrow-right-from-bracket text-[11px]"></i> Cerrar sesión
+                </button>
+            </form>
+            @endauth
+        </div>
     </div>
+    <div class="mm-backdrop" id="mmBackdrop"></div>
 
     <!-- Header -->
     <header class="bg-white/95 backdrop-blur-sm sticky top-0 z-50 border-b border-gray-200">

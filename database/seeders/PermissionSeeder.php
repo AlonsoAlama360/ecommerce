@@ -82,6 +82,12 @@ class PermissionSeeder extends Seeder
             'Reportes' => [
                 'reports.view' => 'Ver reportes',
             ],
+            'Agencias de Envío' => [
+                'shipping_agencies.view' => 'Ver agencias de envío',
+                'shipping_agencies.create' => 'Crear agencias de envío',
+                'shipping_agencies.edit' => 'Editar agencias de envío',
+                'shipping_agencies.delete' => 'Eliminar agencias de envío',
+            ],
             'Configuración' => [
                 'settings.view' => 'Ver configuración',
                 'settings.edit' => 'Editar configuración',

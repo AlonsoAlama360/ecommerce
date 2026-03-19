@@ -448,22 +448,24 @@
                                         </div>
                                     @endif
                                 </a>
-                                <div class="p-4 sm:p-5">
+                                <div class="p-4 sm:p-5 flex flex-col">
                                     <p class="text-[10px] text-[#D4A574] font-semibold uppercase tracking-wider mb-1">{{ $suggested->category?->name }}</p>
                                     <a href="{{ route('product.show', $suggested->slug) }}">
                                         <h3 class="font-semibold text-sm sm:text-base mb-2 line-clamp-2 group-hover:text-[#D4A574] transition-colors leading-snug min-h-[2.5rem]">{{ $suggested->name }}</h3>
                                     </a>
-                                    <div class="flex items-end gap-2 mb-3">
-                                        <span class="text-lg sm:text-xl font-bold text-gray-900 leading-none">S/ {{ number_format($suggested->current_price, 2) }}</span>
-                                        @if($suggested->sale_price && $suggested->sale_price < $suggested->price)
-                                            <span class="text-xs text-gray-400 line-through leading-none pb-0.5">S/ {{ number_format($suggested->price, 2) }}</span>
-                                        @endif
+                                    <div class="mt-auto">
+                                        <div class="flex items-end gap-2 mb-3">
+                                            <span class="text-lg sm:text-xl font-bold text-gray-900 leading-none">S/ {{ number_format($suggested->current_price, 2) }}</span>
+                                            @if($suggested->sale_price && $suggested->sale_price < $suggested->price)
+                                                <span class="text-xs text-gray-400 line-through leading-none pb-0.5">S/ {{ number_format($suggested->price, 2) }}</span>
+                                            @endif
+                                        </div>
+                                        <button type="button"
+                                                class="add-to-cart-btn w-full bg-gray-900 text-white py-2.5 sm:py-3 rounded-full hover:bg-[#D4A574] active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-2 font-medium text-xs sm:text-sm"
+                                                data-product-id="{{ $suggested->id }}">
+                                            <i class="fas fa-shopping-bag text-xs"></i> Agregar
+                                        </button>
                                     </div>
-                                    <button type="button"
-                                            class="add-to-cart-btn w-full bg-gray-900 text-white py-2.5 sm:py-3 rounded-full hover:bg-[#D4A574] active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-2 font-medium text-xs sm:text-sm"
-                                            data-product-id="{{ $suggested->id }}">
-                                        <i class="fas fa-shopping-bag text-xs"></i> Agregar
-                                    </button>
                                 </div>
                             </div>
                         @endforeach

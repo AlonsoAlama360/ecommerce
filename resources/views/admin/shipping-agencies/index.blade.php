@@ -43,38 +43,62 @@
 </div>
 
 {{-- ==================== FILTERS ==================== --}}
-<div class="bg-white rounded-xl border border-gray-100 shadow-sm mb-6">
-    <div class="px-5 pt-5 pb-2">
-        <h3 class="text-base font-semibold text-gray-800">Filtros de búsqueda</h3>
-    </div>
-    <div class="px-5 pb-5 mt-3">
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div>
-                <label class="block text-xs font-medium text-gray-500 mb-1.5">Buscar</label>
-                <input type="text" id="filter_search" value="{{ request('search') }}" placeholder="Nombre de agencia..."
-                    class="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition"
-                    onkeydown="if(event.key==='Enter') applyFilters()">
-            </div>
-            <div>
-                <label class="block text-xs font-medium text-gray-500 mb-1.5">Estado</label>
-                <select id="filter_status" onchange="applyFilters()"
-                    class="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition bg-white">
-                    <option value="">Todos</option>
-                    <option value="1" {{ request('status') === '1' ? 'selected' : '' }}>Activas</option>
-                    <option value="0" {{ request('status') === '0' ? 'selected' : '' }}>Inactivas</option>
-                </select>
-            </div>
-            <div class="flex items-end gap-2">
-                <button onclick="applyFilters()" class="flex-1 px-4 py-2.5 bg-indigo-500 text-white text-sm rounded-lg hover:bg-indigo-600 transition font-medium">
-                    <i class="fas fa-search mr-1.5 text-xs"></i> Buscar
-                </button>
-                <a href="{{ route('admin.shipping-agencies.index') }}" class="px-4 py-2.5 border border-gray-200 text-gray-500 text-sm rounded-lg hover:bg-gray-50 transition font-medium">
-                    <i class="fas fa-times text-xs"></i>
-                </a>
-            </div>
+@php
+    $hasFilters = request()->hasAny(['search', 'status']);
+    $filterCount = collect(['search','status'])->filter(fn($f) => request($f))->count();
+@endphp
+<div class="filter-collapsible bg-white rounded-xl border border-gray-200 mb-6 {{ $hasFilters ? 'open' : '' }}">
+    <button type="button" onclick="this.closest('.filter-collapsible').classList.toggle('open')"
+        class="w-full flex items-center justify-between px-4 py-2.5 hover:bg-gray-50/50 transition-all group cursor-pointer">
+        <div class="flex items-center gap-2.5">
+            <i class="fas fa-sliders text-indigo-400 text-sm"></i>
+            <span class="text-sm font-semibold text-gray-600">Filtros</span>
+            @if($filterCount)
+                <span class="bg-indigo-500 text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full">{{ $filterCount }}</span>
+            @endif
+        </div>
+        <i class="fas fa-chevron-down text-gray-300 text-[10px] filter-chevron"></i>
+    </button>
+    <div class="filter-panel">
+        <div class="border-t border-gray-100 mx-4"></div>
+        <div class="p-4">
+            <form method="GET">
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                    <div class="filter-field col-span-2">
+                        <label>Buscar</label>
+                        <input type="text" name="search" value="{{ request('search') }}" placeholder="Nombre de agencia...">
+                    </div>
+                    <div class="filter-field">
+                        <label>Estado</label>
+                        <select name="status">
+                            <option value="">Todos</option>
+                            <option value="1" {{ request('status') === '1' ? 'selected' : '' }}>Activas</option>
+                            <option value="0" {{ request('status') === '0' ? 'selected' : '' }}>Inactivas</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3 mt-3">
+                    <button type="submit" class="px-4 py-2 bg-indigo-500 text-white rounded-lg text-xs font-semibold hover:bg-indigo-600 transition">
+                        <i class="fas fa-filter mr-1"></i> Filtrar
+                    </button>
+                    @if($hasFilters)
+                    <a href="{{ route('admin.shipping-agencies.index') }}" class="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold text-red-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition">
+                        <i class="fas fa-xmark"></i> Limpiar
+                    </a>
+                    @endif
+                </div>
+            </form>
         </div>
     </div>
 </div>
+
+{{-- ==================== SUCCESS MESSAGE ==================== --}}
+@if(session('success'))
+    <div class="mb-4 p-4 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center gap-3">
+        <i class="fas fa-check-circle text-emerald-500"></i>
+        <p class="text-emerald-700 text-sm font-medium">{{ session('success') }}</p>
+    </div>
+@endif
 
 {{-- ==================== TABLE ==================== --}}
 <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
@@ -93,12 +117,12 @@
     <div class="hidden md:block overflow-x-auto">
         <table class="w-full">
             <thead>
-                <tr class="border-b border-gray-100">
-                    <th class="px-5 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Agencia</th>
-                    <th class="px-4 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Estado</th>
-                    <th class="px-4 py-3.5 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Direcciones</th>
-                    <th class="px-4 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Creado</th>
-                    <th class="px-5 py-3.5 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Acciones</th>
+                <tr class="bg-gray-50/80 border-b border-gray-100">
+                    <th class="px-5 py-3.5 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Agencia</th>
+                    <th class="px-4 py-3.5 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Estado</th>
+                    <th class="px-4 py-3.5 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Direcciones</th>
+                    <th class="px-4 py-3.5 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Creado</th>
+                    <th class="px-5 py-3.5 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Acciones</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-50">
@@ -405,18 +429,6 @@
     const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
     let activeDrawer = null;
     let currentAgencyId = null;
-
-    // ==================== FILTERS ====================
-    function applyFilters() {
-        const params = new URLSearchParams();
-        const search = document.getElementById('filter_search')?.value?.trim();
-        const status = document.getElementById('filter_status')?.value;
-
-        if (search) params.set('search', search);
-        if (status !== '') params.set('status', status);
-
-        window.location.href = '{{ route("admin.shipping-agencies.index") }}' + (params.toString() ? '?' + params.toString() : '');
-    }
 
     // ==================== DRAWERS ====================
     function showDrawer(drawer) {

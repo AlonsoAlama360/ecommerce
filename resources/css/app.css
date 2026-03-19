@@ -324,48 +324,213 @@
         .popular-slider-arrow { display: none; }
     }
 
-    /* ── Mobile Menu ── */
-    .mobile-menu {
+    /* ── Mobile Menu (Drawer) ── */
+    .mm-drawer {
         position: fixed;
-        top: 0;
-        left: -100%;
-        width: 85%;
-        max-width: 400px;
-        height: 100vh;
-        background: white;
-        z-index: 60;
-        transition: left 0.3s ease;
-        overflow-y: auto;
+        top: 0; right: 0;
+        width: 88%;
+        max-width: 380px;
+        height: 100dvh;
+        background: #fefcfa;
+        z-index: 61;
+        display: flex;
+        flex-direction: column;
+        transform: translateX(105%);
+        transition: transform .38s cubic-bezier(.32,.72,.32,1);
+        box-shadow: -20px 0 60px rgba(0,0,0,.08);
     }
+    .mm-drawer.active { transform: translateX(0); }
 
-    .mobile-menu.active {
-        left: 0;
-    }
-
-    .mobile-menu-overlay {
+    .mm-backdrop {
         position: fixed;
         inset: 0;
-        background: rgba(0, 0, 0, 0.5);
-        z-index: 55;
+        background: rgba(0,0,0,.3);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+        z-index: 60;
         opacity: 0;
         visibility: hidden;
-        transition: all 0.3s ease;
+        transition: all .35s ease;
+    }
+    .mm-backdrop.active { opacity: 1; visibility: visible; }
+
+    /* Head */
+    .mm-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1.1rem 1.25rem;
+    }
+    .mm-x {
+        width: 36px; height: 36px;
+        display: flex; align-items: center; justify-content: center;
+        border-radius: 50%;
+        background: #f5f0eb;
+        color: #9e8e7e;
+        transition: all .2s;
+        border: none; cursor: pointer;
+    }
+    .mm-x:active { transform: scale(.92); background: #ebe4db; }
+
+    /* User */
+    .mm-user {
+        display: flex;
+        align-items: center;
+        gap: .7rem;
+        margin: 0 1.25rem .75rem;
+        padding: .75rem .85rem;
+        background: #fff;
+        border-radius: 16px;
+        border: 1px solid #f0f0f0;
+    }
+    .mm-avatar {
+        width: 38px; height: 38px;
+        border-radius: 12px;
+        background: #374151;
+        color: #fff;
+        font-size: 14px; font-weight: 700;
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0;
+    }
+    .mm-user-edit {
+        width: 28px; height: 28px;
+        display: flex; align-items: center; justify-content: center;
+        border-radius: 8px;
+        background: #f3f4f6;
+        color: #9ca3af;
+        flex-shrink: 0;
+        transition: all .2s;
+    }
+    .mm-user-edit:active { background: #e5e7eb; }
+
+    /* Scroll area */
+    .mm-scroll {
+        flex: 1;
+        overflow-y: auto;
+        padding: .25rem 1.25rem 1.5rem;
     }
 
-    .mobile-menu-overlay.active {
-        opacity: 1;
-        visibility: visible;
+    /* Links list */
+    .mm-links { display: flex; flex-direction: column; }
+    .mm-link {
+        display: flex;
+        align-items: center;
+        gap: .75rem;
+        padding: .75rem .5rem;
+        border-radius: 14px;
+        text-decoration: none;
+        color: #5a5047;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all .15s;
+        width: 100%;
+        background: none;
+        border: none;
+        cursor: pointer;
+        text-align: left;
+    }
+    .mm-link:active { background: #f5f0eb; }
+    .mm-link--on { color: #92643a; font-weight: 600; }
+
+    .mm-ico {
+        width: 36px; height: 36px;
+        display: flex; align-items: center; justify-content: center;
+        border-radius: 11px;
+        background: #f3f4f6;
+        color: #9ca3af;
+        font-size: 14px;
+        flex-shrink: 0;
+        transition: all .15s;
+    }
+    .mm-link--on .mm-ico {
+        background: #f0ebe5;
+        color: #D4A574;
     }
 
-    .mobile-category-submenu {
+    .mm-link-text { flex: 1; }
+
+    .mm-chev {
+        font-size: 9px;
+        color: #d1c9c0;
+        transition: transform .3s;
+    }
+
+    .mm-hot {
+        font-size: 9px;
+        font-weight: 700;
+        background: #ef4444;
+        color: #fff;
+        padding: 2px 7px;
+        border-radius: 20px;
+        letter-spacing: .3px;
+    }
+
+    .mm-divider {
+        height: 1px;
+        background: #f0ebe5;
+        margin: .5rem 0;
+    }
+
+    /* Category list */
+    .mm-cat-list {
         max-height: 0;
         overflow: hidden;
-        transition: max-height 0.3s ease;
+        transition: max-height .35s cubic-bezier(.4,0,.2,1);
+        padding-left: .5rem;
+    }
+    .mm-cat-list.active { max-height: 600px; }
+    .mm-cat-item {
+        display: flex;
+        align-items: center;
+        gap: .6rem;
+        padding: .55rem .5rem;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 500;
+        color: #7a6e63;
+        text-decoration: none;
+        transition: all .15s;
+    }
+    .mm-cat-item:active { background: #f5f0eb; }
+    .mm-cat-ico {
+        width: 30px; height: 30px;
+        display: flex; align-items: center; justify-content: center;
+        border-radius: 9px;
+        background: #f3f4f6;
+        color: #9ca3af;
+        font-size: 11px;
+        flex-shrink: 0;
     }
 
-    .mobile-category-submenu.active {
-        max-height: 500px;
+    /* Footer */
+    .mm-foot {
+        padding: .75rem 1.25rem 1.25rem;
+        border-top: 1px solid #f0ebe5;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
     }
+    .mm-foot-social { display: flex; gap: 1.1rem; }
+    .mm-foot-social a {
+        color: #b0b0b0;
+        font-size: 15px;
+        transition: color .2s;
+    }
+    .mm-foot-social a:active { color: #6b7280; }
+
+    .mm-sign-out {
+        font-size: 11px;
+        font-weight: 600;
+        color: #b0b0b0;
+        background: none;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: .35rem;
+        transition: color .2s;
+    }
+    .mm-sign-out:active { color: #ef4444; }
 
     /* ── Slider & Product Cards ── */
     .slider-container {

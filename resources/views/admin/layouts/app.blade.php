@@ -293,7 +293,7 @@
             </a>
             @endif
 
-            @if(Auth::user()->hasPermission('settings.view'))
+            @if(Auth::user()->hasPermission('shipping_agencies.view'))
             <a href="{{ route('admin.shipping-agencies.index') }}"
                 class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium mb-0.5 {{ request()->routeIs('admin.shipping-agencies.*') ? 'active' : 'text-slate-400' }}">
                 <div class="w-8 h-8 rounded-lg {{ request()->routeIs('admin.shipping-agencies.*') ? 'bg-indigo-500/20' : 'bg-white/5' }} flex items-center justify-center transition">

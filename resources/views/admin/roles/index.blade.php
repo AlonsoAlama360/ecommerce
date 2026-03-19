@@ -90,6 +90,7 @@
         'Reclamaciones' => 'fa-book',
         'Mensajes de Contacto' => 'fa-envelope',
         'Reportes' => 'fa-chart-bar',
+        'Agencias de Envío' => 'fa-truck-fast',
         'Configuración' => 'fa-gear',
         'Roles y Permisos' => 'fa-user-shield',
     ];
@@ -108,6 +109,7 @@
         'Reclamaciones' => 'rose',
         'Mensajes de Contacto' => 'slate',
         'Reportes' => 'purple',
+        'Agencias de Envío' => 'lime',
         'Configuración' => 'gray',
         'Roles y Permisos' => 'indigo',
     ];

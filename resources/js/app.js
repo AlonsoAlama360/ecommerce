@@ -3,35 +3,26 @@ import './bootstrap';
 // ── Mobile Menu ──
 const hamburgerBtn = document.getElementById('hamburgerBtn');
 const mobileMenu = document.getElementById('mobileMenu');
-const mobileMenuOverlay = document.getElementById('mobileMenuOverlay');
+const mmBackdrop = document.getElementById('mmBackdrop');
 const closeMobileMenu = document.getElementById('closeMobileMenu');
 const mobileCategoriesBtn = document.getElementById('mobileCategoriesBtn');
 const mobileCategorySubmenu = document.getElementById('mobileCategorySubmenu');
 const mobileCategoriesIcon = document.getElementById('mobileCategoriesIcon');
 
-if (hamburgerBtn) {
-    hamburgerBtn.addEventListener('click', () => {
-        mobileMenu.classList.add('active');
-        mobileMenuOverlay.classList.add('active');
-        document.body.style.overflow = 'hidden';
-    });
+function openMobileMenu() {
+    mobileMenu.classList.add('active');
+    mmBackdrop && mmBackdrop.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+function closeMobileMenuFn() {
+    mobileMenu.classList.remove('active');
+    mmBackdrop && mmBackdrop.classList.remove('active');
+    document.body.style.overflow = '';
 }
 
-if (closeMobileMenu) {
-    closeMobileMenu.addEventListener('click', () => {
-        mobileMenu.classList.remove('active');
-        mobileMenuOverlay.classList.remove('active');
-        document.body.style.overflow = '';
-    });
-}
-
-if (mobileMenuOverlay) {
-    mobileMenuOverlay.addEventListener('click', () => {
-        mobileMenu.classList.remove('active');
-        mobileMenuOverlay.classList.remove('active');
-        document.body.style.overflow = '';
-    });
-}
+if (hamburgerBtn) hamburgerBtn.addEventListener('click', openMobileMenu);
+if (closeMobileMenu) closeMobileMenu.addEventListener('click', closeMobileMenuFn);
+if (mmBackdrop) mmBackdrop.addEventListener('click', closeMobileMenuFn);
 
 if (mobileCategoriesBtn) {
     mobileCategoriesBtn.addEventListener('click', () => {
